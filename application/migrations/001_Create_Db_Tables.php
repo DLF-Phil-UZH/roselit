@@ -29,6 +29,9 @@ class Migration_Create_Db_Tables extends CI_Migration {
 		$this->dbforge->add_field($docFields);
 		$this->dbforge->add_key('id', true);
 		$this->dbforge->create_table('documents', true);
+		/* add constraints: */
+		$this->dbforge->query('ALTER TABLE `prfx_documents` ADD CONSTRAINT UNIQUE (`explicitId`)');
+
 		$this->db->query();
 
 		/* lists */
@@ -61,7 +64,9 @@ class Migration_Create_Db_Tables extends CI_Migration {
 		$this->dbforge->add_field($doc2listFields);
 		$this->dbforge->add_key('id', true);
 		$this->dbforge->create_table('documents2lists', true);
-
+		/* add constraints: */
+		$this->dbforge->query('ALTER TABLE `prfx_documents2lists` ADD CONSTRAINT FOREIGN KEY (`documentId`) REFERENCES `prfx_documents` (`id`))');
+		$this->dbforge->query('ALTER TABLE `prfx_documents2lists` ADD CONSTRAINT FOREIGN KEY (`listId`) REFERENCES `prfx_lists` (`id`))');
 	}
 
 	public function down() {
