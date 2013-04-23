@@ -6,6 +6,7 @@ class Migration_Create_Db_Tables extends CI_Migration {
 		// TODO: Add foreign key constraints, unique constraints
 		/* documents */
 		$this->dbforge->add_field('id');
+		// $this->dbforge->add_key('id', true);
 		$docFields = array(
 				'explicitId' => array('type' => 'VARCHAR', 'constraint' => '100'),
 				'fileName' => array('type' => 'VARCHAR', 'constraint' => '100'),
@@ -23,19 +24,17 @@ class Migration_Create_Db_Tables extends CI_Migration {
 				'managedBy' => array('type' => 'VARCHAR', 'constraint' => '100'),
 				// lastUpdated has to come before created,
 				// so that the "on update CURRENT_TIMESTAMP" constraint is used here
-				'lastUpdated' => array('type' => 'TIMESTAMP')
+				'lastUpdated' => array('type' => 'TIMESTAMP'),	
 				'created' => array('type' => 'TIMESTAMP'),
 			);
 		$this->dbforge->add_field($docFields);
-		$this->dbforge->add_key('id', true);
 		$this->dbforge->create_table('documents', true);
 		/* add constraints: */
-		$this->dbforge->query('ALTER TABLE `prfx_documents` ADD CONSTRAINT UNIQUE (`explicitId`)');
-
-		$this->db->query();
+		$this->db->query('ALTER TABLE `documents` ADD CONSTRAINT UNIQUE (`explicitId`)');
 
 		/* lists */
 		$this->dbforge->add_field('id');
+		// $this->dbforge->add_key('id', true);
 		$listFields = array(
 				'title' => array('type' => 'VARCHAR', 'constraint' => '255'),
 				'createdBy' => array('type' => 'VARCHAR', 'constraint' => '100'),
@@ -47,11 +46,11 @@ class Migration_Create_Db_Tables extends CI_Migration {
 				'editLock' => array('type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE)
 			);
 		$this->dbforge->add_field($listFields);
-		$this->dbforge->add_key('id', true);
 		$this->dbforge->create_table('lists', true);
 
 		/* documents2lists */
 		$this->dbforge->add_field('id');
+		// $this->dbforge->add_key('id', true);
 		$doc2listFields = array(
 				'documentId' => array('type' => 'INT', 'constraint' => '9'),
 				'listId' => array('type' => 'INT', 'constraint' => '9'),
@@ -62,11 +61,10 @@ class Migration_Create_Db_Tables extends CI_Migration {
 				'addedBy' => array('type' => 'VARCHAR', 'constraint' => '100'),
 			);
 		$this->dbforge->add_field($doc2listFields);
-		$this->dbforge->add_key('id', true);
 		$this->dbforge->create_table('documents2lists', true);
 		/* add constraints: */
-		$this->dbforge->query('ALTER TABLE `prfx_documents2lists` ADD CONSTRAINT FOREIGN KEY (`documentId`) REFERENCES `prfx_documents` (`id`))');
-		$this->dbforge->query('ALTER TABLE `prfx_documents2lists` ADD CONSTRAINT FOREIGN KEY (`listId`) REFERENCES `prfx_lists` (`id`))');
+		$this->db->query('ALTER TABLE `documents2lists` ADD CONSTRAINT FOREIGN KEY (`documentId`) REFERENCES `documents` (`id`)');
+		$this->db->query('ALTER TABLE `documents2lists` ADD CONSTRAINT FOREIGN KEY (`listId`) REFERENCES `lists` (`id`)');
 	}
 
 	public function down() {
