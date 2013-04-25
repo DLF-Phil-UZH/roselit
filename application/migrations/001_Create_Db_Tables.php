@@ -3,7 +3,8 @@
 class Migration_Create_Db_Tables extends CI_Migration {
 
 	public function up() {
-		// TODO: Add foreign key constraints, unique constraints
+		// DONE: Add foreign key constraints, unique constraints
+		
 		/* documents */
 		$this->dbforge->add_field('id');
 		// $this->dbforge->add_key('id', true);
@@ -29,9 +30,7 @@ class Migration_Create_Db_Tables extends CI_Migration {
 			);
 		$this->dbforge->add_field($docFields);
 		$this->dbforge->create_table('documents', true);
-		/* add constraints: */
-		$this->db->query('ALTER TABLE `documents` ADD CONSTRAINT UNIQUE (`explicitId`)');
-
+	
 		/* lists */
 		$this->dbforge->add_field('id');
 		// $this->dbforge->add_key('id', true);
@@ -62,9 +61,18 @@ class Migration_Create_Db_Tables extends CI_Migration {
 			);
 		$this->dbforge->add_field($doc2listFields);
 		$this->dbforge->create_table('documents2lists', true);
-		/* add constraints: */
-		$this->db->query('ALTER TABLE `documents2lists` ADD CONSTRAINT FOREIGN KEY (`documentId`) REFERENCES `documents` (`id`)');
-		$this->db->query('ALTER TABLE `documents2lists` ADD CONSTRAINT FOREIGN KEY (`listId`) REFERENCES `lists` (`id`)');
+
+		/* get tableNames with prefixes */
+		$docsTableWPrfx = $this->db->dbprefix('documents'); // get the tableName with prefix
+		$listsTableWPrfx = $this->db->dbprefix('lists'); // get the tableName with prefix
+		$doc2listTableWPrfx = $this->db->dbprefix('documents2lists'); // get the tableName with prefix
+
+		/* change engines to InnoDB and add constraints */
+		$this->db->query("ALTER TABLE `$docsTableWPrfx` ENGINE=InnoDB, ADD CONSTRAINT UNIQUE (`explicitId`)");
+		$this->db->query("ALTER TABLE `$listsTableWPrfx` ENGINE=InnoDB");
+		$this->db->query("ALTER TABLE `$doc2listTableWPrfx` ENGINE=InnoDB, ADD CONSTRAINT FOREIGN KEY (`documentId`) REFERENCES `$docsTableWPrfx` (`id`)");
+		$this->db->query("ALTER TABLE `$doc2listTableWPrfx` ENGINE=InnoDB, ADD CONSTRAINT FOREIGN KEY (`listId`) REFERENCES `$listsTableWPrfx` (`id`)");
+
 	}
 
 	public function down() {
