@@ -41,8 +41,7 @@ class Migration_Create_Db_Tables extends CI_Migration {
 				// lastUpdated has to come before created,
 				// so that the "on update CURRENT_TIMESTAMP" constraint is used here
 				'lastUpdated' => array('type' => 'TIMESTAMP'),
-				'created' => array('type' => 'TIMESTAMP'),
-				'editLock' => array('type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE)
+				'created' => array('type' => 'TIMESTAMP')
 			);
 		$this->dbforge->add_field($listFields);
 		$this->dbforge->create_table('lists', true);
