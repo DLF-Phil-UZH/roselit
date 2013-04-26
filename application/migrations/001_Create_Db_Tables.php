@@ -2,9 +2,7 @@
 
 class Migration_Create_Db_Tables extends CI_Migration {
 
-	public function up() {
-		// DONE: Add foreign key constraints, unique constraints
-		
+	public function up() {		
 		/* table documents */
 		$this->dbforge->add_field('id');
 		// $this->dbforge->add_key('id', true);
