@@ -1,6 +1,6 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-class Install extends CI_Controller {
+class DBAdmin extends CI_Controller {
 
 	/**
 	 * Index Page for this controller.
@@ -18,11 +18,12 @@ class Install extends CI_Controller {
 	 * @see http://codeigniter.com/user_guide/general/urls.html
 	 */
 	public function index()
-	{
+	{	
+		$this->load->database();
 		$this->load->view('db_admin');
 	}
 
-	public function createDbTables()
+	public function create_tables()
 	{
 		$this->load->library('migration');
 		if ( ! $this->migration->version(1))
@@ -31,7 +32,18 @@ class Install extends CI_Controller {
 		}
 		$this->load->view('db_setup_complete');
 	}
+
+	public function update_tables()
+	{
+		$this->load->library('migration');
+		if ( ! $this->migration->current())
+		{
+			show_error($this->migration->error_string());
+		}
+		$this->load->view('db_setup_complete');
+	}
+
 }
 
 /* End of file install.php */
-/* Location: ./application/controllers/install.php */
+/* Location: ./application/controllers/dbadmin.php */
