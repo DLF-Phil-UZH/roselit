@@ -3,7 +3,7 @@
 class Migration_Create_Db_Tables extends CI_Migration {
 
 	public function up() {		
-		/* table documents */
+		/* create table documents */
 		$this->dbforge->add_field('id');
 		// $this->dbforge->add_key('id', true);
 		$docFields = array(
@@ -19,7 +19,7 @@ class Migration_Create_Db_Tables extends CI_Migration {
 				'startPage' => array('type' => 'INT', 'constraint' => '5'),
 				'endPage' => array('type' => 'INT', 'constraint' => '5'),
 				'creator' => array('type' => 'INT', 'constraint' => '9'),
-				'administrator' => array('type' => 'INT', 'constraint' => '9'),
+				'admin' => array('type' => 'INT', 'constraint' => '9'),
 				// lastUpdated has to come before created,
 				// so that the "on update CURRENT_TIMESTAMP" constraint is used here
 				'lastUpdated' => array('type' => 'TIMESTAMP'),	
@@ -28,13 +28,13 @@ class Migration_Create_Db_Tables extends CI_Migration {
 		$this->dbforge->add_field($docFields);
 		$this->dbforge->create_table('documents', true);
 	
-		/* table documentLists */
+		/* create table documentLists */
 		$this->dbforge->add_field('id');
 		// $this->dbforge->add_key('id', true);
 		$listFields = array(
 				'title' => array('type' => 'VARCHAR', 'constraint' => '255'),
-				'createdBy' => array('type' => 'VARCHAR', 'constraint' => '100'),
-				'managedBy' => array('type' => 'VARCHAR', 'constraint' => '100'),
+				'creator' => array('type' => 'INT', 'constraint' => '9'),
+				'admin' => array('type' => 'INT', 'constraint' => '9'),
 				// lastUpdated has to come before created,
 				// so that the "on update CURRENT_TIMESTAMP" constraint is used here
 				'lastUpdated' => array('type' => 'TIMESTAMP'),
@@ -43,12 +43,10 @@ class Migration_Create_Db_Tables extends CI_Migration {
 		$this->dbforge->add_field($listFields);
 		$this->dbforge->create_table('documentLists', true);
 
-		/* table documents_documentLists */
+		/* create table documents_documentLists */
 		$doc2listFields = array(
 				'documentId' => array('type' => 'INT', 'constraint' => '9'),
 				'documentListId' => array('type' => 'INT', 'constraint' => '9'),
-				// lastUpdated has to come before created,
-				// so that the "on update CURRENT_TIMESTAMP" constraint is used here
 				'lastUpdated' => array('type' => 'TIMESTAMP')
 			);
 		$this->dbforge->add_field($doc2listFields);
@@ -65,7 +63,6 @@ class Migration_Create_Db_Tables extends CI_Migration {
 		$this->db->query("ALTER TABLE `$doc2listTableWPrfx` ENGINE=InnoDB, ADD PRIMARY KEY (`documentId`, `documentListId`)");
 		$this->db->query("ALTER TABLE `$doc2listTableWPrfx` ADD CONSTRAINT FOREIGN KEY (`documentId`) REFERENCES `$docsTableWPrfx` (`id`) ON UPDATE CASCADE ON DELETE CASCADE");
 		$this->db->query("ALTER TABLE `$doc2listTableWPrfx` ADD CONSTRAINT FOREIGN KEY (`documentListId`) REFERENCES `$listsTableWPrfx` (`id`) ON UPDATE CASCADE ON DELETE CASCADE");
-
 	}
 
 	public function down() {
