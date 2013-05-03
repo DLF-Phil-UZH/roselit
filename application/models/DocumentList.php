@@ -72,4 +72,3 @@ class DocumentList extends Application_Model_Abstract{
 	}
 }
 
-?>

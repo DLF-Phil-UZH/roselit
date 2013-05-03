@@ -56,3 +56,4 @@ class DocumentListMapper extends CI_Model{
 	}
 
 }
+

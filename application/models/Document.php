@@ -163,4 +163,3 @@ class Document extends Application_Model_Abstract{
 	
 }
 
-?>
