@@ -1,6 +1,14 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-class DBAdmin extends CI_Controller {
+class Admin extends CI_Controller {
+
+	public function __construct() {
+		parent::__construct();
+		
+		$this->load->database();
+		$this->load->helper('url');
+	}
+
 
 	/**
 	 * Index Page for this controller.
@@ -43,6 +51,16 @@ class DBAdmin extends CI_Controller {
 		$this->load->view('db_setup_complete');
 	}
 
+	public function users() {
+		$this->load->library('CrudService');		
+		try{
+			$crudOutput = $this->crudservice->getUsersCrud();
+			$this->load->view('crud.php',$output);
+		}catch(Exception $e){
+			show_error($e->getMessage().' --- '.$e->getTraceAsString());
+		}
+		
+	}
 }
 
 /* End of file install.php */
