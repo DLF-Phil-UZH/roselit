@@ -71,8 +71,8 @@
 
 	<div id="body">
 		<ul>
-			<li><a href="dbadmin/create_tables" target="_self">Create tables</a></li>
-			<li><a href="dbadmin/update_tables" target="_self">Update tables to current migration</a></li>
+			<li><a href="admin/create_tables" target="_self">Create tables</a></li>
+			<li><a href="admin/update_tables" target="_self">Update tables to current migration</a></li>
 		</ul>
 		
 	</div>
