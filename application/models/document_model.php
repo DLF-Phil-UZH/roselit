@@ -1,13 +1,8 @@
 ﻿<?php
-
-// Import abstract class for models
-require_once("AbstractModel.php");
-// Import Person class
-require_once("Person.php");
+require_once('Abstract_base_model.php');
 
 class Document_model extends Abstract_base_model{
 
-	protected $id = integer; // Document ID
 	private $explicitId = string; // Combined document ID
 	private $fileName = string // Name of document file
 	private $title = string; // Title (chapter or article)
@@ -38,10 +33,6 @@ class Document_model extends Abstract_base_model{
 	}
 	
 	// Setters
-	
-	public function setId($pId){
-		$this->id = $pId;
-	}
 	
 	public function setExplicitId($pExplicitId){
 		$this->explicitId = $pExplicitId;
@@ -98,10 +89,6 @@ class Document_model extends Abstract_base_model{
 	}
 	
 	// Getters
-	
-	public function getId(){
-		return $this->id;
-	}
 	
 	public function getExplicitId(){
 		return $this->explicitId;
