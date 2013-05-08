@@ -5,7 +5,7 @@
  * @author Thomas Bernhart
  *
  */
-abstract class Application_Model_Abstract
+abstract class Abstract_base_model extends CI_Model
 {
 	protected $id;
 

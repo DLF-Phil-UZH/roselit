@@ -1,6 +1,6 @@
 ﻿<?php
 
-class Person{
+class Person_model extends Abstract_base_model{
 	
 	public $firstname = string;
 	public $lastname = string;

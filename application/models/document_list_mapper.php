@@ -2,16 +2,16 @@
 
 require_once("DocumentList.php");
 
-class DocumentListMapper extends CI_Model{
+class Document_list_mapper extends CI_Model {
 
-	private $tableName = "documentlists"; // Name of database table
-	private $docToListTable = "documents2lists"; // Name of mapping table
+	private $tableName = "documentLists"; // Name of database table
+	private $docToListTable = "documents_documentLists"; // Name of mapping table
 
-	public function save(DocumentList $pDocList){
-		// Table "documents"		
+	public function save(Document_list_model $pDocList){
+		// Table "documentLists"		
 		$lData = array("title" => $pDocList->getTitle(),
-					   "createdBy" => $pDocList->getCreator()->getId(),
-					   "managedBy" => $pDocList->getAdmin()->getId());
+					   "creator" => $pDocList->getCreator()->getId(),
+					   "admin" => $pDocList->getAdmin()->getId());
 		if($pDocList->isNew()){
 			$lData["created"] = null;
 			$this->db->insert($this->tableName, $lData);
@@ -22,10 +22,10 @@ class DocumentListMapper extends CI_Model{
 			$this->db->update($this->tableName, $lData);
 		}
 		
-		// Table "documents2lists"
+		// Table "documents_documentLists"
 		$lDocListId = $pDocList->getId();
 		// Delete all mapping entries
-		$this->db->delete($this->docToListTable, array("listId" => $lDocListId)); 
+		$this->db->delete($this->docToListTable, array("documentListId" => $lDocListId)); 
 		$lListData = array();		
 		foreach($pDocList->getDocumentIds() as $lDocumentId){
 			$lListData[] = array("documentListId" => $lDocListId,
@@ -35,10 +35,10 @@ class DocumentListMapper extends CI_Model{
 		$this->db->insert_batch($this->docToListTable, $lListData);
 	}
 
-	public function delete($pDocList){
+	public function delete(Document_list_model $pDocList){
 		if(!($pDocList->isNew())){
 			$this->db->delete($this->tableName, array("id" => $pDocList->getId()));
-			$this->db->delete($this->docToListTable, array("listId" => $pDocList->getId()));
+			$this->db->delete($this->docToListTable, array("documentListId" => $pDocList->getId()));
 		}
 	}
 	
@@ -46,11 +46,11 @@ class DocumentListMapper extends CI_Model{
 		$lQuery = $this->db->get_where($this->tableName, array("id", $pId));
 		if($lQuery->num_rows() == 1){
 			$lResult = $lQuery->row();
-			$lDocList = new DocumentList($lResult->title, $lResult->creatorId);
+			$lDocList = new Document_list_model($lResult->title, $lResult->creator);
 			$lDocList->setId($lResult->id);
 			$lDocList->setAdmin($lResult->adminId);
-			$lDocList->setLastUpdated(DateTime::createFromFormat("Y-m-d H:i:s"));
-			$lDocList->setCreated(DateTime::createFromFormat("Y-m-d H:i:s"));
+			$lDocList->setLastUpdated(new DateTime("Y-m-d H:i:s"));
+			$lDocList->setCreated(new DateTime("Y-m-d H:i:s"));
 		}
 		return $lDocList;
 	}
