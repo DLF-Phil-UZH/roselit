@@ -26,6 +26,11 @@ class Person_model extends Abstract_base_model{
 	public function setLastname($pLastname){
 		$this->lastname = $pLastname;
 	}
+												
+	public function getFullName() {
+        return $this->_firstname . " " . $this->_lastname;
+    }
+
 	
 	public function setTitle($pTitle){
 		$this->title = $pTitle;
@@ -56,6 +61,7 @@ class Person_model extends Abstract_base_model{
 	// Other functions
 	
 	public function iterateVisible(){
+		// FIXME: Never do echo in models!
 		echo "Person::iterateVisible:\n";
 		foreach($this as $key => $value){
 			print "$key => $value\n";
