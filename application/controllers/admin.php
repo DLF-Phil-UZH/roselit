@@ -55,7 +55,7 @@ class Admin extends CI_Controller {
 		$this->load->library('CrudService');		
 		try{
 			$crudOutput = $this->crudservice->getUsersCrud();
-			$this->load->view('crud.php',$output);
+			$this->load->view('crud.php',$crudOutput);
 		}catch(Exception $e){
 			show_error($e->getMessage().' --- '.$e->getTraceAsString());
 		}
