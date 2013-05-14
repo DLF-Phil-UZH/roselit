@@ -1,6 +1,17 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 class Login extends CI_Controller {
+	
+	public function __construct() {
+		parent::__construct();
+
+		// if already logged in, redirect to manager
+		$this->load->library('shibboleth_authentication_service', NULL, 'shib_auth');
+		$this->load->helper('url');
+		if ($this->shib_auth->verify_shibboleth_session()) {
+			redirect('manager/documents');
+		}
+	}
 
 	/**
 	 * Index Page for this controller.
@@ -19,7 +30,6 @@ class Login extends CI_Controller {
 	 */
 	public function index()
 	{
-		$this->load->helper('url');
 		$this->load->view('login');
 	}
 }

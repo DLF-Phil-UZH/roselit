@@ -2,32 +2,24 @@
 
 class Admin extends CI_Controller {
 
-	public function __construct() {
+	public function __construct()
+	{
 		parent::__construct();
-		
-		$this->load->database();
+
 		$this->load->helper('url');
+		$this->load->library('shibboleth_authentication_library', NULL, 'shib-auth');
+		if ($user = $this->shib_auth->verify_user() == false) {
+			redirect('login');
+   		}
+   		if ($user->isAdmin()) {
+    			// TODO: redirect to not allowed
+				show_404();
+			}
+		$this->load->database();		
 	}
 
-
-	/**
-	 * Index Page for this controller.
-	 *
-	 * Maps to the following URL
-	 * 		http://example.com/index.php/welcome
-	 *	- or -  
-	 * 		http://example.com/index.php/welcome/index
-	 *	- or -
-	 * Since this controller is set as the default controller in 
-	 * config/routes.php, it's displayed at http://example.com/
-	 *
-	 * So any other public methods not prefixed with an underscore will
-	 * map to /index.php/welcome/<method_name>
-	 * @see http://codeigniter.com/user_guide/general/urls.html
-	 */
 	public function index()
 	{	
-		$this->load->database();
 		$this->load->view('db_admin');
 	}
 
@@ -63,5 +55,5 @@ class Admin extends CI_Controller {
 	}
 }
 
-/* End of file install.php */
-/* Location: ./application/controllers/dbadmin.php */
+/* End of file admin.php */
+/* Location: ./application/controllers/admin.php */

@@ -2,14 +2,18 @@
 
 class Manager extends CI_Controller {
 
-	private $lcrudService;
-	
 	public function __construct()
 	{
 		parent::__construct();
 		
+		$this->load->helper('url');		
 		$this->load->database();
-		$this->load->helper('url');
+		$this->load->library('Shibboleth_authentication_service', '','shib_auth');
+
+		if ($user = $this->shib_auth->verify_user() == false) {
+			redirect('login');
+		}
+		// save the user somewhere
 		$this->load->library('Crud_service');			
 	}
 	
