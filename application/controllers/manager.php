@@ -11,7 +11,7 @@ class Manager extends CI_Controller {
 		$this->load->library('Shibboleth_authentication_service', '','shib_auth');
 
 		if ($user = $this->shib_auth->verify_user() == false) {
-			redirect('login');
+			redirect('auth');
 		}
 		// save the user somewhere
 		$this->load->library('Crud_service');			

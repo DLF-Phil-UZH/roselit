@@ -9,7 +9,7 @@ class Admin extends CI_Controller {
 		$this->load->helper('url');
 		$this->load->library('shibboleth_authentication_library', NULL, 'shib-auth');
 		if ($user = $this->shib_auth->verify_user() == false) {
-			redirect('login');
+			redirect('auth');
    		}
    		if ($user->isAdmin()) {
     			// TODO: redirect to not allowed
