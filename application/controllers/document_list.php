@@ -14,9 +14,7 @@ class Document_list extends CI_Controller {
 	public function index()
 	{
 		$data['documentList'] = $this->Document_list_mapper->get(1); // Temporarily hard coded for testing
-		$data['title'] = "Liste 1"; // Temporarily hard coded for testing
-		
-		$this->load->view('list/index', $data);
+		$this->load->view('document_list/index', $data);
 	}
 	
 }
