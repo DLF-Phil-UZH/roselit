@@ -106,15 +106,13 @@ class Document_list_model extends Abstract_base_model{
 		}
 	}
 	
-	/* Might be used later
 	// Document object as parameter
 	public function addDocument(Document_model $pDocument){
 		$id = $pDocument->getId();
 		if(!array_key_exists($id)){
-			$this->documents[$id] = $id; // Entry: Id as key of array, id as value at key of array
+			$this->documents[$id] = $pDocument; // Entry: Id as key of array, id as value at key of array
 		}
 	}
-	*/
 	
 	public function removeDocumentById($pDocumentId){
 		if(array_key_exists($id)){
@@ -122,7 +120,6 @@ class Document_list_model extends Abstract_base_model{
 		}
 	}
 	
-	/* Might be used later
 	// Document object as parameter
 	public function removeDocument(Document_model $pDocument){
 		$id = $pDocument->getId();
@@ -130,6 +127,5 @@ class Document_list_model extends Abstract_base_model{
 			unset($this->documents[$id]);
 		}
 	}
-	*/
 }
 
