@@ -83,8 +83,19 @@ abstract class Abstract_base_model extends CI_Model
 		return $this;
 	}
 
+	/**
+	 *
+	 */
+	public function isNew() {
+    	$lIsNew = false;
+		if($this->id == null){
+			$lIsNew = true;
+		}
+		return $lIsNew;
+	}	
+
 	public function toArray() {
-		$arr = array();
+		$arr = array('id' => $this->id);
 
 		return $arr;
 	}
