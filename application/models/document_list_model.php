@@ -1,22 +1,15 @@
 ﻿<?php
 
-// Import abstract class for models
-require_once("AbstractModel.php");
-// Import Person class
-require_once("Person.php");
-
 class Document_list_model extends Abstract_base_model{
 
-	protected $id = integer; // Document list id
-	private $title = string; // Title of list
+	private $title; // Title of list
 	// Creator and admin are temporarily only represented as foreign keys (person ID) in the Document_list_model object
 	// Might be changed later to entire Person_model objects
-	private $creator = integer; // Creator
-	private $admin = integer; // Admin
-	private $lastUpdated = DateTime; // Date and time of last update
-	private $created = DateTime; // Date and time of creation
-	private $documentIds = array(); // Temporarily IDs of documents that belong to the list, might be deleted later
-	// private $documents = array(); // Document objects that belong to the list, might be used later
+	private $creator; // Creator
+	private $admin; // Admin
+	private $lastUpdated; // Date and time of last update (type DateTime)
+	private $created; // Date and time of creation (type DateTime)
+	private $documents = array(); // Document objects that belong to the list, might be used later
 	
 	public function __construct($pTitle, $pCreator){
 		$this->title = $pTitle;
@@ -82,12 +75,10 @@ class Document_list_model extends Abstract_base_model{
 		return array_keys($this->documentIds);
 	}
 	
-	/*
 	// Returns document objects, might be used later
 	public function getDocuments(){
 		return $this->documents;
 	}
-	*/
 	
 	// Other methods
 	
@@ -101,35 +92,31 @@ class Document_list_model extends Abstract_base_model{
 	}
 	
 	public function addDocumentById($pDocumentId){
-		if(!array_key_exists($id)){
-			$this->documentIds[$id] = $id; // Entry: Id as key of array, id as value at key of array
+		if(!array_key_exists($pDocumentId, $this->documents)){
+			$this->documents[$lId] = $lId; // Entry: Id as key of array, id as value at key of array
 		}
 	}
 	
-	/* Might be used later
 	// Document object as parameter
 	public function addDocument(Document_model $pDocument){
-		$id = $pDocument->getId();
-		if(!array_key_exists($id)){
-			$this->documents[$id] = $id; // Entry: Id as key of array, id as value at key of array
+		$lId = $pDocument->getId();
+		if(!array_key_exists($lId, $this->documents)){
+			$this->documents[$lId] = $pDocument; // Entry: Id as key of array, id as value at key of array
 		}
 	}
-	*/
 	
 	public function removeDocumentById($pDocumentId){
-		if(array_key_exists($id)){
-			unset($this->documentIds[$id]);
+		if(array_key_exists($pDocumentId, $this->documents)){
+			unset($this->documents[$lId]);
 		}
 	}
 	
-	/* Might be used later
 	// Document object as parameter
 	public function removeDocument(Document_model $pDocument){
-		$id = $pDocument->getId();
-		if(array_key_exists($id)){
-			unset($this->documents[$id]);
+		$lId = $pDocument->getId();
+		if(array_key_exists($lId, $this->documents)){
+			unset($this->documents[$lId]);
 		}
 	}
-	*/
 }
 

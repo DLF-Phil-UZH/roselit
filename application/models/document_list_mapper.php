@@ -1,11 +1,14 @@
 ﻿<?php
 
-require_once("DocumentList.php");
-
 class Document_list_mapper extends CI_Model {
 
 	private $tableName = "documentLists"; // Name of database table
 	private $docToListTable = "documents_documentLists"; // Name of mapping table
+	
+	// public function __construct(){
+		// parent::__construct();
+		// $this->load->database();
+	// }
 
 	public function save(Document_list_model $pDocList){
 		// Table "documentLists"		
@@ -49,16 +52,15 @@ class Document_list_mapper extends CI_Model {
 			$lResult = $lQuery->row();
 			$lDocList = new Document_list_model($lResult->title, $lResult->creator);
 			$lDocList->setId($lResult->id);
-			$lDocList->setAdmin($lResult->adminId);
-			$lDocList->setLastUpdated(new DateTime("Y-m-d H:i:s"));
-			$lDocList->setCreated(new DateTime("Y-m-d H:i:s"));
+			$lDocList->setAdmin($lResult->admin);
+			$lDocList->setLastUpdated(new DateTime($lResult->lastUpdated));
+			$lDocList->setCreated(new DateTime($lResult->created));
 			// Add documents to the list
-			$lQuery = $this->db->get_where($this->docToListTable, array("documentListId" => $pId));
-			if($lQuery->num_rows() > 0){
-				foreach($lQuery->result() as $lMappingEntry){
-					$lDocList->addDocumentById($lMappingEntry->documentId); // Temporarily adding by ID
-				}
-			};
+			$this->load->model("Document_mapper");
+			$lDocuments = $this->Document_mapper->getByListId($pId);
+			foreach($lDocuments as $lDocument){
+				$lDocList->addDocument($lDocument);
+			}
 		}
 		return $lDocList;
 	}
