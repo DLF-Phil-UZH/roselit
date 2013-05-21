@@ -3,6 +3,7 @@ require_once('Abstract_base_model.php');
 
 class Document_model extends Abstract_base_model{
 
+	protected $id = integer; // Document id
 	private $explicitId = string; // Combined document ID
 	private $fileName = string // Name of document file
 	private $title = string; // Title (chapter or article)
@@ -33,6 +34,10 @@ class Document_model extends Abstract_base_model{
 	}
 	
 	// Setters
+	
+	public function setId($pId){
+		$this->id = $pId;
+	}
 	
 	public function setExplicitId($pExplicitId){
 		$this->explicitId = $pExplicitId;
@@ -90,6 +95,10 @@ class Document_model extends Abstract_base_model{
 	
 	// Getters
 	
+	public function getId(){
+		return $this->id;
+	}
+	
 	public function getExplicitId(){
 		return $this->explicitId;
 	}
@@ -144,5 +153,16 @@ class Document_model extends Abstract_base_model{
 		return $this->created;
 	}
 	
+	// Other methods
+	
+	// Returns true, if document has not been registered in database so far
+	public function isNew(){
+		$lIsNew = false;
+		if($this->id == null){
+			$lIsNew = true;
+		}
+		return $lIsNew;
+	}
+
 }
 

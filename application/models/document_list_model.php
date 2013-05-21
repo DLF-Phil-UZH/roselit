@@ -15,7 +15,8 @@ class Document_list_model extends Abstract_base_model{
 	private $admin = integer; // Admin
 	private $lastUpdated = DateTime; // Date and time of last update
 	private $created = DateTime; // Date and time of creation
-	private $documentIds = array(); // IDs of documents that belong to the list
+	private $documentIds = array(); // Temporarily IDs of documents that belong to the list, might be deleted later
+	// private $documents = array(); // Document objects that belong to the list, might be used later
 	
 	public function __construct($pTitle, $pCreator){
 		$this->title = $pTitle;
@@ -76,9 +77,17 @@ class Document_list_model extends Abstract_base_model{
 		return $this->created;
 	}
 	
+	// Returns ids of documents, might later be deleted
 	public function getDocumentIds(){
-		return array_keys($this->documents);
+		return array_keys($this->documentIds);
 	}
+	
+	/*
+	// Returns document objects, might be used later
+	public function getDocuments(){
+		return $this->documents;
+	}
+	*/
 	
 	// Other methods
 	
@@ -91,18 +100,36 @@ class Document_list_model extends Abstract_base_model{
 		return $lIsNew;
 	}
 	
-	public function addDocument(Document $pDocument){
+	public function addDocumentById($pDocumentId){
+		if(!array_key_exists($id)){
+			$this->documentIds[$id] = $id; // Entry: Id as key of array, id as value at key of array
+		}
+	}
+	
+	/* Might be used later
+	// Document object as parameter
+	public function addDocument(Document_model $pDocument){
 		$id = $pDocument->getId();
 		if(!array_key_exists($id)){
 			$this->documents[$id] = $id; // Entry: Id as key of array, id as value at key of array
 		}
 	}
+	*/
 	
-	public function removeDocument(Document $pDocument){
+	public function removeDocumentById($pDocumentId){
+		if(array_key_exists($id)){
+			unset($this->documentIds[$id]);
+		}
+	}
+	
+	/* Might be used later
+	// Document object as parameter
+	public function removeDocument(Document_model $pDocument){
 		$id = $pDocument->getId();
 		if(array_key_exists($id)){
 			unset($this->documents[$id]);
 		}
 	}
+	*/
 }
 

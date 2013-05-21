@@ -42,8 +42,9 @@ class Document_list_mapper extends CI_Model {
 		}
 	}
 	
+	// Expects the ID of an existing document list
 	public function get($pId){
-		$lQuery = $this->db->get_where($this->tableName, array("id", $pId));
+		$lQuery = $this->db->get_where($this->tableName, array("id" => $pId));
 		if($lQuery->num_rows() == 1){
 			$lResult = $lQuery->row();
 			$lDocList = new Document_list_model($lResult->title, $lResult->creator);
@@ -51,6 +52,13 @@ class Document_list_mapper extends CI_Model {
 			$lDocList->setAdmin($lResult->adminId);
 			$lDocList->setLastUpdated(new DateTime("Y-m-d H:i:s"));
 			$lDocList->setCreated(new DateTime("Y-m-d H:i:s"));
+			// Add documents to the list
+			$lQuery = $this->db->get_where($this->docToListTable, array("documentListId" => $pId));
+			if($lQuery->num_rows() > 0){
+				foreach($lQuery->result() as $lMappingEntry){
+					$lDocList->addDocumentById($lMappingEntry->documentId); // Temporarily adding by ID
+				}
+			};
 		}
 		return $lDocList;
 	}
