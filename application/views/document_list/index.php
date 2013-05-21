@@ -1,5 +1,9 @@
-﻿<?php // Based on a CI-Tutorial: http://ellislab.com/codeigniter/user-guide/tutorial/news_section.html ?>
-
+<!DOCTYPE html>
+<html>
+  <head>
+  	<title><?php echo $documentList->getTitle(); ?></title>
+	<meta content="text/html; charset=utf-8" http-equiv="Content-type">
+  </head>
 <h2><?php echo $documentList->getTitle(); ?></h2>
 <p>Ersteller: <?php echo $documentList->getCreator(); ?></p>
 <p>Administrator: <?php echo $documentList->getAdmin(); ?></p>
@@ -18,7 +22,7 @@
 <?php foreach($documentList->getDocuments() as $lDocument): ?>
 
 <p>
-	<a target="_blank" href="<?php $lDocument->getFileName() ?>"><?php echo 
+	<a target="_blank" href="<?php "assets/uploads/files" . $lDocument->getFileName() ?>"><?php echo 
 		$lDocument->getAuthors() . " (" .
 		// TODO: add edition to document model (wrong data in database)
 		$lDocument->getYear() . "), &ldquo;" .
@@ -34,3 +38,5 @@
 </p>
 
 <?php endforeach ?>
+</html>
+
