@@ -1,5 +1,7 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
+require_once('user_model.php');
+
 /**
  * @author Thomas Bernhart, thomascbernhart@gmail.com
  */
@@ -40,8 +42,8 @@ class User_mapper extends CI_Model {
 	public function get($pId){
 		$lQuery = $this->db->get_where($this->tableName, array('id' => $pId), 1);
 		if ($lQuery->num_rows() == 1) {
-			$lResult = $lQuery->row();
-			$lUser = $this->_createUser($row);
+			$lRow = $lQuery->row();
+			$lUser = $this->_createUser($lRow);
 			return $lUser;
 		}
 		return false;
@@ -51,10 +53,10 @@ class User_mapper extends CI_Model {
 	 *
 	 */
 	public function getByAaiId($pAaiId) {
-    	$lQuery = $this->db-get_where($this->tableName, array('aaiId' => $pAaiId), 1);
+    	$lQuery = $this->db->get_where($this->tableName, array('aaiId' => $pAaiId), 1);
 		if ($lQuery->num_rows() == 1) {
-			$lResult = $lQuery->row();
-			$lUser = $this->_createUser($row);
+			$lRow = $lQuery->row();
+			$lUser = $this->_createUser($lRow);
 			return $lUser;
 		}
 		return false;
@@ -81,16 +83,10 @@ class User_mapper extends CI_Model {
 	/**
  	 *
  	 */
-	private function _createUser($pRow = array()) {
-    	$lUser = new User_model(
-						$row->username,
-						$row->aaiId,
-						$row->firstname,
-						$row->lastname,
-						'' /* title */,
-						$row->gender
-					);
-		$lUser->setId($row->id);
+	private function _createUser($pRow) {
+    	$lUser = new User_model($pRow->username, $pRow->aaiId, $pRow->firstname, $pRow->lastname);
+		$lUser->setId($pRow->id);
+		$lUser->setRole($pRow->role);
 		return $lUser;
 	}
 }

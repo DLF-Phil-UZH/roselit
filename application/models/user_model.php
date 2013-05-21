@@ -4,7 +4,7 @@ class User_model extends Person_model {
 
 	private $_username;
     private $_aaiId;
-    private $_role = 'user';
+    private $_role = 'new';
 
     public function __construct($pUsername, $pAaiId, $pFirstname, $pLastname, $pTitle = "", /* $pEmail = "",$*/ $pGender = true) {
 		parent::__construct($pFirstname, $pLastname, $pTitle, /* $pEmail = "",$*/ $pGender);
@@ -13,6 +13,12 @@ class User_model extends Person_model {
     }
 
     /* getters: */
+	/**
+	 *
+	 */
+	public function getUsername() {
+    	return $this->_username;
+	}
 
     public function getAaiId() {
         return $this->_aaiId;
