@@ -1,24 +1,22 @@
 ﻿<?php
-require_once('Abstract_base_model.php');
 
 class Document_model extends Abstract_base_model{
 
-	protected $id = integer; // Document id
-	private $explicitId = string; // Combined document ID
-	private $fileName = string // Name of document file
-	private $title = string; // Title (chapter or article)
-	private $authors = string; // Authors of document
-	private $publication = string; // Title of publication
-	private $editors = string; // Editors of publication
-	private $publishingHouseAndPlace = string; // Name and place of publishing house
-	private $year = string; // Year of publication, optionally with edition in superior (<sup> element in HTML)
-	private $pages = string; // Start page in the book/magazine
+	private $explicitId; // Combined document ID
+	private $fileName; // Name of document file
+	private $title; // Title (chapter or article)
+	private $authors; // Authors of document
+	private $publication; // Title of publication
+	private $editors; // Editors of publication
+	private $publishingHouseAndPlace; // Name and place of publishing house
+	private $year; // Year of publication, optionally with edition in superior (<sup> element in HTML)
+	private $pages; // Start page in the book/magazine
 	// Creator and admin are temporarily only represented as foreign keys (person ID) in the Document_list_model object
 	// Might be changed later to entire Person_model objects
-	private $creator = integer; // Creator
-	private $admin = integer; // Admin
-	private $lastUpdated = DateTime; // Date and time of last update
-	private $created = DateTime; // Date and time of creation
+	private $creator; // Creator
+	private $admin; // Admin
+	private $lastUpdated; // Date and time of last update (type DateTime)
+	private $created; // Date and time of creation (type DateTime)
 	
 	public function __construct($pExplicitId, $pFileName, $pTitle, $pAuthors, $pPublication, $pEditors, $pPublishingHouseAndPlace, $pYear, $pPages, $pCreator){
 		$this->explicitId = $pExplicitId;

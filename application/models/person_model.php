@@ -2,11 +2,11 @@
 
 class Person_model extends Abstract_base_model{
 	
-	public $firstname = string;
-	public $lastname = string;
-	public $title = string;
-	// public $email = string;
-	public $gender = bool; // m <=> true; w <=> false
+	public $firstname;
+	public $lastname;
+	public $title;
+	// public $email;
+	public $gender; // m <=> true; w <=> false
 	
 	// Constructor
 	function __construct($pFirstname, $pLastname, $pTitle = "", /* $pEmail = "",$*/ $pGender = true){
@@ -26,7 +26,7 @@ class Person_model extends Abstract_base_model{
 	public function setLastname($pLastname){
 		$this->lastname = $pLastname;
 	}
-												
+
 	public function getFullName() {
         return $this->_firstname . " " . $this->_lastname;
     }
