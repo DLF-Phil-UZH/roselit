@@ -7,11 +7,11 @@ class Admin extends CI_Controller {
 		parent::__construct();
 
 		$this->load->helper('url');
-		$this->load->library('shibboleth_authentication_library', NULL, 'shib-auth');
-		if ($user = $this->shib_auth->verify_user() == false) {
+		$this->load->library('shibboleth_authentication_service', NULL, 'shib_auth');
+		$user = $this->shib_auth->verify_user();
+		if ($user == false) {
 			redirect('auth');
-   		}
-   		if ($user->isAdmin()) {
+   		} elseif ($user !== false && !$user->isAdmin()) {
     			// TODO: redirect to not allowed
 				show_404();
 			}
@@ -44,14 +44,32 @@ class Admin extends CI_Controller {
 	}
 
 	public function users() {
-		$this->load->library('CrudService');		
+		$this->load->library('Crud_service');		
 		try{
-			$crudOutput = $this->crudservice->getUsersCrud();
+			$crudOutput = $this->crud_service->getUsersCrud();
 			$this->load->view('crud.php',$crudOutput);
 		}catch(Exception $e){
 			show_error($e->getMessage().' --- '.$e->getTraceAsString());
 		}
 		
+	}
+
+	public function user_requests() {
+		$this->load->library('Crud_service');		
+		try{
+			$crudOutput = $this->crud_service->getUserRequestsCrud();
+			$this->load->view('crud.php',$crudOutput);
+		}catch(Exception $e){
+			show_error($e->getMessage().' --- '.$e->getTraceAsString());
+		}
+
+	}
+
+	/**
+	 *
+	 */
+	public function accept_user_request($pId) {
+    	echo $pId;
 	}
 }
 

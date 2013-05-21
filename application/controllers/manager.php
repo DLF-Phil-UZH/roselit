@@ -9,9 +9,12 @@ class Manager extends CI_Controller {
 		$this->load->helper('url');		
 		$this->load->database();
 		$this->load->library('Shibboleth_authentication_service', '','shib_auth');
-
-		if ($user = $this->shib_auth->verify_user() == false) {
+		$user = $this->shib_auth->verify_user();
+		if ($user == false) {
 			redirect('auth');
+		} 
+		if ($user !== false && $user->getRole() == 'new') {
+			show_error('404');
 		}
 		// save the user somewhere
 		$this->load->library('Crud_service');			
