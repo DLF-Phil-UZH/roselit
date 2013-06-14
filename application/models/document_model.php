@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 class Document_model extends Abstract_base_model{
 
