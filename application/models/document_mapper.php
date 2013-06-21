@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 class Document_mapper extends CI_Model {
 

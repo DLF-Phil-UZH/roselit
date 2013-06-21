@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 class Document_model extends Abstract_base_model{
 
@@ -160,6 +160,40 @@ class Document_model extends Abstract_base_model{
 			$lIsNew = true;
 		}
 		return $lIsNew;
+	}
+	
+	/*
+	Creates an explicit ID (as a proposal, does not write it to attribute!) based on authors and year
+	Format:
+	<Lastname_of_first_author>[_<Lastname_of_next_author>]*_<year>
+	Example:
+	"Koch_2003"
+	*/
+	public function createExplicitId(){
+		// Add lastname of author(s)
+		$lAuthors = $this->authors;
+		if(strpos($lAuthors, ",") !== false){
+			$lExplicitId = substr($lAuthors, 0, strpos($lAuthors, ",")) . "_"; // Add lastname of first author
+		}
+		while(strpos($this->authors, "/") !== false){
+			$lAuthors = substr($lAuthors, strpos($lAuthors, "/")); // Delete preceding author
+			$lAuthors = ltrim($lAuthors, "/ "); // Delete beginning slash(es) and space(s)
+			$lExplicitId = substr($lAuthors, 0, strpos($lAuthors, ",")) . "_"; // Add lastname of next author
+		}
+		
+		// Add year
+		$lYear = $this->year;
+		// Extract first publication, if given
+		if(strpos($lYear, "[") !== false && strpos($lYear, "]") !== false){
+			$lYear = substr($lYear, strpos($lYear, "[") + 1, strpos($lYear, "]"));
+		}
+		// Delete edition number, if given
+		if(strpos($lYear, "<sup>") !== false && strpos($lYear, "</sup>") !== false){
+			$lYear = substr($lYear, strpos($lYear, "</sup>"));
+		}
+		$lExplicitId = $lExplicitId . $lYear;
+		
+		return $lExplicitId;
 	}
 
 }

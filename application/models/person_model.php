@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 class Person_model extends Abstract_base_model{
 	
