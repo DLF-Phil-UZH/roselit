@@ -2,13 +2,11 @@
 
 class User_model extends Person_model {
 
-	private $_username;
     private $_aaiId;
-    private $_role = 'new';
+    private $_role = 'user';
 
-    public function __construct($pUsername, $pAaiId, $pFirstname, $pLastname, $pTitle = "", /* $pEmail = "",$*/ $pGender = true) {
-		parent::__construct($pFirstname, $pLastname, $pTitle, /* $pEmail = "",$*/ $pGender);
-		$this->_username = $pUsername;
+    public function __construct($pAaiId, $pFirstname, $pLastname, $pTitle = "", $pEmail = "", $pGender = true) {
+		parent::__construct($pFirstname, $pLastname, $pTitle, $pEmail, $pGender);
 		$this->_aaiId = $pAaiId;
     }
 
@@ -16,10 +14,6 @@ class User_model extends Person_model {
 	/**
 	 *
 	 */
-	public function getUsername() {
-    	return $this->_username;
-	}
-
     public function getAaiId() {
         return $this->_aaiId;
     }
@@ -34,16 +28,6 @@ class User_model extends Person_model {
 
 
     /* setters: */
-
-	public function setUsername($pUsername) {
-		if ( is_string($username) ) { // TODO: Länge des Strings prüfen!
-            $this->_username = $pUsername;
-        } else {
-            throw new InvalidArgumentException('string expected');
-        }
-        return $this;
-
-	}
 
     public function setAaiId( $pAaiId ) {
         if ( is_string($pAaiId) ) {

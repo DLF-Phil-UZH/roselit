@@ -11,10 +11,11 @@ class Admin extends CI_Controller {
 		$user = $this->shib_auth->verify_user();
 		if ($user == false) {
 			redirect('auth');
-   		} elseif ($user !== false && !$user->isAdmin()) {
-    			// TODO: redirect to not allowed
-				show_404();
-			}
+   		} elseif ($user->isAdmin() === false) {
+            // TODO: redirect to not allowed
+            echo "not allowed";
+            show_404();
+        }
 		$this->load->database();		
 	}
 
@@ -69,7 +70,11 @@ class Admin extends CI_Controller {
 	 *
 	 */
 	public function accept_user_request($pId) {
-    	echo $pId;
+		// create a user account for the specified id:
+        $this->load->model('user_mapper');
+        $status = $this->user_mapper->create_user_from_request($pId);
+        // redirect to user_requests admin interface
+        redirect(site_url() . '/admin/user_requests');
 	}
 }
 

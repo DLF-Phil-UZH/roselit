@@ -16,9 +16,9 @@ class User_mapper extends CI_Model {
 	public function save(User_model $pUser){
 		$lData = array(
 					"aaiId" => $pUser->getAaiId(),
-					"username" => $pUser->getUsername(),
 					"firstname" => $pUser->getFirstname(),
 					"lastname" => $pUser->getLastname(),
+					"email" => $pUser->getEmail(),
 					"role" => $pUser->getRole()
 				);
 		if($pUser->isNew()){
@@ -62,6 +62,34 @@ class User_mapper extends CI_Model {
 		return false;
 	}
 
+    /**
+     *
+     */
+    public function create_user_from_request($p_user_request_id) {
+        // sql:
+        // INSERT INTO `users` (SELECT null, `aaiId`, `firstname`, `lastname`, `email`, 'user', null, null FROM `user_requests` WHERE `user_request`.`id` = :id);
+        // DELETE FROM `users_requests` WHERE `user_requests`.`id` = :id; 
+        $l_users_table = $this->db->dbprefix($this->tableName);
+        $l_user_requests_table = $this->db->dbprefix('user_requests');
+        $sql_insert = "INSERT IGNORE INTO `$l_users_table`";
+        $sql_insert .= " (SELECT null, `aaiId`, `firstname`, `lastname`, `email`, 'user', null, null";
+        $sql_insert .= " FROM `$l_user_requests_table` WHERE `$l_user_requests_table`.`id` = ";
+        $sql_insert .= $this->db->escape($p_user_request_id). ');';
+        $sql_delete = "DELETE FROM `$l_user_requests_table` WHERE `id` = " . $this->db->escape($p_user_request_id) . ';';
+        
+        $this->db->trans_start();
+        $this->db->query($sql_insert);
+        $this->db->query($sql_delete); 
+        $this->db->trans_complete();
+        $this->db->trans_off();
+
+        if ($this->db->trans_status() === FALSE) {
+            // TODO: generate error message
+            return false;
+        }
+        return true;
+    }
+
 	/**
 	 * TODO
 	 */
@@ -84,7 +112,7 @@ class User_mapper extends CI_Model {
  	 *
  	 */
 	private function _createUser($pRow) {
-    	$lUser = new User_model($pRow->username, $pRow->aaiId, $pRow->firstname, $pRow->lastname);
+    	$lUser = new User_model($pRow->aaiId, $pRow->firstname, $pRow->lastname, $pRow->email);
 		$lUser->setId($pRow->id);
 		$lUser->setRole($pRow->role);
 		return $lUser;
