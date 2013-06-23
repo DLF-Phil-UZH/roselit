@@ -161,6 +161,88 @@ class Document_model extends Abstract_base_model{
 		}
 		return $lIsNew;
 	}
+	
+	// Returns formatted HTML string according to specifications on citation style submitted in an e-mail by A. Robert-Tissot, 10.06.2013
+	public function toFormattedString(){
+		$lFormattedString = "";
+		// If document is a monography without page indication
+		if(strlen($this->editors) + strlen($this->pages) + strlen($this->publication) == 0){
+			$lFormattedString .= $this->authors;
+			$lFormattedString .= " (";
+			$lFormattedString .= $this->year;
+			$lFormattedString .= "): <i>";
+			$lFormattedString .= $this->title;
+			$lFormattedString .= "</i>, ";
+			$lFormattedString .= $this->publishingHouseAndPlace;
+			$lFormattedString .= ".";
+		}
+		// If document is a monography with page indication
+		elseif(strlen($this->editors) + strlen($this->publication) == 0 && strlen($this->pages) > 0){
+			$lFormattedString .= $this->authors;
+			$lFormattedString .= " (";
+			$lFormattedString .= $this->year;
+			$lFormattedString .= "): <i>";
+			$lFormattedString .= $this->title;
+			$lFormattedString .= "</i>, ";
+			$lFormattedString .= $this->publishingHouseAndPlace;
+			$lFormattedString .= ", ";
+			$lFormattedString .= $this->pages;
+			$lFormattedString .= ".";
+		}
+		// If document is a chapter of a book
+		elseif(strlen($this->editors) == 0 && strlen($this->publishingHouseAndPlace) > 0){
+			$lFormattedString .= $this->authors;
+			$lFormattedString .= " (";
+			$lFormattedString .= $this->year;
+			$lFormattedString .= "): \"";
+			$lFormattedString .= $this->title;
+			$lFormattedString .= "\", in: ";
+			$lFormattedString .= $this->authors;
+			$lFormattedString .= ": <i>";
+			$lFormattedString .= $this->publication;
+			$lFormattedString .= "</i>, ";
+			$lFormattedString .= $this->publishingHouseAndPlace;
+			$lFormattedString .= ", ";
+			$lFormattedString .= $this->pages;
+			$lFormattedString .= ".";
+		}
+		// If document is a magazine article
+		elseif(strlen($this->editors) + strlen($this->publishingHouseAndPlace) == 0){
+			$lFormattedString .= $this->authors;
+			$lFormattedString .= " (";
+			$lFormattedString .= $this->year;
+			$lFormattedString .= "): \"";
+			$lFormattedString .= $this->title;
+			$lFormattedString .= "\", in: <i>";
+			$lFormattedString .= $this->publication;
+			$lFormattedString .= "</i>, ";
+			$lFormattedString .= $this->pages;
+			$lFormattedString .= ".";
+		}
+		// If document is an article in a book
+		elseif(strlen($this->title) != 0 &&
+				strlen($this->authors) != 0 &&
+				strlen($this->publication) != 0 &&
+				strlen($this->editors) != 0 &&
+				strlen($this->publishingHouseAndPlace) != 0 &&
+				strlen($this->pages) != 0){
+			$lFormattedString .= $this->authors;
+			$lFormattedString .= " (";
+			$lFormattedString .= $this->year;
+			$lFormattedString .= "): \"";
+			$lFormattedString .= $this->title;
+			$lFormattedString .= "\", in: ";
+			$lFormattedString .= $this->editors;
+			$lFormattedString .= ": <i>";
+			$lFormattedString .= $this->publication;
+			$lFormattedString .= "</i>, ";
+			$lFormattedString .= $this->publishingHouseAndPlace;
+			$lFormattedString .= ", ";
+			$lFormattedString .= $this->pages;
+			$lFormattedString .= ".";
+		}
+		return $lFormattedString;
+	}
 
 }
 
