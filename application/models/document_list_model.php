@@ -9,6 +9,7 @@ class Document_list_model extends Abstract_base_model{
 	private $admin; // Admin
 	private $lastUpdated; // Date and time of last update (type DateTime)
 	private $created; // Date and time of creation (type DateTime)
+	private $published; // Flag (binary), has value 1 if list has been published anywhere at least once
 	private $documents = array(); // Document objects that belong to the list, might be used later
 	
 	public function __construct($pTitle, $pCreator){
@@ -44,6 +45,10 @@ class Document_list_model extends Abstract_base_model{
 		$this->created = $pCreated;
 	}
 	
+	public function setPublished($pPublished){
+		$this->published = $pPublished;
+	}
+	
 	// Getters
 	
 	public function getId(){
@@ -68,6 +73,10 @@ class Document_list_model extends Abstract_base_model{
 	
 	public function getCreated(){
 		return $this->created;
+	}
+	
+	public function getPublished(){
+		return $this->published;
 	}
 	
 	// Returns ids of documents, might later be deleted

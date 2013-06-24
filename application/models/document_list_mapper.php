@@ -11,10 +11,11 @@ class Document_list_mapper extends CI_Model {
 	// }
 
 	public function save(Document_list_model $pDocList){
-		// Table "documentLists"		
+		// Table "documentLists"
 		$lData = array("title" => $pDocList->getTitle(),
 					   "creator" => $pDocList->getCreator()->getId(),
-					   "admin" => $pDocList->getAdmin()->getId());
+					   "admin" => $pDocList->getAdmin()->getId(),
+					   "published" => (int) $pDocList->getPublished());
 		if($pDocList->isNew()){
 			$lData["created"] = null;
 			$this->db->insert($this->tableName, $lData);
@@ -55,6 +56,7 @@ class Document_list_mapper extends CI_Model {
 			$lDocList->setAdmin($lResult->admin);
 			$lDocList->setLastUpdated(new DateTime($lResult->lastUpdated));
 			$lDocList->setCreated(new DateTime($lResult->created));
+			$lDocList->setPublished((bool) $lResult->published);
 			// Add documents to the list
 			$this->load->model("Document_mapper");
 			$lDocuments = $this->Document_mapper->getByListId($pId);
