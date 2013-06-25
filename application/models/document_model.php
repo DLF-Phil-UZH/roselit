@@ -7,8 +7,10 @@ class Document_model extends Abstract_base_model{
 	private $title; // Title (chapter or article)
 	private $authors; // Authors of document
 	private $publication; // Title of publication
+	private $volume; // Issue of magazine or volume of publication
 	private $editors; // Editors of publication
-	private $publishingHouseAndPlace; // Name and place of publishing house
+	private $places; // Place of publishing house
+	private $publishingHouse; // Name of publishing house
 	private $year; // Year of publication, optionally with edition in superior (<sup> element in HTML)
 	private $pages; // Start page in the book/magazine
 	// Creator and admin are temporarily only represented as foreign keys (person ID) in the Document_list_model object
@@ -18,14 +20,16 @@ class Document_model extends Abstract_base_model{
 	private $lastUpdated; // Date and time of last update (type DateTime)
 	private $created; // Date and time of creation (type DateTime)
 	
-	public function __construct($pExplicitId, $pFileName, $pTitle, $pAuthors, $pPublication, $pEditors, $pPublishingHouseAndPlace, $pYear, $pPages, $pCreator){
+	public function __construct($pExplicitId, $pFileName, $pTitle, $pAuthors, $pPublication, $pVolume, $pEditors, $pPlaces, $pPublishingHouse, $pYear, $pPages, $pCreator){
 		$this->explicitId = $pExplicitId;
 		$this->fileName = $pFileName;
 		$this->title = $pTitle;
 		$this->authors = $pAuthors;
 		$this->publication = $pPublication;
+		$this->volume = $pVolume;
 		$this->editors = $pEditors;
-		$this->publishingHouseAndPlace = $pPublishingHouseAndPlace;
+		$this->places = $pPlaces;
+		$this->publishingHouse = $pPublishingHouse;
 		$this->year = $pYear;
 		$this->pages = $pPages;
 		$this->creator = $pCreator;
@@ -57,12 +61,20 @@ class Document_model extends Abstract_base_model{
 		$this->publication = $pPublication;
 	}
 	
+	public function setVolume($pVolume){
+		$this->volume = $pVolume;
+	}
+	
 	public function setEditors($pEditors){
 		$this->editors = $pEditors;
 	}
 	
-	public function setPublishingHouseAndPlace($pPublishingHouseAndPlace){
-		$this->publishingHouseAndPlace = $pPublishingHouseAndPlace;
+	public function setPlaces($pPlaces){
+		$this->places = $pPlaces;
+	}
+	
+	public function setPublishingHouse($pPublishingHouse){
+		$this->publishingHouse = $pPublishingHouse;
 	}
 	
 	public function setYear($pYear){
@@ -117,12 +129,20 @@ class Document_model extends Abstract_base_model{
 		return $this->publication;
 	}
 	
+	public function getVolume(){
+		return $this->volume;
+	}
+	
 	public function getEditors(){
 		return $this->editors;
 	}
 	
-	public function getPublishingHouseAndPlace(){
-		return $this->publishingHouseAndPlace;
+	public function getPlaces(){
+		return $this->places;
+	}
+	
+	public function getPublishingHouse(){
+		return $this->publishingHouse;
 	}
 	
 	public function getYear(){
@@ -206,8 +226,15 @@ class Document_model extends Abstract_base_model{
 			$lFormattedString .= $this->year;
 			$lFormattedString .= "): <i>";
 			$lFormattedString .= $this->title;
-			$lFormattedString .= "</i>, ";
-			$lFormattedString .= $this->publishingHouseAndPlace;
+			$lFormattedString .= "</i>";
+			if(strlen($this->volume) > 0){
+				$lFormattedString .= " ";
+				$lFormattedString .= $this->volume;
+			}
+			$lFormattedString .= ", ";
+			$lFormattedString .= $this->places;
+			$lFormattedString .= ": ";
+			$lFormattedString .= $this->publishingHouse;
 			$lFormattedString .= ".";
 		}
 		// If document is a monography with page indication
@@ -217,14 +244,21 @@ class Document_model extends Abstract_base_model{
 			$lFormattedString .= $this->year;
 			$lFormattedString .= "): <i>";
 			$lFormattedString .= $this->title;
-			$lFormattedString .= "</i>, ";
-			$lFormattedString .= $this->publishingHouseAndPlace;
+			$lFormattedString .= "</i>";
+			if(strlen($this->volume) > 0){
+				$lFormattedString .= " ";
+				$lFormattedString .= $this->volume;
+			}
+			$lFormattedString .= ", ";
+			$lFormattedString .= $this->places;
+			$lFormattedString .= ": ";
+			$lFormattedString .= $this->publishingHouse;
 			$lFormattedString .= ", ";
 			$lFormattedString .= $this->pages;
 			$lFormattedString .= ".";
 		}
 		// If document is a chapter of a book
-		elseif(strlen($this->editors) == 0 && strlen($this->publishingHouseAndPlace) > 0){
+		elseif(strlen($this->editors) == 0 && strlen($this->places) > 0 && strlen($this->publishingHouse) > 0){
 			$lFormattedString .= $this->authors;
 			$lFormattedString .= " (";
 			$lFormattedString .= $this->year;
@@ -234,14 +268,21 @@ class Document_model extends Abstract_base_model{
 			$lFormattedString .= $this->authors;
 			$lFormattedString .= ": <i>";
 			$lFormattedString .= $this->publication;
-			$lFormattedString .= "</i>, ";
-			$lFormattedString .= $this->publishingHouseAndPlace;
+			$lFormattedString .= "</i>";
+			if(strlen($this->volume) > 0){
+				$lFormattedString .= " ";
+				$lFormattedString .= $this->volume;
+			}
+			$lFormattedString .= ", ";
+			$lFormattedString .= $this->places;
+			$lFormattedString .= ": ";
+			$lFormattedString .= $this->publishingHouse;
 			$lFormattedString .= ", ";
 			$lFormattedString .= $this->pages;
 			$lFormattedString .= ".";
 		}
 		// If document is a magazine article
-		elseif(strlen($this->editors) + strlen($this->publishingHouseAndPlace) == 0){
+		elseif(strlen($this->editors) + strlen($this->places) + strlen($this->publishingHouse) == 0){
 			$lFormattedString .= $this->authors;
 			$lFormattedString .= " (";
 			$lFormattedString .= $this->year;
@@ -249,7 +290,12 @@ class Document_model extends Abstract_base_model{
 			$lFormattedString .= $this->title;
 			$lFormattedString .= "\", in: <i>";
 			$lFormattedString .= $this->publication;
-			$lFormattedString .= "</i>, ";
+			$lFormattedString .= "</i>";
+			if(strlen($this->volume) > 0){
+				$lFormattedString .= " ";
+				$lFormattedString .= $this->volume;
+			}
+			$lFormattedString .= ", ";
 			$lFormattedString .= $this->pages;
 			$lFormattedString .= ".";
 		}
@@ -258,7 +304,8 @@ class Document_model extends Abstract_base_model{
 				strlen($this->authors) != 0 &&
 				strlen($this->publication) != 0 &&
 				strlen($this->editors) != 0 &&
-				strlen($this->publishingHouseAndPlace) != 0 &&
+				strlen($this->places) != 0 &&
+				strlen($this->publishingHouse) != 0 &&
 				strlen($this->pages) != 0){
 			$lFormattedString .= $this->authors;
 			$lFormattedString .= " (";
@@ -269,13 +316,30 @@ class Document_model extends Abstract_base_model{
 			$lFormattedString .= $this->editors;
 			$lFormattedString .= ": <i>";
 			$lFormattedString .= $this->publication;
-			$lFormattedString .= "</i>, ";
-			$lFormattedString .= $this->publishingHouseAndPlace;
+			$lFormattedString .= "</i>";
+			if(strlen($this->volume) > 0){
+				$lFormattedString .= " ";
+				$lFormattedString .= $this->volume;
+			}
+			$lFormattedString .= ", ";
+			$lFormattedString .= $this->places;
+			$lFormattedString .= ": ";
+			$lFormattedString .= $this->publishingHouse;
 			$lFormattedString .= ", ";
 			$lFormattedString .= $this->pages;
 			$lFormattedString .= ".";
 		}
 		return $lFormattedString;
+	}
+	
+	public function getFilePath(){
+		$lAbsPathPrefix = "/usr/local/ftp/phil_elearning/roselit/files/";
+		if(file_exists($lAbsPathPrefix . $this->fileName)){
+			return $lAbsPathPrefix . $this->fileName;
+		}
+		else{
+			return false;
+		}
 	}
 
 }
