@@ -341,6 +341,33 @@ class Document_model extends Abstract_base_model{
 			return false;
 		}
 	}
+	
+	// Expects "KB" ("KiB"), "MB" ("MiB"), or "GB" ("GiB") as given units and returns the file size in KB (KiB), MB (MiB) or GB (GiB) or in Byte for any other passed argument
+	public function getFileSize($pUnit){
+		$lFileSize = 0.0;
+		if($this->getFilePath() !== false){
+			$lFileSize = filesize($this->getFilePath());
+			if(strcmp($pUnit, "KB") === 0){
+				$lFileSize /= 1000;
+			}
+			elseif(strcmp($pUnit, "MB") === 0){
+				$lFileSize /= (1000 * 1000);
+			}
+			elseif(strcmp($pUnit, "GB") === 0){
+				$lFileSize /= (1000 * 1000 * 1000);
+			}
+			elseif(strcmp($pUnit, "KiB") === 0){
+				$lFileSize /= 1024;
+			}
+			elseif(strcmp($pUnit, "MiB") === 0){
+				$lFileSize /= (1024 * 1024);
+			}
+			elseif(strcmp($pUnit, "GiB") === 0){
+				$lFileSize /= (1024 * 1024 * 1024);
+			}
+		}
+		return $lFileSize;
+	}
 
 }
 
