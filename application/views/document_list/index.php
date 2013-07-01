@@ -14,19 +14,19 @@
 
 	<?php foreach($documentList->getDocumentsSorted() as $lDocument): ?>
 
-    <p>
-	<?php echo 
-		$lDocument->getAuthors() . " (" .
-		// TODO: add edition to document model (wrong data in database)
-		$lDocument->getYear() . "), &ldquo;" .
-		$lDocument->getTitle() . "&rdquo;, in: " .
-		(strlen($lDocument->getEditors()) ? $lDocument->getEditors() . " <i>" : "<i>") .
-		$lDocument->getPublication() . "</i>, " .
-		(strlen($lDocument->getPublishingHouseAndPlace()) ? $lDocument->getPublishingHouseAndPlace() . " " : "") .
-		$lDocument->getPages() . ". (" ?><a target="_blank" href="<?php echo "assets/uploads/files/" . $lDocument->getFileName() ?>"><?php
-		echo substr(strrchr($lDocument->getFileName(), "."), 1) . ", " .
-		"3.3 MB" /* TODO: replace with function that calculates file size */;?></a><?php echo ")";?>
-    </p>
+	<p>
+		<?php
+			echo $lDocument->toFormattedString();
+			if(strlen($lDocument->getFileName() > 0)){
+				echo "&nbsp;(<a target=\"_self\" href=\"../../documents/file/" . $lDocument->getId() . "\">";
+				echo substr(strrchr($lDocument->getFileName(), "."), 1) . ", " . round($lDocument->getFileSize("MB"), 2) . " MB";
+				echo "</a>)";
+			}
+			else{
+				echo "&nbsp;(Kein Dokument hinterlegt)";
+			}
+		?>
+	</p>
 	
 	<?php endforeach ?>
   </body>
