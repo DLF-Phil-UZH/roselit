@@ -19,7 +19,8 @@ class Document_mapper extends CI_Model {
 					   "authors" => $pDocument->getAuthors(),
 					   "publication" => $pDocument->getPublication(),
 					   "editors" => $pDocument->getEditors(),
-					   "publishingHouseAndPlace" => $pDocument->getPublishingHouseAndPlace(),
+					   "places" => $pDocument->getPlaces(),
+					   "publishingHouse" => $pDocument->getPublishingHouse(),
 					   "year" => $pDocument->getYear(),
 					   "pages" => $pDocument->getPages(),
 					   // Creator and admin temporarily as person ID
@@ -82,8 +83,10 @@ class Document_mapper extends CI_Model {
 										$pRow->title,
 										$pRow->authors,
 										$pRow->publication,
+										$pRow->volume,
 										$pRow->editors,
-										$pRow->publishingHouseAndPlace,
+										$pRow->places,
+										$pRow->publishingHouse,
 										$pRow->year,
 										$pRow->pages,
 										$pRow->creator);
