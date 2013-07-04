@@ -6,7 +6,6 @@ class Manager extends CI_Controller {
 	{
 		parent::__construct();
 		
-		$this->load->helper('url');		
 		$this->load->database();
 		$this->load->library('Shibboleth_authentication_service', '','shib_auth');
 		$user = $this->shib_auth->verify_user();
@@ -22,6 +21,7 @@ class Manager extends CI_Controller {
 	
 	private function _render_output($output = null)
 	{
+        $this->load->view('header.php', array('title' => 'RoSeLit'));
 		$this->load->view('crud.php',$output);	
 	}
 
@@ -29,7 +29,6 @@ class Manager extends CI_Controller {
 	public function index()
 	{
         redirect(site_url('/manager/documents'));
-		$this->_render_output((object)array('output' => '' , 'js_files' => array() , 'css_files' => array()));
 	}
 	
     /**
