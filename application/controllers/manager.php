@@ -28,9 +28,13 @@ class Manager extends CI_Controller {
 			
 	public function index()
 	{
+        redirect(site_url('/manager/documents'));
 		$this->_render_output((object)array('output' => '' , 'js_files' => array() , 'css_files' => array()));
 	}
 	
+    /**
+     * Display a CRUD table for Document_models
+     */
 	public function documents()
 	{
 	
@@ -40,8 +44,11 @@ class Manager extends CI_Controller {
 		}catch(Exception $e){
 			show_error($e->getMessage().' --- '.$e->getTraceAsString());
 		}
-	}
+    }
 
+    /**
+     * Display a CRUD table for Document_list_models  
+     */
 	public function lists()
 	{
 		try {
