@@ -16,13 +16,14 @@ class Manager extends CI_Controller {
 			show_error('404');
 		}
 		// save the user somewhere
+		$this->load->helper('html');
 		$this->load->library('Crud_service');			
 	}
 	
 	private function _render_output($output = null)
 	{
-        $this->load->view('header.php', array('title' => 'RoSeLit'));
-		$this->load->view('crud.php',$output);	
+		$this->load->view('header', array('title' => 'RoSeLit'));
+		$this->load->view('crud',$output);	
 	}
 
 			
@@ -45,9 +46,122 @@ class Manager extends CI_Controller {
 		}
     }
 
+	/**
+	 * Send the requested file.
+	 */
+	public function documents_file($pId) {
+		$this->load->model('document_mapper');
+		$lDocument = $this->document_mapper->get($pId);
+		if (!$lDocument) {
+			// TODO: return some error message
+			return;
+		}
+		$l_file = '/usr/local/ftp/phil_elearning/roselit/files/' . $lDocument->getFileName();
+		$l_documentname = $lDocument->getExplicitId() . '.pdf';
+
+		if (file_exists($l_file)) {
+			header('Content-Description: File Transfer');
+			header('Content-Type: application/pdf');
+			header('Content-Disposition: attachment; filename='.$l_documentname);
+			header('Content-Transfer-Encoding: binary');
+			header('Expires: 0');
+			header('Cache-Control: must-revalidate');
+			header('Pragma: public');
+			header('Content-Length: ' . filesize($l_file));
+			ob_clean();
+			flush();
+			readfile($l_file);
+			exit;
+		}
+    }
+
+    public function upload_config() {
+        $this->config->load('pdf_upload', TRUE);
+        var_dump($this->config);
+        $global_upload_config = $this->config->item('pdf_upload');
+        var_dump($global_upload_config);
+        $upload_config = $global_upload_config;
+        $upload_config['file_name'] = uniqid();
+        print_r($upload_config);
+    }
+
+	/**
+	 *
+	 */
+    public function documents_file_upload($pId) {
+		$this->load->model('document_mapper');
+		$lDocument = $this->document_mapper->get($pId);
+		if (!$lDocument) {
+            // TODO: return some error message
+            echo "Document not found";
+            return;
+        }
+        $this->config->load('pdf_upload', TRUE);
+        $global_upload_config = $this->config->item('pdf_upload');
+        $upload_config = $global_upload_config;
+        $upload_config['file_name'] = uniqid();
+
+        $this->load->library('upload', $upload_config);
+
+		$lUploadStatus = $this->upload->do_upload();
+		if (!$lUploadStatus) {
+            // return error message from upload library
+            $errors_string = $this->upload->display_errors('', '//');
+            $errors = explode('//', $errors_string);
+            $this->output
+                ->set_status_header('500');
+                //->set_content_type('application/json')
+                //->set_output(json_encode(array('errors' => $errors)));
+
+			return;
+		}
+		$file_data = $this->upload->data();
+		// set the fileName in the Document_model:
+		$lDocument->setFileName($file_data['file_name']);
+		$this->document_mapper->save($lDocument);
+ 
+        // TODO: return a JSON
+        $file_data = $this->upload->data();
+        $json_data = array(
+                        "files" => array(
+                            "name" => $file_data['file_name'],
+                            "size" => $file_data['file_size'],
+                            "url" => base_url('files/') . $file_data['file_name'],
+                            "delete_url" => base_url('files/delete/'.$file_data['file_name']),
+                            "delete_type" => "DELETE"
+                            )
+                        );
+       $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode($json_data));
+    }
+
     /**
-     * Display a CRUD table for Document_list_models  
+     * Delete the PDF file associated with the Document_model.
      */
+    public function documents_file_delete($pId) {
+        $this->load->model('document_mapper');
+		$lDocument = $this->document_mapper->get($pId);
+		if (!$lDocument) {
+            // TODO: return some error message
+            $this->output->set_status_header(500);
+            return;
+        }
+        $filePath = $lDocument->getFilePath();
+        if (file_exists($filePath)) {
+            // TODO: check if file really has been unlinked.
+            $lDocument->setFileName('');
+            // TODO: check if $lDocument really has been saved.
+            $this->document_mapper->save($lDocument);
+            $status = unlink($filePath);
+            $this->output->set_status_header(200);
+        } else {
+            $this->output->set_status_header(404);
+        }
+    }
+
+
+>>>>>>> upload
 	public function lists()
 	{
 		try {
