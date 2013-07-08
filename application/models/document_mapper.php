@@ -11,6 +11,11 @@ class Document_mapper extends CI_Model {
 	If a document is deleted, the database will itself delete
 	all corresponding entries in "documents_documentLists" */
 	
+	public function __construct(){
+		parent::__construct();
+		$this->load->database();
+	}
+	
 	public function save(Document_model $pDocument){
 		// Table "document"
 		$lData = array("explicitId" => $pDocument->getExplicitId(),
@@ -25,10 +30,12 @@ class Document_mapper extends CI_Model {
 					   "pages" => $pDocument->getPages(),
 					   // Creator and admin temporarily as person ID
 					   "creator" => $pDocument->getCreator(),
-					   "admin" => $pDocument->getAdmin()
+					   "admin" => $pDocument->getAdmin(),
 					   // Creator and admin as person_model objects (later)
 					   // "creator" => $pDocument->getCreator()->getId(),
 					   // "admin" => $pDocument->getAdmin()->getId(),
+					   "currentUserId" => $pDocument->getCurrentUserId(),
+					   "editTimestamp" => $pDocument->getEditTimestamp()
 					   );
 		if($pDocument->isNew()){
 			$lData["created"] = date_format(new DateTime(), "Y-m-d H:i:s"); // Set current timestamp
@@ -94,6 +101,8 @@ class Document_mapper extends CI_Model {
 		$lDocument->setAdmin($pRow->admin);
 		$lDocument->setLastUpdated(new DateTime($pRow->lastUpdated));
 		$lDocument->setCreated(new DateTime($pRow->created));
+		$lDocument->setCurrentUserId($pRow->currentUserId);
+		$lDocument->setEditTimestamp($pRow->editTimestamp);
 		return $lDocument;
 	}
 

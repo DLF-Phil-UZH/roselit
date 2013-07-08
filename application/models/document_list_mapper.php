@@ -5,17 +5,19 @@ class Document_list_mapper extends CI_Model {
 	private $tableName = "documentLists"; // Name of database table
 	private $docToListTable = "documents_documentLists"; // Name of mapping table
 	
-	// public function __construct(){
-		// parent::__construct();
-		// $this->load->database();
-	// }
+	public function __construct(){
+		parent::__construct();
+		$this->load->database();
+	}
 
 	public function save(Document_list_model $pDocList){
 		// Table "documentLists"
 		$lData = array("title" => $pDocList->getTitle(),
 					   "creator" => $pDocList->getCreator()->getId(),
 					   "admin" => $pDocList->getAdmin()->getId(),
-					   "published" => (int) $pDocList->getPublished());
+					   "published" => (int) $pDocList->getPublished(),
+					   "currentUserId" => $pDocList->getCurrentUserId(),
+					   "editTimestamp" => $pDocList->getEditTimestamp());
 		if($pDocList->isNew()){
 			$lData["created"] = null;
 			$this->db->insert($this->tableName, $lData);
@@ -30,7 +32,7 @@ class Document_list_mapper extends CI_Model {
 		$lDocListId = $pDocList->getId();
 		// Delete all mapping entries
 		$this->db->delete($this->docToListTable, array("documentListId" => $lDocListId)); 
-		$lListData = array();		
+		$lListData = array();
 		foreach($pDocList->getDocumentIds() as $lDocumentId){
 			$lListData[] = array("documentListId" => $lDocListId,
 								 "documentId" => $lDocumentId);
@@ -57,6 +59,8 @@ class Document_list_mapper extends CI_Model {
 			$lDocList->setLastUpdated(new DateTime($lResult->lastUpdated));
 			$lDocList->setCreated(new DateTime($lResult->created));
 			$lDocList->setPublished((bool) $lResult->published);
+			$lDocList->setCurrentUserId($lResult->currentUserId);
+			$lDocList->setEditTimestamp($lResult->editTimestamp);
 			// Add documents to the list
 			$this->load->model("Document_mapper");
 			$lDocuments = $this->Document_mapper->getByListId($pId);
