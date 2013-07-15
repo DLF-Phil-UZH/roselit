@@ -24,11 +24,15 @@ $(function () {
     $('#download-pdf-<?php echo $unique; ?>').button();
     $('#fileupload-<?php echo $unique; ?>').button();
 
-    // Change this to the location of your server-side upload handler:
-    var url = '<?php echo $upload_url; ?>';
+    // Init the fileupload plugin:
     $('#fileupload-input-<?php echo $unique; ?>').fileupload({
-        url: url,
+        url: '<?php echo $upload_url; ?>',
         dataType: 'json',
+        maxNumberOfFiles: 1,
+        maxFileSize: 104857600, // = 100 MB
+        dropZone: NULL,
+        //headers: {'Content-Type': 'application/pdf'},
+        acceptFileTypes: /(\.|\/).pdf$/i,
         done: function (e, data) {
             $('#fileupload-<?php echo $unique; ?>').hide();
             $('#filebuttons-<?php echo $unique; ?>').show();
