@@ -75,17 +75,7 @@ class Manager extends CI_Controller {
 		}
     }
 
-    public function upload_config() {
-        $this->config->load('pdf_upload', TRUE);
-        var_dump($this->config);
-        $global_upload_config = $this->config->item('pdf_upload');
-        var_dump($global_upload_config);
-        $upload_config = $global_upload_config;
-        $upload_config['file_name'] = uniqid();
-        print_r($upload_config);
-    }
-
-	/**
+   	/**
 	 *
 	 */
     public function documents_file_upload($pId) {
@@ -103,15 +93,16 @@ class Manager extends CI_Controller {
 
         $this->load->library('upload', $upload_config);
 
+        // TODO: test if filetype is pdf
 		$lUploadStatus = $this->upload->do_upload();
 		if (!$lUploadStatus) {
             // return error message from upload library
             $errors_string = $this->upload->display_errors('', '//');
             $errors = explode('//', $errors_string);
             $this->output
-                ->set_status_header('500');
-                //->set_content_type('application/json')
-                //->set_output(json_encode(array('errors' => $errors)));
+                ->set_status_header('500')
+                ->set_content_type('application/json')
+                ->set_output(json_encode(array('errors' => $errors)));
 
 			return;
 		}
@@ -161,7 +152,6 @@ class Manager extends CI_Controller {
     }
 
 
->>>>>>> upload
 	public function lists()
 	{
 		try {
