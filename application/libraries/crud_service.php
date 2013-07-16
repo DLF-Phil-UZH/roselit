@@ -24,31 +24,27 @@ class Crud_service {
 		try{
 			$crud->set_table('documents');
 			$crud->set_subject('Dokument');
-			$crud->set_relation('creator','users','{firstname} {lastname}');
-			$crud->set_relation('admin','users','{firstname} {lastname}');
+			$crud->set_relation('creator','users','{firstname} {lastname} ({aaiId})');
+			$crud->set_relation('admin','users','{firstname} {lastname} ({aaiId})');
 			$crud->set_relation_n_n('Listen', 'documents_documentLists', 'documentLists', 'documentId', 'documentListId', 'title');
-			$crud->columns('explicitId', 'title', 'authors', 'publication', 'volume', 'editors', 'places', 'publishingHouse', 'year', 'pages', 'fileName');
-			$crud->fields('explicitId', 'title', 'authors', 'publication', 'volume', 'editors', 'places', 'publishingHouse', 'year', 'pages', 'fileName', 'creator', 'admin');
+			$crud->columns('explicitId','authors', 'title', 'publication', 'volume', 'year', 'pages', 'fileName');
+			$crud->fields('explicitId', 'authors', 'title', 'editors', 'publication', 'volume', 'places', 'publishingHouse', 'year', 'pages', 'fileName', 'creator', 'admin', 'lastUpdated');
 
 			// customize fields:
 			//$crud->callback_field('lastUpdated',array($this,'_make_field_lastUpdated_readonly'));
 			$crud->set_field_upload('fileName','assets/uploads/files')
 				 ->field_type('created', 'readonly')
 				 ->field_type('lastUpdated', 'readonly')
-				 // ->field_type('creator', 'readonly')
+				 ->field_type('creator', 'readonly')
 				 ->unset_add_fields('creator', 'admin', 'created', 'lastUpdated');
-			
-			// Creator and admin will be set automatically by callback to current user
-			$crud->change_field_type('creator', 'invisible');
-			$crud->change_field_type('admin', 'invisible');
 			
 			// Field aliases:
 			$crud->display_as('title','Titel')
 				 ->display_as('authors', 'Autoren')
 				 ->display_as('explicitId', 'explizite ID')
 				 ->display_as('publication', 'Werk- oder Zeitschriftentitel')
-				 ->display_as('volume', 'Band/Ausgabe')
-				 ->display_as('editors', 'Herausgeber/Buchautor')
+				 ->display_as('volume', 'Band / Ausgabe')
+				 ->display_as('editors', 'Herausgeber / Buchautor')
 				 ->display_as('year', 'Jahr')
 				 ->display_as('places', 'Ort')
 				 ->display_as('publishingHouse', 'Verlag')
@@ -58,7 +54,7 @@ class Crud_service {
 				 ->display_as('admin', 'verwaltet von');
 			
 			// Will only be called when adding a new entry
-			$crud->callback_before_insert(array($this, 'setCreatorAsAdmin'));
+			$crud->callback_after_insert(array($this, 'update_documents_after_insert'));
 			
 			$output = $crud->render();
 		} catch(Exception $e){
@@ -81,20 +77,16 @@ class Crud_service {
 			$crud->set_relation('creator','users','{firstname} {lastname} - {email}');
 			$crud->set_relation('admin','users','{firstname} {lastname} - {email}');
 			$crud->set_relation_n_n('Dokumente', 'documents_documentLists', 'documents', 'documentListId', 'documentId', 'title');
-			$crud->columns('title', 'admin', 'creator', 'lastUpdated', 'published');
-			$crud->fields('title', 'admin', 'creator', 'lastUpdated', 'published');
+			$crud->columns('title', 'admin', 'lastUpdated', 'published');
+			$crud->fields('title', 'creator', 'admin', 'lastUpdated', 'published', 'Dokumente');
 
 			// edit fields:
 			$crud->field_type('created', 'readonly')
 				 ->field_type('lastUpdated', 'readonly')
 				 ->field_type('published', 'readonly')
-				 // ->field_type('creator', 'readonly')
+				 ->field_type('creator', 'readonly')
 				 ->unset_add_fields('creator', 'admin', 'created', 'lastUpdated', 'published');
 
-			// Creator and admin will be set automatically by callback to current user
-			$crud->change_field_type('creator', 'invisible');
-			$crud->change_field_type('admin', 'invisible');
-			
 			// Field aliases:
 			$crud->display_as('title','Titel')
 				  ->display_as('creator', 'erstellt von')
@@ -104,7 +96,7 @@ class Crud_service {
 				  ->display_as('published', 'bereits veröffentlicht');
 			
 			// Will only be called when adding a new entry
-			$crud->callback_before_insert(array($this, 'setCreatorAsAdmin'));
+			$crud->callback_after_insert(array($this, 'update_documentlists_after_insert'));
 
 			$output = $crud->render();
 		}catch(Exception $e){
@@ -165,7 +157,7 @@ class Crud_service {
 			$crud->field_type('created', 'readonly');
 			
 			$crud->unset_add()
-					->unset_edit();
+				 ->unset_edit();
 
 			// TODO: add custom action to accept request
 			$crud->add_action('Accept', '', 'admin/user_requests/accept','ui-icon-plus');
@@ -179,61 +171,78 @@ class Crud_service {
 	}
 	
 	/**
-	 * Setting creator and admin to current user and creation timestamp to NULL
+     * Sets creator and admin to current user and creation timestamp to
+     * lastUpated timestamp 
 	 * 
-	 * Callback function, is called when a new document
-	 * or a document list is created to set admin to current
-	 * user (= creator), but not when an existing document is
-	 * edited. Additionally sets the timestamp of creation
-	 * ("created") to NULL, so that this value is set by the
-	 * database itself
-	 *
-	 * @param	array	Array with POST data (field entries)
-	 * @return	array	Array with modified POST data ("creator", "admin" and "created" added)
+     * Callback function, is called when a document list is created 
+     * to set admin and creator to current user, but not when an 
+     * existing document is edited. Additionally sets the timestamp 
+     * of creation ("created") to the same value as lastUpdated
+     * 
+	 * @param	array	$pPostArray Array with POST data (field entries)
+     * @param   int     $pId primary key of the inserted values
+     * @return	boolean	true on success, false on error
 	 * @access	public
 	 *
 	 */
-	public function setCreatorAsAdmin($pPostArray){
-		
-		try{
+	public function update_documents_after_insert($pPostArray, $pId){
+        return $this->_update_table_after_insert('documentLists', $postArray, $pId);		
+    }
+
+    /**
+     * Sets creator and admin to current user and creation timestamp
+     * to lastUpated timestamp 
+	 * 
+     * Callback function, is called when a document list is created 
+     * to set admin and creator to current user, but not when an 
+     * existing document is edited. Additionally sets the timestamp 
+     * of creation ("created") to the same value as lastUpdated
+     * 
+	 *
+	 * @param	array	$pPostArray Array with POST data (field entries)
+     * @param   int     $pId primary key of the inserted values
+     * @return	boolean	true on success, false on error
+	 * @access	public
+	 *
+	 */
+    public function update_documentlists_after_insert($pPostArray, $pId){
+        return $this->_update_table_after_insert('documents', $postArray, $pId);		
+    }
+
+    /**
+     * Sets the columns creator and admin to current user and creation timestamp
+     * to lastUpated timestamp 
+     * 
+     * @param   string  $pTableName name of the table that should be updated.
+     * @param	array	$pPostArray Array with POST data (field entries)
+     * @param   int     $pId primary key of the inserted values
+     * @return	boolean	true on success, false on error
+	 * @access  private	
+     * 
+     */
+    private function _update_table_after_insert($pTableName, $pPostArray, $pId) {
+        try{
 			// Get user data
 			$lCi = $this->_getCI();
 			$lCi->load->library('Shibboleth_authentication_service', '', 'shib_auth');
 			$lUser = $lCi->shib_auth->verify_user();
 			$lUserId = $lUser->getId();
-			// Set creator and admin to current user
-			$pPostArray['creator'] = $lUserId;
-			$pPostArray['admin'] = $lUserId;
 			
-			
-			
-			// TODO: "created" cannot be set in database so far,
-			// tried with the following non-working approaches:
-			
-			// Timestamp of creation will be set by database
-			
-			// $pPostArray['created'] = NULL;
-			
-			// $pPostArray['created'] = new DateTime('now');
-			
-			// $lCreationTimestamp = new DateTime('now');
-			// $pPostArray['created'] = $lCreationTimestamp->format('Y-m-d H:i:s');
-			
-			// Just for testing
-			// $pPostArray['created'] = '2013-07-08 01:00:00';
-			
-			// $pPostArray['created'] = date('Y-m-d H:i:s');
-			
-			
-			// Tried with both datatypes "timestamp" and "datetime" in the database
-			
+            $lCi->load->database();
+            $lDb = $lCi->db;
+            $lQuery = 'UPDATE ' . $lDb->protect_identifiers($pTableName);
+            $lQuery .= ' SET ' . $lDb->protect_identifiers('creator') . ' = ? ,';
+            $lQuery .= $lDb->protect_identifiers('admin') . ' = ? ,';
+            $lQuery .= $lDb->protect_identifiers('created') . ' = ' . $lDb->protect_identifiers('lastUpdated');
+            $lQuery .= ' WHERE ' . $lDb->protect_identifiers('id') . ' = ?;';
+            
+            return $lDb->query($lQuery, array($lUserId, $lUserId, $pId));
 		}
 		catch(Exception $e){
 			show_error($e->getMessage().' --- '.$e->getTraceAsString());
-		}
-		return $pPostArray;
-		
-	}
+        }
+
+    }
 }
 
 /* End of file crud_service.php */
