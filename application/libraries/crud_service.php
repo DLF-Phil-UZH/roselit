@@ -7,18 +7,12 @@ class Crud_service {
     }
 	protected function _getCrud()
 	{
-		$ci = &get_instance();
-		$ci->load->library('grocery_CRUD');
+		$this->_getCI()->load->library('grocery_CRUD');
 		$crud = new grocery_Crud();
 		$crud->set_theme('datatables');
 		return $crud;
 	}
 	
-	protected function _getCI(){
-		$lCi = &get_instance();
-		return $lCi;
-	}
-
 	public function getDocumentsCrud() {
 		$crud = $this->_getCrud();
 		$output = '';
@@ -37,10 +31,11 @@ class Crud_service {
 			$crud->field_type('created', 'readonly')
 				 ->field_type('lastUpdated', 'readonly')
 				 ->field_type('creator', 'readonly')
-				 ->unset_add_fields('creator', 'admin', 'created', 'lastUpdated');
+				 ->unset_add_fields('fileName', 'creator', 'admin', 'created', 'lastUpdated');
 			
-			$crud->callback_field('fileName', array($this, '_callback_upload_field'));
-			$crud->callback_column('fileName', array($this, '_callback_file_url'));
+			//$crud->callback_field('fileName', array($this, '_callback_upload_field'));
+			$crud->callback_column('fileName', array($this, '_callback_fileName_column'));
+
 			// Field aliases:
 			$crud->display_as('title','Titel')
 				 ->display_as('authors', 'Autoren')
@@ -54,7 +49,9 @@ class Crud_service {
 				 ->display_as('pages', 'Seiten')
 				 ->display_as('fileName', 'Datei')
 				 ->display_as('creator', 'erstellt von')
-				 ->display_as('admin', 'verwaltet von');
+				 ->display_as('admin', 'verwaltet von')
+				  ->display_as('lastUpdated', 'zuletzt aktualisiert am');
+            
 			
 			// Will only be called when adding a new entry
 			$crud->callback_after_insert(array($this, 'update_documents_after_insert'));
@@ -77,8 +74,8 @@ class Crud_service {
 		try{
 			$crud->set_table('documentLists');
 			$crud->set_subject('Liste');
-			$crud->set_relation('creator','users','{firstname} {lastname} {email}');
-			$crud->set_relation('admin','users','{firstname} {lastname} - {email}');						
+			$crud->set_relation('creator','users','firstname} {lastname} ({aaiId})');
+			$crud->set_relation('admin','users','{firstname} {lastname} ({aaiId})');						
 			$crud->set_relation_n_n('Dokumente', 'documents_documentLists', 'documents', 'documentListId', 'documentId', '{authors} ({year}), {title}');
 			$crud->columns('title', 'admin', 'lastUpdated', 'published');
 			$crud->fields('title', 'creator', 'admin', 'lastUpdated', 'published', 'Dokumente');
@@ -94,7 +91,6 @@ class Crud_service {
 			$crud->display_as('title','Titel')
 				  ->display_as('creator', 'erstellt von')
 				  ->display_as('admin', 'verwaltet von')
-				  ->display_as('creator', 'erstellt von')
 				  ->display_as('lastUpdated', 'zuletzt aktualisiert am')
 				  ->display_as('published', 'bereits veröffentlicht');
 			
@@ -162,7 +158,7 @@ class Crud_service {
 			$crud->unset_add()
 				 ->unset_edit();
 
-			// TODO: add custom action to accept request
+			// add custom action to accept request
 			$crud->add_action('Accept', '', 'admin/user_requests/accept','ui-icon-plus');
 
 			$output = $crud->render();
@@ -172,42 +168,46 @@ class Crud_service {
 		return $output;
 	}
 
-	public function _callback_file_url($pValue, $pRow){
+	public function _callback_fileName_column($pValue, $pRow){
 		if ($pValue != '') {
 			return '<a href="'.site_url('manager/documents_file/'.$pRow->id).'" target="_blank">Datei herunterladen</a>';
 		}
-		return "";
+		return '';
 	}
 
     public function _callback_upload_field($pValue, $pId) {
-        $ci =& get_instance();
-        $ci->load->model('document_mapper');
-        $lDocument = $ci->document_mapper->get($pId);
-        if ($lDocument->getFileName() != '') {
-            $file_buttons_display = '';
-            $upload_button_display = 'display:none;';
-        } else {
-            $file_buttons_display = 'display:none;';
-            $upload_button_display = '';
+        if ($pId) {
+            $ci =& get_instance();
+            // TODO: do we really need to load the Document_model?
+            $ci->load->model('document_mapper');
+            $lDocument = $ci->document_mapper->get($pId);
+            if ($lDocument->getFileName() != '') {
+                $file_buttons_display = '';
+                $upload_button_display = 'display:none;';
+            } else {
+                $file_buttons_display = 'display:none;';
+                $upload_button_display = '';
+            }
+            $view_data = array(
+                'unique' => uniqid(),
+                'assets_url' => base_url('assets/grocery_crud'),
+                'upload_button_display' => $upload_button_display,
+                'file_buttons_display' => $file_buttons_display,
+                'upload_url' => site_url('manager/documents/file/upload/' . $pId),
+                'download_url' => site_url('manager/documents/file/'.$pId),
+                'delete_url' => site_url('manager/documents/file/delete/' . $pId),
+                'upload_success_msg' => 'Die Datei wurde erfolgreich hochgeladen.',
+                'upload_error_msg' => 'Beim Hochladen der Datei ist ein Fehler aufgetreten.',
+                'confirm_delete_msg' => 'Möchten Sie die Datei wirklich löschen?',
+                'delete_success_msg' => 'Die Datei wurde gelöscht.',
+                'delete_error_msg' => 'Die Datei konnte nicht gelöscht werden.'
+            );
+            $upload_input = $this->_getCI()->load->view('crud/upload_field', $view_data, true);
+            return $upload_input;
         }
-        $view_data = array(
-            'unique' => uniqid(),
-            'assets_url' => base_url('assets/grocery_crud'),
-            'upload_button_display' => $upload_button_display,
-            'file_buttons_display' => $file_buttons_display,
-            'upload_url' => site_url('manager/documents/file/upload/' . $pId),
-            'download_url' => site_url('manager/documents/file/'.$pId),
-            'delete_url' => site_url('manager/documents/file/delete/' . $pId),
-            'upload_success_msg' => 'Die Datei wurde erfolgreich hochgeladen.',
-            'upload_error_msg' => 'Beim Hochladen der Datei ist ein Fehler aufgetreten.',
-            'confirm_delete_msg' => 'Möchten Sie die Datei wirklich löschen?',
-            'delete_success_msg' => 'Die Datei wurde gelöscht.',
-            'delete_error_msg' => 'Die Datei konnte nicht gelöscht werden.'
-        );
-        $upload_input = $this->_getCI()->load->view('crud/upload_field', $view_data, true);
-        return $upload_input;
+        // TODO: what should be returned, if no id is specified? How can we upload something before the document is specified?
+        return '';
     }
-} 
 	
 	/**
      * Sets creator and admin to current user and creation timestamp to
