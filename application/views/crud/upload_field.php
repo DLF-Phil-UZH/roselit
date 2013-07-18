@@ -30,7 +30,7 @@ $(function () {
         dataType: 'json',
         maxNumberOfFiles: 1,
         maxFileSize: 104857600, // = 100 MB
-        dropZone: NULL,
+        dropZone: null,
         //headers: {'Content-Type': 'application/pdf'},
         acceptFileTypes: /(\.|\/).pdf$/i,
         done: function (e, data) {
