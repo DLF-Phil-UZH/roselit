@@ -56,6 +56,9 @@ class Crud_service {
 				 ->display_as('creator', 'erstellt von')
 				 ->display_as('admin', 'verwaltet von');
 			
+			// Will only be called when updating an existing entry
+			$crud->callback_before_update(array($this, 'check_edit_state_document'));
+			
 			// Will only be called when adding a new entry
 			$crud->callback_after_insert(array($this, 'update_documents_after_insert'));
 
@@ -78,7 +81,7 @@ class Crud_service {
 			$crud->set_table('documentLists');
 			$crud->set_subject('Liste');
 			$crud->set_relation('creator','users','{firstname} {lastname} {email}');
-			$crud->set_relation('admin','users','{firstname} {lastname} - {email}');						
+			$crud->set_relation('admin','users','{firstname} {lastname} - {email}');
 			$crud->set_relation_n_n('Dokumente', 'documents_documentLists', 'documents', 'documentListId', 'documentId', '{authors} ({year}), {title}');
 			$crud->columns('title', 'admin', 'lastUpdated', 'published');
 			$crud->fields('title', 'creator', 'admin', 'lastUpdated', 'published', 'Dokumente');
@@ -97,6 +100,9 @@ class Crud_service {
 				  ->display_as('creator', 'erstellt von')
 				  ->display_as('lastUpdated', 'zuletzt aktualisiert am')
 				  ->display_as('published', 'bereits veröffentlicht');
+			
+			// Will only be called when updating an existing entry
+			$crud->callback_before_update(array($this, 'check_edit_state_documentList'));
 			
 			// Will only be called when adding a new entry
 			$crud->callback_after_insert(array($this, 'update_documentlists_after_insert'));
@@ -225,7 +231,7 @@ class Crud_service {
 	 *
 	 */
 	public function update_documents_after_insert($pPostArray, $pId){
-        return $this->_update_table_after_insert('documentLists', $postArray, $pId);		
+        return $this->_update_table_after_insert('documentLists', $postArray, $pId);
     }
 
     /**
@@ -245,7 +251,7 @@ class Crud_service {
 	 *
 	 */
     public function update_documentlists_after_insert($pPostArray, $pId){
-        return $this->_update_table_after_insert('documents', $postArray, $pId);		
+        return $this->_update_table_after_insert('documents', $postArray, $pId);
     }
 
     /**
@@ -261,27 +267,137 @@ class Crud_service {
      */
     private function _update_table_after_insert($pTableName, $pPostArray, $pId) {
         try{
-			// Get user data
+			// Get data of currently logged in user
 			$lCi = $this->_getCI();
 			$lCi->load->library('Shibboleth_authentication_service', '', 'shib_auth');
 			$lUser = $lCi->shib_auth->verify_user();
 			$lUserId = $lUser->getId();
 			
-            $lCi->load->database();
-            $lDb = $lCi->db;
-            $lQuery = 'UPDATE ' . $lDb->protect_identifiers($pTableName);
-            $lQuery .= ' SET ' . $lDb->protect_identifiers('creator') . ' = ? ,';
-            $lQuery .= $lDb->protect_identifiers('admin') . ' = ? ,';
-            $lQuery .= $lDb->protect_identifiers('created') . ' = ' . $lDb->protect_identifiers('lastUpdated');
-            $lQuery .= ' WHERE ' . $lDb->protect_identifiers('id') . ' = ?;';
+			$lCi->load->database();
+			$lDb = $lCi->db;
+			$lQuery = 'UPDATE ' . $lDb->protect_identifiers($pTableName);
+			$lQuery .= ' SET ' . $lDb->protect_identifiers('creator') . ' = ? ,';
+			$lQuery .= $lDb->protect_identifiers('admin') . ' = ? ,';
+			$lQuery .= $lDb->protect_identifiers('created') . ' = ' . $lDb->protect_identifiers('lastUpdated');
+			$lQuery .= ' WHERE ' . $lDb->protect_identifiers('id') . ' = ?;';
             
-            return $lDb->query($lQuery, array($lUserId, $lUserId, $pId));
+			if($lDb->query($lQuery, array($lUserId, $lUserId, $pId)) === true){
+				return $pPostArray;
+			}
+			else{
+				return false;
+			}
 		}
 		catch(Exception $e){
 			show_error($e->getMessage().' --- '.$e->getTraceAsString());
         }
 
     }
+	
+	/**
+	 * Checks if document is free for editing. 
+	 * 
+	 * Callback function, is called before a logged in user tries to
+	 * update an existing document.
+	 * 
+	 * @param	array	$pPostArray	Array with POST data (field entries)
+	 * @param	int		$pId primary key of the inserted values
+	 * @return	array/boolean	Post array on success, false on error
+	 * @access	public
+	 */
+	public function check_edit_state_document($pPostArray, $pId){
+		return $this->_manage_edit_state('documents', $pPostArray, $pId);
+	}
+	
+	/**
+	 * Checks if document list is free for editing. 
+	 * 
+	 * Callback function, is called before a logged in user tries to
+	 * update an existing document list.
+	 * 
+	 * @param	array	$pPostArray	Array with POST data (field entries)
+	 * @param	int		$pId primary key of the inserted values
+	 * @return	array/boolean	Post array on success, false on error
+	 * @access	public
+	 */
+	public function check_edit_state_documentList($pPostArray, $pId){
+		return $this->_manage_edit_state('documentLists', $pPostArray, $pId);
+	}
+	
+	/**
+	 * Checks if an entry (document or document list) is available for editing or if it is already being edited by another user.
+	 * If entry is free for editing, sets the fields currentUserId and editTimestamp in database for logged in user.
+	 *
+	 * @param	string  $pTableName	Name of the table that should be updated ("documents" or "documentLists")
+	 * @param	array	$pPostArray	Array with POST data (field entries)
+	 * @param	int     $pId		Primary key of the inserted values
+	 * @return	array/boolean	Post array on success, false on error
+	 * @access	private
+	 */
+	private function _manage_edit_state($pTableName, $pPostArray, $pId){
+		// Set currentUserId to ID of current user if entry is not being edited by any other user or edit timestamp is older than 60 minutes
+		$lEditTimestamp = new DateTime($pPostArray['editTimestamp']);
+		$lCurrentTimestamp = new DateTime();
+		$lDifference = _getTimeDifference($lEditTimestamp, $lCurrentTimestamp);
+		
+		// Load database
+		$lCi->load->database();
+		$lDb = $lCi->db;
+		
+		// Get edit information from database
+		$lQuery = $lDb->get_where($pTableName, array('id' => $pId));
+		if($lQuery->num_rows() == 1){
+			$lCurrentUserId = $lQuery->row()->currentUserId;
+			$lEditTimestamp = $lQuery->row()->editTimestamp;
+		}
+		
+		// Get data of currently logged in user
+		$lCi = $this->_getCI();
+		$lCi->load->library('Shibboleth_authentication_service', '', 'shib_auth');
+		$lUser = $lCi->shib_auth->verify_user();
+		$lUserId = $lUser->getId();
+		
+		// If logged in user was working on entry or no one was working on entry or if edit time has runned up
+		if($lCurrentUserId == $lUserId || $lCurrentUserId === 0 || $lDifference >= 60)){
+			try{
+				// Set currentUserId to logged in user and editTimestamp to current time
+				$lQuery = 'UPDATE ' . $lDb->protect_identifiers($pTableName);
+				$lQuery .= ' SET ' . $lDb->protect_identifiers('currentUserId') . ' = ? ,';
+				$lQuery .= $lDb->protect_identifiers('editTimestamp') . ' = ? ,';
+				$lQuery .= ' WHERE ' . $lDb->protect_identifiers('id') . ' = ?;';
+
+				if($lDb->query($lQuery, array($lUserId, $lCurrentTimestamp, $pId)) === true){
+					return $pPostArray;
+				}
+				else{
+					return false;
+				}
+			}
+			catch(Exception $e){
+				show_error($e->getMessage().' --- '.$e->getTraceAsString());
+			}
+		}
+		// Do not allow editing the entry when any other user is currently working on it
+		else{
+			return false;
+			// throw new Exception('Bearbeitung nicht möglich. ' . (strcmp($pTableName, 'documents') ? 'Das Dokument' : 'Die Liste') . ' wird gerade von einem anderen Benutzer bearbeitet.');
+		}
+	}
+	
+	/**
+	 * Calculates the absolute time difference of two given timestamps in minutes.
+	 * 
+	 * @param	DateTime	$pTimestamp1	First timestamp (usually older one)
+	 * @param	DateTime	$pTimestamp2	Second timestamp (usually newer one)
+	 * @return	integer		Absolute time difference in minutes (always rounded down to next smaller integer (works like floor()))
+	 * @access  private
+	 */
+	private function _getTimeDifference($pTimestamp1, $pTimestamp2){
+		$lOldTime = $pTimestamp1->getTimestamp();
+		$lNewTime = $pTimestamp2->getTimestamp();
+		$lDifference = $lNewTime - $lOldTime; // Difference in seconds
+		return abs($lDifference) / 60; // Difference in minutes (absolute value)
+	}
 }
 
 /* End of file crud_service.php */
