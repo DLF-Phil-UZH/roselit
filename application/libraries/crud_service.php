@@ -1,5 +1,7 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
+//require_once('Grocery_CRUD.php');
+
 class Crud_service {
 
     private $user = NULL;
@@ -7,11 +9,9 @@ class Crud_service {
     protected function _getCI() {
         return get_instance();
     }
-	protected function _getCrud()
-	{
-		$ci = &get_instance();
-		$ci->load->library('grocery_CRUD');
-		$crud = new grocery_Crud();
+	protected function _getCrud() {
+		$this->_getCI()->load->library('Grocery_CRUD');
+		$crud = new Grocery_CRUD();
 		$crud->set_theme('datatables');
 		return $crud;
 	}
@@ -26,17 +26,12 @@ class Crud_service {
         return $this->user;
     }
 	
-	protected function _getCI(){
-		$lCi = &get_instance();
-		return $lCi;
-	}
-
 	public function getDocumentsCrud() {
 		$crud = $this->_getCrud();
 		$output = '';
 
-		/** config: */
 		try{
+		    /** config: */
 			$crud->set_table('documents');
 			$crud->set_subject('Dokument');
 			$crud->set_relation('creator','users','{firstname} {lastname} ({aaiId})');
@@ -44,13 +39,11 @@ class Crud_service {
 			$crud->set_relation_n_n('Listen', 'documents_documentLists', 'documentLists', 'documentId', 'documentListId', 'title');
 
             /** columns: */
-
 			$crud->columns('checkbox', 'explicitId','authors', 'title', 'publication', 'volume', 'year', 'pages', 'fileName');
-			$crud->callback_column('checkbox', array($this, '_callback_checkbox_column'));
-			$crud->callback_column('fileName', array($this, '_callback_fileName_column'));
+			$crud->callback_column('checkbox', array($this, 'callback_checkbox_column'));
+			$crud->callback_column('fileName', array($this, 'callback_fileName_column'));
     
             /** fields: */
-
             $crud->fields('explicitId', 'authors', 'title', 'editors', 'publication',
                 'volume', 'places', 'publishingHouse', 'year', 'pages', 
                 'fileName', 'creator', 'admin', 'lastUpdated');
@@ -59,10 +52,9 @@ class Crud_service {
 				 ->field_type('lastUpdated', 'readonly')
 				 ->field_type('creator', 'readonly');
 			
-			$crud->callback_field('fileName', array($this, '_callback_upload_field'));
+			$crud->callback_field('fileName', array($this, 'callback_upload_field'));
 
-            /** Field / column aliases: */
-
+            /** field / column aliases: */
             $crud->display_as('checkbox', '')
                  ->display_as('title','Titel')
 				 ->display_as('authors', 'Autoren')
@@ -102,8 +94,8 @@ class Crud_service {
 		$crud = $this->_getCrud();
 		$output = '';
 
-		/** config: */
 		try{
+		    /** config: */
 			$crud->set_table('documentLists');
 			$crud->set_subject('Liste');
 			$crud->set_relation('creator','users','{firstname} {lastname} ({aaiId})');
@@ -111,11 +103,9 @@ class Crud_service {
 			$crud->set_relation_n_n('Dokumente', 'documents_documentLists', 'documents', 'documentListId', 'documentId', '{authors} ({year}), {title}');
 
             /** columns: */
-
 			$crud->columns('title', 'admin', 'lastUpdated', 'published');
 
             /** fields: */
-
 			$crud->fields('title', 'creator', 'admin', 'lastUpdated', 'published', 'Dokumente');
             $crud->unset_add_fields('creator', 'admin', 'created', 'lastUpdated', 'published');
 			$crud->field_type('created', 'readonly')
@@ -153,8 +143,8 @@ class Crud_service {
 		$crud = $this->_getCrud();
 		$output = '';
 
-		/** config */
 		try{
+		    /** config */
 			$crud->set_table('users');
             $crud->set_subject('Benutzer');
 
@@ -163,7 +153,7 @@ class Crud_service {
 
             /** fields: */
 			$crud->field_type('created', 'readonly')
-				 ->field_type('lastLogin', 'readonly')
+				 ->field_type('lastLogin', 'readonly');
 			$crud->unset_add_fields('created', 'lastLogin');
 
             /** Field / column aliases: */
@@ -223,19 +213,19 @@ class Crud_service {
     /**
      *   
      */
-    public function _callback_checkbox_column($pValue, $pRow){
+    public function callback_checkbox_column($pValue, $pRow){
         $pValue = 'document_' . $pRow->id;
         return '<input type="checkbox" name="selected-rows" value="' . $pValue . '" >';
     }
 
-	public function _callback_fileName_column($pValue, $pRow){
+	public function callback_fileName_column($pValue, $pRow){
 		if ($pValue != '') {
 			return '<a href="'.site_url('manager/documents_file/'.$pRow->id).'" target="_blank">Datei herunterladen</a>';
 		}
-		return "";
+		return '';
 	}
 
-    public function _callback_upload_field($pValue, $pId) {
+    public function callback_upload_field($pValue, $pId) {
         $ci =& get_instance();
         $ci->load->model('document_mapper');
         $lDocument = $ci->document_mapper->get($pId);
@@ -263,7 +253,6 @@ class Crud_service {
         $upload_input = $this->_getCI()->load->view('crud/upload_field', $view_data, true);
         return $upload_input;
     }
-} 
 	
 	/**
      * Sets creator and admin to current user and creation timestamp to
@@ -384,13 +373,14 @@ class Crud_service {
 	 * @return	array/boolean	Post array on success, false on error
 	 * @access	private
 	 */
-	private function _manage_edit_state($pTableName, $pPostArray, $pId){
+	private function _manage_edit_state($pTableName, $pPostArray, $pId) {
 		// Set currentUserId to ID of current user if entry is not being edited by any other user or edit timestamp is older than 60 minutes
 		$lEditTimestamp = new DateTime($pPostArray['editTimestamp']);
 		$lCurrentTimestamp = new DateTime();
-		$lDifference = _getTimeDifference($lEditTimestamp, $lCurrentTimestamp);
+		$lDifference = $this->_getTimeDifference($lEditTimestamp, $lCurrentTimestamp);
 		
 		// Load database
+        $lCi = $this->_getCI();
 		$lCi->load->database();
 		$lDb = $lCi->db;
 		
@@ -400,15 +390,15 @@ class Crud_service {
 			$lCurrentUserId = $lQuery->row()->currentUserId;
 			$lEditTimestamp = $lQuery->row()->editTimestamp;
 		}
+        // FIXME: what happens, if several or 0 rows are returned from the query???
 		
 		// Get data of currently logged in user
-		$lCi = $this->_getCI();
 		$lCi->load->library('Shibboleth_authentication_service', '', 'shib_auth');
 		$lUser = $lCi->shib_auth->verify_user();
 		$lUserId = $lUser->getId();
 		
 		// If logged in user was working on entry or no one was working on entry or if edit time has runned up
-		if($lCurrentUserId == $lUserId || $lCurrentUserId === 0 || $lDifference >= 60)){
+		if($lCurrentUserId == $lUserId || $lCurrentUserId === 0 || $lDifference >= 60) {
 			try{
 				// Set currentUserId to logged in user and editTimestamp to current time
 				$lQuery = 'UPDATE ' . $lDb->protect_identifiers($pTableName);
@@ -426,9 +416,8 @@ class Crud_service {
 			catch(Exception $e){
 				show_error($e->getMessage().' --- '.$e->getTraceAsString());
 			}
-		}
-		// Do not allow editing the entry when any other user is currently working on it
-		else{
+		} else {
+		    // Do not allow editing the entry when any other user is currently working on it
 			return false;
 			// throw new Exception('Bearbeitung nicht möglich. ' . (strcmp($pTableName, 'documents') ? 'Das Dokument' : 'Die Liste') . ' wird gerade von einem anderen Benutzer bearbeitet.');
 		}
