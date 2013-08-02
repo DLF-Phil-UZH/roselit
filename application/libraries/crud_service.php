@@ -2,6 +2,8 @@
 
 class Crud_service {
 
+    private $user = NULL;
+
     protected function _getCI() {
         return get_instance();
     }
@@ -13,6 +15,16 @@ class Crud_service {
 		$crud->set_theme('datatables');
 		return $crud;
 	}
+
+    protected function _getUser() {
+        if (is_null($this->user)) {
+            $lCi = $this->_getCI();
+            $lCi->load->library('Shibboleth_authentication_service', '', 'shib_auth');
+            $lUser = $lCi->shib_auth->verify_user();
+            $this->user = $lUser;
+        }
+        return $this->user;
+    }
 	
 	protected function _getCI(){
 		$lCi = &get_instance();
@@ -23,26 +35,36 @@ class Crud_service {
 		$crud = $this->_getCrud();
 		$output = '';
 
-		/* config */
+		/** config: */
 		try{
 			$crud->set_table('documents');
 			$crud->set_subject('Dokument');
 			$crud->set_relation('creator','users','{firstname} {lastname} ({aaiId})');
 			$crud->set_relation('admin','users','{firstname} {lastname} ({aaiId})');
 			$crud->set_relation_n_n('Listen', 'documents_documentLists', 'documentLists', 'documentId', 'documentListId', 'title');
-			$crud->columns('explicitId','authors', 'title', 'publication', 'volume', 'year', 'pages', 'fileName');
-			$crud->fields('explicitId', 'authors', 'title', 'editors', 'publication', 'volume', 'places', 'publishingHouse', 'year', 'pages', 'fileName', 'creator', 'admin', 'lastUpdated');
 
-			// customize fields:
+            /** columns: */
+
+			$crud->columns('checkbox', 'explicitId','authors', 'title', 'publication', 'volume', 'year', 'pages', 'fileName');
+			$crud->callback_column('checkbox', array($this, '_callback_checkbox_column'));
+			$crud->callback_column('fileName', array($this, '_callback_fileName_column'));
+    
+            /** fields: */
+
+            $crud->fields('explicitId', 'authors', 'title', 'editors', 'publication',
+                'volume', 'places', 'publishingHouse', 'year', 'pages', 
+                'fileName', 'creator', 'admin', 'lastUpdated');
+			$crud->unset_add_fields('creator', 'admin', 'created', 'lastUpdated');
 			$crud->field_type('created', 'readonly')
 				 ->field_type('lastUpdated', 'readonly')
-				 ->field_type('creator', 'readonly')
-				 ->unset_add_fields('creator', 'admin', 'created', 'lastUpdated');
+				 ->field_type('creator', 'readonly');
 			
 			$crud->callback_field('fileName', array($this, '_callback_upload_field'));
-			$crud->callback_column('fileName', array($this, '_callback_file_url'));
-			// Field aliases:
-			$crud->display_as('title','Titel')
+
+            /** Field / column aliases: */
+
+            $crud->display_as('checkbox', '')
+                 ->display_as('title','Titel')
 				 ->display_as('authors', 'Autoren')
 				 ->display_as('explicitId', 'explizite ID')
 				 ->display_as('publication', 'Werk- oder Zeitschriftentitel')
@@ -54,14 +76,18 @@ class Crud_service {
 				 ->display_as('pages', 'Seiten')
 				 ->display_as('fileName', 'Datei')
 				 ->display_as('creator', 'erstellt von')
-				 ->display_as('admin', 'verwaltet von');
+				 ->display_as('admin', 'verwaltet von')
+				 ->display_as('lastUpdated', 'zuletzt aktualisiert am');
 			
-			// Will only be called when updating an existing entry
-			$crud->callback_before_update(array($this, 'check_edit_state_document'));
+            /** Callbacks for actions: */
+            
+            // Will only be called when updating an existing entry
+		    $crud->callback_before_update(array($this, 'check_edit_state_document'));
 			
-			// Will only be called when adding a new entry
+		    // Will only be called when adding a new entry
 			$crud->callback_after_insert(array($this, 'update_documents_after_insert'));
-
+            
+            // execute:
 			$output = $crud->render();
 		} catch(Exception $e){
 			show_error($e->getMessage().' --- '.$e->getTraceAsString());
@@ -76,37 +102,46 @@ class Crud_service {
 		$crud = $this->_getCrud();
 		$output = '';
 
-		/* config */
+		/** config: */
 		try{
 			$crud->set_table('documentLists');
 			$crud->set_subject('Liste');
-			$crud->set_relation('creator','users','{firstname} {lastname} {email}');
-			$crud->set_relation('admin','users','{firstname} {lastname} - {email}');
+			$crud->set_relation('creator','users','{firstname} {lastname} ({aaiId})');
+			$crud->set_relation('admin','users','{firstname} {lastname} ({aaiId})');
 			$crud->set_relation_n_n('Dokumente', 'documents_documentLists', 'documents', 'documentListId', 'documentId', '{authors} ({year}), {title}');
-			$crud->columns('title', 'admin', 'lastUpdated', 'published');
-			$crud->fields('title', 'creator', 'admin', 'lastUpdated', 'published', 'Dokumente');
 
-			// edit fields:
+            /** columns: */
+
+			$crud->columns('title', 'admin', 'lastUpdated', 'published');
+
+            /** fields: */
+
+			$crud->fields('title', 'creator', 'admin', 'lastUpdated', 'published', 'Dokumente');
+            $crud->unset_add_fields('creator', 'admin', 'created', 'lastUpdated', 'published');
 			$crud->field_type('created', 'readonly')
 				 ->field_type('lastUpdated', 'readonly')
 				 ->field_type('published', 'readonly')
-				 ->field_type('creator', 'readonly')
-				 ->unset_add_fields('creator', 'admin', 'created', 'lastUpdated', 'published');
+				 ->field_type('creator', 'readonly');
 
-			// Field aliases:
-			$crud->display_as('title','Titel')
-				  ->display_as('creator', 'erstellt von')
-				  ->display_as('admin', 'verwaltet von')
-				  ->display_as('creator', 'erstellt von')
-				  ->display_as('lastUpdated', 'zuletzt aktualisiert am')
-				  ->display_as('published', 'bereits veröffentlicht');
+			// Field / column aliases:
+            $crud->display_as('checkbox', '')
+			     ->display_as('title','Titel')
+				 ->display_as('creator', 'erstellt von')
+				 ->display_as('admin', 'verwaltet von')
+				 ->display_as('creator', 'erstellt von')
+				 ->display_as('lastUpdated', 'zuletzt aktualisiert am')
+				 ->display_as('published', 'bereits veröffentlicht');
 			
+
+            /** Callbacks for actions: */
+
 			// Will only be called when updating an existing entry
 			$crud->callback_before_update(array($this, 'check_edit_state_documentList'));
 			
 			// Will only be called when adding a new entry
 			$crud->callback_after_insert(array($this, 'update_documentlists_after_insert'));
 
+            // execute:
 			$output = $crud->render();
 		}catch(Exception $e){
 			show_error($e->getMessage().' --- '.$e->getTraceAsString());
@@ -118,18 +153,20 @@ class Crud_service {
 		$crud = $this->_getCrud();
 		$output = '';
 
-		/* config */
+		/** config */
 		try{
 			$crud->set_table('users');
-			$crud->set_subject('Benutzer');
+            $crud->set_subject('Benutzer');
+
+            /** columns: */
 			$crud->columns('id', 'aaiId', 'firstname', 'lastname', 'email');
 
-			// edit fields:
+            /** fields: */
 			$crud->field_type('created', 'readonly')
 				 ->field_type('lastLogin', 'readonly')
-				 ->unset_add_fields('created', 'lastLogin');
+			$crud->unset_add_fields('created', 'lastLogin');
 
-			// Field aliases:
+            /** Field / column aliases: */
 			$crud->display_as('id','ID')
 				  ->display_as('aaiId', 'AAI UniqueID')
 				  ->display_as('firstname', 'Vorname')
@@ -138,6 +175,7 @@ class Crud_service {
 				  ->display_as('lastLogin', 'letzter Login am')
 				  ->display_as('created', 'registriert seit');
 
+            // execute: 
 			$output = $crud->render();
 		}catch(Exception $e){
 			show_error($e->getMessage().' --- '.$e->getTraceAsString());
@@ -149,28 +187,32 @@ class Crud_service {
 		$crud = $this->_getCrud();
 		$output = '';
 
-		/* config */
 		try{
+		    /** config */
 			$crud->set_table('user_requests');
-			$crud->set_subject('Zugriffsanfragen');
-			$crud->columns('aaiId', 'firstname', 'lastname', 'email', 'created');
+            $crud->set_subject('Zugriffsanfragen');
+            $crud->unset_add()
+				 ->unset_edit();
+            
+            /** columns: */
+            $crud->columns('aaiId', 'firstname', 'lastname', 'email', 'created');
 
-			// Field aliases:
+            /** fields: */
+			$crud->field_type('created', 'readonly');
+
+            /** Field / column aliases: */
 			$crud->display_as('aaiId', 'AAI UniqueID')
 				  ->display_as('firstname', 'Vorname')
 				  ->display_as('lastname', 'Nachname')
 				  ->display_as('email', 'E-Mail-Adresse')
 				  ->display_as('created', 'eingegangen am');
 
-			// edit fields:
-			$crud->field_type('created', 'readonly');
-			
-			$crud->unset_add()
-				 ->unset_edit();
-
-			// TODO: add custom action to accept request
+          			
+		    /** actions: */
+			// add custom action to accept request
 			$crud->add_action('Accept', '', 'admin/user_requests/accept','ui-icon-plus');
 
+            // execute:
 			$output = $crud->render();
 		}catch(Exception $e){
 			show_error($e->getMessage().' --- '.$e->getTraceAsString());
@@ -178,7 +220,15 @@ class Crud_service {
 		return $output;
 	}
 
-	public function _callback_file_url($pValue, $pRow){
+    /**
+     *   
+     */
+    public function _callback_checkbox_column($pValue, $pRow){
+        $pValue = 'document_' . $pRow->id;
+        return '<input type="checkbox" name="selected-rows" value="' . $pValue . '" >';
+    }
+
+	public function _callback_fileName_column($pValue, $pRow){
 		if ($pValue != '') {
 			return '<a href="'.site_url('manager/documents_file/'.$pRow->id).'" target="_blank">Datei herunterladen</a>';
 		}
