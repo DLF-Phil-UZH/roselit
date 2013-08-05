@@ -1536,9 +1536,18 @@ class grocery_CRUD_Layout extends grocery_CRUD_Model_Driver
 		}
 
 		foreach($data->list as $num_row => $row)
-		{
-			$data->list[$num_row]->edit_url = $data->edit_url.'/'.$row->{$data->primary_key};
-			$data->list[$num_row]->delete_url = $data->delete_url.'/'.$row->{$data->primary_key};
+        {
+            $can_edit = true;
+			if (isset($this->callback_can_edit)) {
+				$can_edit = call_user_func($this->callback_can_edit,$row->{$data->primary_key});
+			} 
+		    if ($can_edit) {
+				$data->list[$num_row]->edit_url = $data->edit_url.'/'.$row->{$data->primary_key};
+				$data->list[$num_row]->delete_url = $data->delete_url.'/'.$row->{$data->primary_key};
+			} else {
+				$data->list[$num_row]->edit_url = null;
+				$data->list[$num_row]->delete_url = null;
+			}
 			$data->list[$num_row]->read_url = $data->read_url.'/'.$row->{$data->primary_key};
 		}
 
@@ -1775,6 +1784,14 @@ class grocery_CRUD_Layout extends grocery_CRUD_Model_Driver
 
 	protected function showEditForm($state_info)
 	{
+        $can_edit = true;
+		if (isset($this->callback_can_edit)) {
+			$can_edit = call_user_func($this->callback_can_edit,$state_info->primary_key);
+		} 
+		if (!$can_edit) {
+			return $this->showReadForm($state_info);
+		}
+
 		$this->set_js_lib($this->default_javascript_path.'/'.grocery_CRUD::JQUERY);
 
 		$data 				= $this->get_common_data();
@@ -3381,6 +3398,7 @@ class Grocery_CRUD extends grocery_CRUD_States
 	protected $callback_upload			= null;
 	protected $callback_before_upload	= null;
 	protected $callback_after_upload	= null;
+	protected $callback_can_edit	 	= null;		
 
 	protected $default_javascript_path				= null; //autogenerate, please do not modify
 	protected $default_css_path						= null; //autogenerate, please do not modify
@@ -4299,7 +4317,12 @@ class Grocery_CRUD extends grocery_CRUD_States
 			break;
 
 			case 4://delete
-				if($this->unset_delete)
+                
+                $can_edit = true;
+			    if (isset($this->callback_can_edit)) {
+				    $can_edit = call_user_func($this->callback_can_edit,$row->{$data->primary_key});
+                }
+				if($this->unset_delete || !$can_edit)
 				{
 					throw new Exception('This user is not allowed to do this operation', 14);
 					die();
@@ -4311,7 +4334,8 @@ class Grocery_CRUD extends grocery_CRUD_States
 				$this->delete_layout( $delete_result );
 			break;
 
-			case 5://insert
+            case 5://insert
+
 				if($this->unset_add)
 				{
 					throw new Exception('This user is not allowed to do this operation', 14);
@@ -4325,7 +4349,13 @@ class Grocery_CRUD extends grocery_CRUD_States
 			break;
 
 			case 6://update
-				if($this->unset_edit)
+
+                $can_edit = true;
+			    if (isset($this->callback_can_edit)) {
+				    $can_edit = call_user_func($this->callback_can_edit,$row->{$data->primary_key});
+                }
+
+				if($this->unset_edit || !$can_edit)
 				{
 					throw new Exception('This user is not allowed to do this operation', 14);
 					die();
@@ -4688,6 +4718,16 @@ class Grocery_CRUD extends grocery_CRUD_States
 
 		return $this;
 
+	}
+
+    /**
+	 * 
+     * A callback that is triggered before the edit or delete action is started,
+     * to check if a user has permissions to do these steps.
+	 */
+	public function callback_can_edit($callback = null)
+	{
+		$this->callback_can_edit = $callback;
 	}
 
 	/**
