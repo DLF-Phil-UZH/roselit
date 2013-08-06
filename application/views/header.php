@@ -12,7 +12,14 @@
 		?>
    	</head>
     <body>
-		<div class="bodywidth">
+		<?php
+			if(isset($width) && strcmp($width, 'small') === 0){
+				echo '<div class="bodywidthsmall">'; // small body
+			}
+			else{
+				echo '<div class="bodywidth">'; // allover body
+			}
+		?>
 			<div id="topline">
 				<p>Literaturverwaltung Romanisches Seminar</p>
 			</div>
@@ -29,38 +36,32 @@
 						<heading><?php echo $title ?></heading>
 					</a>
 				</h1>
-				<!--
-				<div class="roselit-navigation">
-					<ul>
-						<li><a href="<?php // echo site_url('manager/documents'); ?>" target="_self">Dokumente</a></li>
-						<li><a href="<?php // echo site_url('manager/lists'); ?>" target="_self">Listen</a></li>
-					</ul>
-					<span><a href="<?php // echo site_url('auth/logout'); ?>" target="_self" >Abmelden</a></span>
-				</div>
-				-->
 			</div>
 			<div class="floatclear">
 			</div>
 			<div class="endheaderline">
 			</div>
-			<div id="primarnav">
-				<a class="namedanchor" name="primarnav"><!----></a>
-				<?php
-					if(strcmp($page, 'documents') === 0){ ?>
-						<a class="active" href="<?php echo site_url('manager/documents'); ?>">Dokumente</a>
-					<?php }
-					else{ ?>
-						<a href="<?php echo site_url('manager/documents'); ?>">Dokumente</a>
-					<?php } ?>
-				<div class="linkseparator">&#8226;</div>
-				<?php
-					if(strcmp($page, 'lists') === 0){ ?>
-						<a class="active" href="<?php echo site_url('manager/lists'); ?>">Listen</a>
-					<?php }
-					else{ ?>
-						<a href="<?php echo site_url('manager/lists'); ?>">Listen</a>
-					<?php } ?>
-			</div>
+			<?php
+				if(isset($access) && $access === true){ ?>
+					<div id="primarnav">
+						<a class="namedanchor" name="primarnav"><!----></a>
+						<?php
+							if(strcmp($page, 'documents') === 0){ ?>
+								<a class="active" href="<?php echo site_url('manager/documents'); ?>">Dokumente</a>
+							<?php }
+							else{ ?>
+								<a href="<?php echo site_url('manager/documents'); ?>">Dokumente</a>
+							<?php } ?>
+						<div class="linkseparator">&#8226;</div>
+						<?php
+							if(strcmp($page, 'lists') === 0){ ?>
+								<a class="active" href="<?php echo site_url('manager/lists'); ?>">Listen</a>
+							<?php }
+							else{ ?>
+								<a href="<?php echo site_url('manager/lists'); ?>">Listen</a>
+							<?php } ?>
+					</div>
+				<?php } ?>
 			<div class="floatclear">
 			</div>
 

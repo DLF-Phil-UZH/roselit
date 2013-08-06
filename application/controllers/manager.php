@@ -29,7 +29,9 @@ class Manager extends CI_Controller {
 	 */
 	private function _render_output($pPage, $pOutput = null){
 		$this->load->view('header', array('title' => 'RoSeLit',
-										  'page' => $pPage));
+										  'page' => $pPage,
+										  'width' => 'normal',
+										  'access' => ($this->shib_auth->verify_user() !== false)));
 		$this->load->view('crud', $pOutput);
 		$this->load->view('footer');
 	}

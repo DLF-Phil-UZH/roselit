@@ -11,7 +11,7 @@
 					<li><a href="mailto:elk-support@phil.uzh.ch">elk-support@phil.uzh.ch</a></li>
 				</ul>
 			</div>
-		</div> <!-- closing  <div class="bodywidth"> from header.php -->
+		</div> <!-- closing  <div class="bodywidth"> or <div class="bodywidthsmall"> from header.php -->
 	</body>
 </html>
 

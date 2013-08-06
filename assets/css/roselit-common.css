@@ -22,6 +22,33 @@ div.bodywidth
 	min-height: 100%; */
 }
 
+div.bodywidthsmall
+{
+	width: 980px;
+	/* horizontally centred */
+	/* ----- */
+	margin-right: auto;
+	margin-left: auto;
+	/* ----- */
+	background-color: #FFFFFF;
+	min-height: 100%;
+}
+
+div.roselit_content
+{
+	margin-left: 20px;
+	margin-right: 20px;
+}
+
+/* Embedded script on view 'login.php' */
+div#wayf_div
+{
+	margin-top: 20px;
+	margin-left: 20px;
+	margin-right: 20px;
+	margin-bottom: 20px;
+}
+
 div#topline
 {
 	width: 100%;
