@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 // Based on a CI-Tutorial: http://ellislab.com/codeigniter/user-guide/tutorial/news_section.html
 class Document_list extends CI_Controller {
