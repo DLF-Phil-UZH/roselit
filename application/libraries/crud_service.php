@@ -454,7 +454,7 @@ class Crud_service {
 	 */
 	public function check_edit_permissions_documentlist($pId){
         // Load database
-        $lCi &= $this->_getCI();
+        $lCi = $this->_getCI();
 		$lCi->load->database();
         $lDb = $lCi->db;
     
