@@ -1789,6 +1789,8 @@ class grocery_CRUD_Layout extends grocery_CRUD_Model_Driver
 			$can_edit = call_user_func($this->callback_can_edit,$state_info->primary_key);
 		} 
 		if (!$can_edit) {
+            // TODO: show some message to the user on the read form!
+            // Maybe: $state_info->error_message = 'Some error message';
 			return $this->showReadForm($state_info);
 		}
 
@@ -4261,6 +4263,11 @@ class Grocery_CRUD extends grocery_CRUD_States
 
 		switch ($this->state_code) {
 			case 15://success
+                $state_info = $this->getStateInfo();
+                if (isset($state_info->primary_key)) {
+                    // if a primary key is specified, unlock:
+                    $this->unlock_record_for_edit($state_info->primary_key);
+                }
 			case 1://list
 				if($this->unset_list)
 				{
