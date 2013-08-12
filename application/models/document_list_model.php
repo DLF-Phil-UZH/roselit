@@ -6,7 +6,7 @@ class Document_list_model extends Abstract_base_model{
 	// Creator and admin are temporarily only represented as foreign keys (person ID) in the Document_list_model object
 	// Might be changed later to entire Person_model objects
 	private $creator; // Creator
-	private $admin; // Admin
+	private $admins = array(); // Admins
 	private $lastUpdated; // Date and time of last update (type DateTime)
 	private $created; // Date and time of creation (type DateTime)
 	private $published; // Flag (binary), has value 1 if list has been published anywhere at least once
@@ -29,14 +29,8 @@ class Document_list_model extends Abstract_base_model{
 		$this->title = $pTitle;
 	}
 	
-	// Temporarily only as foreign key (person ID)
 	public function setCreator($pCreator){
 		$this->creator = $pCreator;
-	}
-	
-	// Temporarily only as foreign key (person ID)
-	public function setAdmin($pAdmin){
-		$this->admin = $pAdmin;
 	}
 	
 	public function setLastUpdated(DateTime $pLastUpdated){
@@ -55,7 +49,7 @@ class Document_list_model extends Abstract_base_model{
 		$this->currentUserId = $pCurrentUserId;
 	}
 	
-	public function setEditTimestamp($pEditTimestamp){
+	public function setEditTimestamp(DateTime $pEditTimestamp){
 		$this->editTimestamp = $pEditTimestamp;
 	}
 	
@@ -73,9 +67,17 @@ class Document_list_model extends Abstract_base_model{
 		return $this->creator;
 	}
 	
-	public function getAdmin(){
-		return $this->admin;
+    public function getAdmins(){
+        $admins = $this->admins;
+		return $admins;
 	}
+
+    public function getAdminById($pId) {
+        if(array_key_exists($pId, $this->admins)){
+			return $this->admins[$pId];
+		}
+        return false;
+    }
 	
 	public function getLastUpdated(){
 		return $this->lastUpdated;
@@ -178,6 +180,26 @@ class Document_list_model extends Abstract_base_model{
 		}
 		return $lIsNew;
 	}
+
+    public function addAdmin($pUser) {
+        $lId = $pUser->getId();
+		if(!array_key_exists($lId, $this->admins)){
+			$this->admins[$lId] = $pUser; // Entry: Id as key of array, id as value at key of array
+		}
+    }
+    
+    public function removeAdminById($pId) {
+        if(array_key_exists($pId, $this->admins)){
+			unset($this->admins[$pId]);
+		}
+    }
+
+    public function removeAdmin($pUser) {
+        $lId = $pUser->getId();
+		if(array_key_exists($lId, $this->admins)){
+			unset($this->admins[$lId]);
+		}
+    }
 	
 	public function addDocumentById($pDocumentId){
 		if(!array_key_exists($pDocumentId, $this->documents)){

@@ -3,7 +3,8 @@
 class Document_list_mapper extends CI_Model {
 
 	private $tableName = "documentLists"; // Name of database table
-	private $docToListTable = "documents_documentLists"; // Name of mapping table
+    private $docToListTable = "documents_documentLists"; // Name of mapping table
+    private $doclistToAdminsTable = "documents_admins";
 	
 	public function __construct(){
 		parent::__construct();
@@ -14,7 +15,7 @@ class Document_list_mapper extends CI_Model {
 		// Table "documentLists"
 		$lData = array("title" => $pDocList->getTitle(),
 					   "creator" => $pDocList->getCreator()->getId(),
-					   "admin" => $pDocList->getAdmin()->getId(),
+					   // "admin" => $pDocList->getAdmin()->getId(),
 					   "published" => (int) $pDocList->getPublished(),
 					   "currentUserId" => $pDocList->getCurrentUserId(),
 					   "editTimestamp" => $pDocList->getEditTimestamp());
@@ -38,7 +39,16 @@ class Document_list_mapper extends CI_Model {
 								 "documentId" => $lDocumentId);
 		}
 		// Rewrite all mapping entries
-		$this->db->insert_batch($this->docToListTable, $lListData);
+        $this->db->insert_batch($this->docToListTable, $lListData);
+
+        // $this->db->delete($this->doclistToAdminsTable, array("documentListId" => $lDocListId)); 
+        // $admins = $pDocList->getAdmins();
+        // $insertData = array();
+		// foreach($admins as $userId => $user){
+		// 	$insertData[] = array("documentListId" => $lDocListId,
+		// 						 "userId" => $userId);
+		// }
+        // $this->db->insert_batch($this->doclistToAdminsTable, $insertData);
 	}
 
 	public function delete(Document_list_model $pDocList){
@@ -55,20 +65,34 @@ class Document_list_mapper extends CI_Model {
 			$lResult = $lQuery->row();
 			$lDocList = new Document_list_model($lResult->title, $lResult->creator);
 			$lDocList->setId($lResult->id);
-			$lDocList->setAdmin($lResult->admin);
+			// $lDocList->setAdmin($lResult->admin);
 			$lDocList->setLastUpdated(new DateTime($lResult->lastUpdated));
 			$lDocList->setCreated(new DateTime($lResult->created));
 			$lDocList->setPublished((bool) $lResult->published);
 			$lDocList->setCurrentUserId($lResult->currentUserId);
-			$lDocList->setEditTimestamp($lResult->editTimestamp);
+			$lDocList->setEditTimestamp(new DateTime($lResult->editTimestamp));
+
+            // add creator and admins:
+            $this->load->model("User_mapper");
+            $lCreator = $this->User_mapper->get($lResult->creator);
+            if ($lCreator === false) {
+                throw Exception('User with id '. $lResult->creator . ' not found in database.');
+            }
+            $lDocList->setCreator($lCreator);
+            $lAdmins = $this->User_mapper->getByDocumentListId($pId);
+            foreach ($lAdmins as $lAdmin) {
+                $lDocument->addAdmin($lAdmin);
+            }
+
 			// Add documents to the list
 			$this->load->model("Document_mapper");
 			$lDocuments = $this->Document_mapper->getByListId($pId);
 			foreach($lDocuments as $lDocument){
 				$lDocList->addDocument($lDocument);
 			}
+            return $lDocList;
 		}
-		return $lDocList;
+        return false;
 	}
 
 }
