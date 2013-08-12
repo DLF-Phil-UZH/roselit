@@ -1,43 +1,94 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
+//require_once('Grocery_CRUD.php');
+
 class Crud_service {
+
+	private $user = NULL;
 
     protected function _getCI() {
         return get_instance();
     }
-	protected function _getCrud()
-	{
-		$this->_getCI()->load->library('grocery_CRUD');
-		$crud = new grocery_Crud();
+
+	protected function _getCrud() {
+        $user = $this->_get_user();
+		$this->_getCI()->load->library('Grocery_CRUD');
+		$crud = new Grocery_CRUD($user);
 		$crud->set_theme('datatables');
 		return $crud;
 	}
+
+    protected function _get_user() {
+        if (is_null($this->user)) {
+            $lCi = $this->_getCI();
+            $lCi->load->library('Shibboleth_authentication_service', '', 'shib_auth');
+            $lUser = $lCi->shib_auth->verify_user();
+            $this->user = $lUser;
+        }
+        return $this->user;
+    }
 	
 	public function getDocumentsCrud() {
 		$crud = $this->_getCrud();
 		$output = '';
 
-		/* config */
 		try{
+		    /** config: */
 			$crud->set_table('documents');
 			$crud->set_subject('Dokument');
 			$crud->set_relation('creator','users','{firstname} {lastname} ({aaiId})');
-			$crud->set_relation('admin','users','{firstname} {lastname} ({aaiId})');
+			$crud->set_relation_n_n('Verwalter','documents_admins', 'users', 'documentId', 'userId', '{firstname} {lastname} ({aaiId})');
 			$crud->set_relation_n_n('Listen', 'documents_documentLists', 'documentLists', 'documentId', 'documentListId', 'title');
-			$crud->columns('explicitId','authors', 'title', 'publication', 'volume', 'year', 'pages', 'fileName');
-			$crud->fields('explicitId', 'authors', 'title', 'editors', 'publication', 'volume', 'places', 'publishingHouse', 'year', 'pages', 'fileName', 'creator', 'admin', 'lastUpdated');
 
-			// customize fields:
+            /** columns: */
+			$crud->columns('checkbox', 'explicitId','authors', 'title', 'publication', 'volume', 'year', 'pages', 'fileName');
+			$crud->callback_column('checkbox', array($this, 'callback_checkbox_column'));
+            $crud->callback_column('fileName', array($this, 'callback_fileName_column'));
+            $crud->order_by('explicitId');
+    
+            /** fields: */
+            
+            // fields for add / edit / read form:
+            $fields = array(
+                'explicitId',
+                'authors',
+                'title',
+                'editors',
+                'publication',
+                'volume',
+                'places',
+                'publishingHouse',
+                'year',
+                'pages',
+                'fileName',
+                'preview'
+            );
+            // additional fields that should be displayed in edit / read form:
+            $only_edit_fields = array('creator', 'Verwalter', 'lastUpdated');
+
+            $crud->edit_fields(array_merge($fields, $only_edit_fields));
+            $crud->add_fields($fields);
+    
 			$crud->field_type('created', 'readonly')
 				 ->field_type('lastUpdated', 'readonly')
-				 ->field_type('creator', 'readonly')
-				 ->unset_add_fields('fileName', 'creator', 'admin', 'created', 'lastUpdated');
+				 ->field_type('creator', 'readonly');
 			
-			//$crud->callback_field('fileName', array($this, '_callback_upload_field'));
-			$crud->callback_column('fileName', array($this, '_callback_fileName_column'));
+            // Use special fields only in edit and add, not in read!
+            $state = $crud->getState();
+            if ($state == 'read') {
+                // FIXME: this fails if readForm is displayed in edit action because another
+                // user is editing the record!
+                $crud->callback_field('fileName', array($this, 'callback_upload_field_read'));
+                // 
+            } else {
+			    $crud->callback_field('explicitId', array($this, 'callback_explicit_id_field'));
+                $crud->callback_field('fileName', array($this, 'callback_upload_field'));
+                $crud->callback_field('preview', array($this, 'callback_preview_field'));
+            }
 
-			// Field aliases:
-			$crud->display_as('title','Titel')
+            /** field / column aliases: */
+            $crud->display_as('checkbox', '')
+                 ->display_as('title','Titel')
 				 ->display_as('authors', 'Autoren')
 				 ->display_as('explicitId', 'explizite ID')
 				 ->display_as('publication', 'Werk- oder Zeitschriftentitel')
@@ -50,12 +101,24 @@ class Crud_service {
 				 ->display_as('fileName', 'Datei')
 				 ->display_as('creator', 'erstellt von')
 				 ->display_as('admin', 'verwaltet von')
-				  ->display_as('lastUpdated', 'zuletzt aktualisiert am');
-            
-			
-			// Will only be called when adding a new entry
-			$crud->callback_after_insert(array($this, 'update_documents_after_insert'));
+				 ->display_as('lastUpdated', 'zuletzt aktualisiert am')
+                 ->display_as('preview', 'Vorschau');
 
+            /** Validation rules of formular entries by user: */
+			$crud->set_rules('title', 'Titel', 'required');
+			$crud->set_rules('authors', 'Autoren', 'required');
+			$crud->set_rules('explicitId', 'explizite ID', 'required|is_unique[documents.explicitId]');
+			$crud->set_rules('admin', 'verwaltet von', 'required');
+            
+            /** Callbacks for actions: */
+            
+            // Will only be called when updating an existing entry
+		    $crud->callback_can_edit(array($this, 'check_edit_permissions_document'));
+
+		    // Will only be called when adding a new entry
+			$crud->callback_after_insert(array($this, 'update_documents_after_insert'));
+            
+			// execute:
 			$output = $crud->render();
 		} catch(Exception $e){
 			show_error($e->getMessage().' --- '.$e->getTraceAsString());
@@ -70,33 +133,49 @@ class Crud_service {
 		$crud = $this->_getCrud();
 		$output = '';
 
-		/* config */
 		try{
+		    /** config: */
 			$crud->set_table('documentLists');
 			$crud->set_subject('Liste');
-			$crud->set_relation('creator','users','firstname} {lastname} ({aaiId})');
-			$crud->set_relation('admin','users','{firstname} {lastname} ({aaiId})');						
+			$crud->set_relation('creator','users','{firstname} {lastname} ({aaiId})');
+			$crud->set_relation_n_n('Verwalter','documentLists_admins', 'users', 'documentListId', 'userId', '{firstname} {lastname} ({aaiId})');
 			$crud->set_relation_n_n('Dokumente', 'documents_documentLists', 'documents', 'documentListId', 'documentId', '{authors} ({year}), {title}');
-			$crud->columns('title', 'admin', 'lastUpdated', 'published');
-			$crud->fields('title', 'creator', 'admin', 'lastUpdated', 'published', 'Dokumente');
 
-			// edit fields:
+            /** columns: */
+			$crud->columns('title', 'admin', 'lastUpdated', 'published');    
+            $crud->order_by('title');
+
+            /** fields: */
+            $fields = array('title', 'published', 'Dokumente', 'creator', 'Verwalter', 'lastUpdated');
+			$crud->edit_fields($fields);
+            $crud->add_fields('title', 'published', 'Dokumente');
+
 			$crud->field_type('created', 'readonly')
 				 ->field_type('lastUpdated', 'readonly')
 				 ->field_type('published', 'readonly')
-				 ->field_type('creator', 'readonly')
-				 ->unset_add_fields('creator', 'admin', 'created', 'lastUpdated', 'published');
+				 ->field_type('creator', 'readonly');
 
-			// Field aliases:
-			$crud->display_as('title','Titel')
-				  ->display_as('creator', 'erstellt von')
-				  ->display_as('admin', 'verwaltet von')
-				  ->display_as('lastUpdated', 'zuletzt aktualisiert am')
-				  ->display_as('published', 'bereits veröffentlicht');
+			// Field / column aliases:
+			$crud->display_as('checkbox', '')
+				 ->display_as('title', 'Titel')
+				 ->display_as('creator', 'erstellt von')
+				 ->display_as('admin', 'verwaltet von')
+				 ->display_as('lastUpdated', 'zuletzt aktualisiert am')
+				 ->display_as('published', 'bereits veröffentlicht');
+			
+			/** Validation rules of formular entries by user: */
+			$crud->set_rules('title', 'Titel', 'required');
+			$crud->set_rules('admin', 'verwaltet von', 'required');
+			
+			/** Callbacks for actions: */
+
+			// Will only be called when updating an existing entry
+			$crud->callback_can_edit(array($this, 'check_edit_permissions_documentlist'));
 			
 			// Will only be called when adding a new entry
 			$crud->callback_after_insert(array($this, 'update_documentlists_after_insert'));
 
+            // execute:
 			$output = $crud->render();
 		}catch(Exception $e){
 			show_error($e->getMessage().' --- '.$e->getTraceAsString());
@@ -108,18 +187,20 @@ class Crud_service {
 		$crud = $this->_getCrud();
 		$output = '';
 
-		/* config */
 		try{
+		    /** config */
 			$crud->set_table('users');
 			$crud->set_subject('Benutzer');
+
+			/** columns: */
 			$crud->columns('id', 'aaiId', 'firstname', 'lastname', 'email');
 
-			// edit fields:
+			/** fields: */
 			$crud->field_type('created', 'readonly')
-				 ->field_type('lastLogin', 'readonly')
-				 ->unset_add_fields('created', 'lastLogin');
+				 ->field_type('lastLogin', 'readonly');
+			$crud->unset_add_fields('created', 'lastLogin');
 
-			// Field aliases:
+			/** Field / column aliases: */
 			$crud->display_as('id','ID')
 				  ->display_as('aaiId', 'AAI UniqueID')
 				  ->display_as('firstname', 'Vorname')
@@ -127,7 +208,14 @@ class Crud_service {
 				  ->display_as('email', 'E-Mail')
 				  ->display_as('lastLogin', 'letzter Login am')
 				  ->display_as('created', 'registriert seit');
+			
+			/** Validation rules of formular entries by user: */
+			$crud->set_rules('aaiId', 'AAI UniqueID', 'required|is_Unique[users.aaiId]');
+			$crud->set_rules('firstname', 'Vorname', 'required');
+			$crud->set_rules('lastname', 'Nachname', 'required');
+			$crud->set_rules('email', 'E-Mail', 'required');
 
+            // execute: 
 			$output = $crud->render();
 		}catch(Exception $e){
 			show_error($e->getMessage().' --- '.$e->getTraceAsString());
@@ -139,28 +227,35 @@ class Crud_service {
 		$crud = $this->_getCrud();
 		$output = '';
 
-		/* config */
 		try{
+		    /** config */
 			$crud->set_table('user_requests');
-			$crud->set_subject('Zugriffsanfragen');
+            $crud->set_subject('Zugriffsanfragen');
+            $crud->unset_add()
+                 ->unset_read()
+				 ->unset_edit();
+            
+			/** columns: */
 			$crud->columns('aaiId', 'firstname', 'lastname', 'email', 'created');
 
-			// Field aliases:
+			/** fields: */
+			$crud->field_type('created', 'readonly');
+
+			/** Field / column aliases: */
 			$crud->display_as('aaiId', 'AAI UniqueID')
 				  ->display_as('firstname', 'Vorname')
 				  ->display_as('lastname', 'Nachname')
 				  ->display_as('email', 'E-Mail-Adresse')
 				  ->display_as('created', 'eingegangen am');
 
-			// edit fields:
-			$crud->field_type('created', 'readonly');
-			
 			$crud->unset_add()
 				 ->unset_edit();
 
+			/** actions: */
 			// add custom action to accept request
 			$crud->add_action('Accept', '', 'admin/user_requests/accept','ui-icon-plus');
 
+			// execute:
 			$output = $crud->render();
 		}catch(Exception $e){
 			show_error($e->getMessage().' --- '.$e->getTraceAsString());
@@ -168,20 +263,45 @@ class Crud_service {
 		return $output;
 	}
 
-	public function _callback_fileName_column($pValue, $pRow){
+    /**
+     *   
+     */
+    public function callback_checkbox_column($pValue, $pRow){
+        $pValue = 'document_' . $pRow->id;
+        return '<input type="checkbox" name="selected-rows" value="' . $pValue . '" >';
+    }
+
+	public function callback_fileName_column($pValue, $pRow){
 		if ($pValue != '') {
 			return '<a href="'.site_url('manager/documents_file/'.$pRow->id).'" target="_blank">Datei herunterladen</a>';
 		}
 		return '';
 	}
 
-    public function _callback_upload_field($pValue, $pId) {
+    public function callback_explicit_id_field($pValue, $pId) {
+        $view_data = array(
+            'value' => $pValue,
+            'button_title' => 'Explizite ID generieren' // FIXME: add message support
+        );
+        $explicit_id_input = $this->_getCI()->load->view('crud/explicit_id_field', $view_data, true);
+        return $explicit_id_input;
+    }
+
+    public function callback_upload_field_read($pValue, $pId) {
+        if ($pValue != '') {
+            $download_url = site_url('manager/documents/file/'.$pId);
+            $unique = uniqid();
+            $html = '<a id="download-pdf-' . $unique .'" href="' . $download_url . '" target="_blank">PDF herunterladen</a>';
+            $html .= '<script type="text/javascript">$(function(){ $("#download-pdf-' . $unique . '").button();});</script>';
+        } else {
+            $html = '<div id="field-fileName" class="readonly_label">Kein PDF verfügbar.</div>';
+        }
+        return $html;
+    }
+
+    public function callback_upload_field($pValue, $pId) {
         if ($pId) {
-            $ci =& get_instance();
-            // TODO: do we really need to load the Document_model?
-            $ci->load->model('document_mapper');
-            $lDocument = $ci->document_mapper->get($pId);
-            if ($lDocument->getFileName() != '') {
+            if ($pValue != '') {
                 $file_buttons_display = '';
                 $upload_button_display = 'display:none;';
             } else {
@@ -204,10 +324,23 @@ class Crud_service {
             );
             $upload_input = $this->_getCI()->load->view('crud/upload_field', $view_data, true);
             return $upload_input;
-        }
-        // TODO: what should be returned, if no id is specified? How can we upload something before the document is specified?
-        return '';
+       } else {
+            return 'Sie können erst ein PDF hochladen, wenn Sie das Dokument gespeichert haben. Klicken Sie zuerst auf speichern.';
+       }
     }
+
+    public function callback_preview_field($pValue, $pId) {
+        $pValue = '';
+        if ($pId) {
+            // load model and generate preview:
+            $lCi = $this->_getCI();
+            $lCi->load->model('document_mapper');
+            $document_model = $lCi->document_mapper->get($pId);
+            $pValue = $document_model->toFormattedString();
+        }
+        $view_data = array('unique' => uniqid(), 'value' => $pValue);
+        return $this->_getCI()->load->view('crud/preview_field', $view_data, true);
+    }    
 	
 	/**
      * Sets creator and admin to current user and creation timestamp to
@@ -225,7 +358,7 @@ class Crud_service {
 	 *
 	 */
 	public function update_documents_after_insert($pPostArray, $pId){
-        return $this->_update_table_after_insert('documentLists', $postArray, $pId);		
+        return $this->_update_table_after_insert('documentLists', $postArray, $pId);
     }
 
     /**
@@ -245,7 +378,7 @@ class Crud_service {
 	 *
 	 */
     public function update_documentlists_after_insert($pPostArray, $pId){
-        return $this->_update_table_after_insert('documents', $postArray, $pId);		
+        return $this->_update_table_after_insert('documents', $postArray, $pId);
     }
 
     /**
@@ -261,27 +394,105 @@ class Crud_service {
      */
     private function _update_table_after_insert($pTableName, $pPostArray, $pId) {
         try{
-			// Get user data
-			$lCi = $this->_getCI();
-			$lCi->load->library('Shibboleth_authentication_service', '', 'shib_auth');
-			$lUser = $lCi->shib_auth->verify_user();
+            // load database:
+            $lCi = $this->_getCI();
+            $lCi->load->database();
+			$lDb = $lCi->db;
+
+			// Get data of currently logged in user
+			$lUser = $this->_get_user(); 
 			$lUserId = $lUser->getId();
 			
-            $lCi->load->database();
-            $lDb = $lCi->db;
-            $lQuery = 'UPDATE ' . $lDb->protect_identifiers($pTableName);
-            $lQuery .= ' SET ' . $lDb->protect_identifiers('creator') . ' = ? ,';
-            $lQuery .= $lDb->protect_identifiers('admin') . ' = ? ,';
-            $lQuery .= $lDb->protect_identifiers('created') . ' = ' . $lDb->protect_identifiers('lastUpdated');
-            $lQuery .= ' WHERE ' . $lDb->protect_identifiers('id') . ' = ?;';
+			$lQuery = 'UPDATE ' . $lDb->protect_identifiers($pTableName);
+			$lQuery .= ' SET ' . $lDb->protect_identifiers('creator') . ' = ? ,';
+			$lQuery .= $lDb->protect_identifiers('admin') . ' = ? ,';
+			$lQuery .= $lDb->protect_identifiers('created') . ' = ' . $lDb->protect_identifiers('lastUpdated');
+			$lQuery .= ' WHERE ' . $lDb->protect_identifiers('id') . ' = ?;';
             
-            return $lDb->query($lQuery, array($lUserId, $lUserId, $pId));
+			if($lDb->query($lQuery, array($lUserId, $lUserId, $pId)) === true){
+				return $pPostArray;
+			}
+			else{
+				return false;
+			}
 		}
 		catch(Exception $e){
 			show_error($e->getMessage().' --- '.$e->getTraceAsString());
         }
 
     }
+	
+	/**
+	 * Checks if document is free for editing. 
+	 * 
+	 * Callback function, is called before a logged in user tries to
+	 * update an existing document.
+	 * 
+	 * @param	int		$pId primary key of the inserted values
+     * @param   boolean $pLock_row  If the row should be locked
+	 * @return	array/boolean	Post array on success, false on error
+	 * @access	public
+	 */
+    public function check_edit_permissions_document($pId){
+        			
+		// Load database
+        $lCi = $this->_getCI();
+		$lCi->load->database();
+        $lDb = $lCi->db;
+    
+        // Get data of currently logged in user
+		$lUser = $this->_get_user();
+
+        if ($lUser->isAdmin()) {
+            return true;
+        }
+
+        $lUserId = $lUser->getId();
+		
+		// Get edit information from database
+        $table_name = $lDb->dbprefix('documents_admins');
+		$lQuery = $lDb->get_where($table_name, array('documentId' => $pId, 'userId' => '$lUserId'));
+		if($lQuery->num_rows() == 1){
+            return true;
+        }
+        
+        return false;
+	}
+	
+	/**
+	 * Checks if document list is free for editing. 
+	 * 
+	 * Callback function, is called before a logged in user tries to
+	 * update an existing document list.
+	 * 
+	 * @param	int		$pId primary key of the inserted values
+     * @param   boolean $pLock_row  If the row should be locked
+	 * @return	array/boolean	Post array on success, false on error
+	 * @access	public
+	 */
+	public function check_edit_permissions_documentlist($pId){
+        // Load database
+        $lCi = $this->_getCI();
+		$lCi->load->database();
+        $lDb = $lCi->db;
+    
+        // Get data of currently logged in user
+		$lUser = $this->_get_user();
+        if ($lUser->isAdmin()) {
+            return true;
+        }
+		$lUserId = $lUser->getId();
+		
+		// Get edit information from database
+        $table_name = $lDb->dbprefix('documentLists_admins');
+		$lQuery = $lDb->get_where($table_name, array('documentListId' => $pId, 'userId' => '$lUserId'));
+		if($lQuery->num_rows() == 1){
+            return true;
+        }
+        
+        return false;
+    }
+
 }
 
 /* End of file crud_service.php */

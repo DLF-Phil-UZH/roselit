@@ -30,13 +30,24 @@ class Auth extends CI_Controller {
 	 * map to /index.php/welcome/<method_name>
 	 * @see http://codeigniter.com/user_guide/general/urls.html
 	 */
-	public function index()
-	{
-		if ($this->shib_auth->verify_shibboleth_session()) {
+	public function index(){
+		// If user has already logged in over AAI
+		if($this->shib_auth->verify_shibboleth_session()){
+			$this->load->view('header', array('title' => 'RoSeLit: Zugang beantragen',
+										  'page' => 'request_access',
+										  'width' => 'small',
+										  'access' => ($this->shib_auth->verify_user() !== false)));
 			$this->load->view('request_access');
-		} else {
+		}
+		// If user hasn't logged in over AAI yet, send him to login page
+		else{
+			$this->load->view('header', array('title' => 'RoSeLit: Authentifizierung',
+										  'page' => 'authentification',
+										  'width' => 'small',
+										  'access' => false));
 			$this->load->view('login');
 		}
+		$this->load->view('footer');
 	}
 
 	/**
@@ -54,7 +65,10 @@ class Auth extends CI_Controller {
 			$lRow = $lQuery->row();
 			// this user has already requested access
 			// tell him that
-			$lRequestDate = $lRow->created;
+			$lRequestedTimestampString = $lRow->created;
+			$lRequestedTimestamp = new DateTime(date("Y-m-d H:i:s", strtotime($lRequestedTimestampString)));
+			$lRequestDate = date_format($lRequestedTimestamp, 'd.m.Y');
+			$lRequestTime = date_format($lRequestedTimestamp, 'H:i:s');
 		} else {
 			// ok make an access request entry in the db
 			$lFirstname = $_SERVER['Shib-InetOrgPerson-givenName'];
@@ -68,9 +82,17 @@ class Auth extends CI_Controller {
 						'email' => $lEmail
 						); 
 			$this->db->insert('user_requests', $lData);
-			$lRequestDate = date_format(new DateTime(), 'Y-m-d H:i:s');
+			$lRequestedTimestamp = new DateTime();
+			$lRequestDate = date_format($lRequestedTimestamp, 'd.m.Y');
+			$lRequestTime = date_format($lRequestedTimestamp, 'H:i:s');
 		}
-		$this->load->view('access_requested', array('request_date' => $lRequestDate));
+		$this->load->view('header', array('title' => 'RoSeLit: Zugang beantragt',
+										  'page' => 'access_requested',
+										  'width' => 'small',
+										  'access' => ($this->shib_auth->verify_user() !== false)));
+		$this->load->view('access_requested', array('request_date' => $lRequestDate,
+													'request_time' => $lRequestTime));
+		$this->load->view('footer');
 	}
 
 	/**
@@ -79,6 +101,7 @@ class Auth extends CI_Controller {
 	public function logout() {
     
 	}
+	
 }
 
 /* End of file auth.php */

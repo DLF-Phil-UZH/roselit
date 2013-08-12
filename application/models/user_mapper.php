@@ -11,7 +11,10 @@ class User_mapper extends CI_Model {
      * Name of the db table
      * @type string
      */
-	private $tableName = "users";
+    private $tableName = "users";
+
+    private $documentsToAdminsTable = "documents_admins";
+    private $documentListsToAdminsTable = "documentLists_admins";    
 
 	public function save(User_model $pUser){
 		$lData = array(
@@ -61,6 +64,37 @@ class User_mapper extends CI_Model {
 		}
 		return false;
 	}
+
+    public function getByDocumentId($pDocumentId) {
+        $this->db->select('*');
+		$this->db->from($this->tableName);
+		$this->db->join($this->documentsToAdminsTable, $this->tableName . '.id = ' . $this->documentsToAdminsTable . '.documentId', 'left');
+		$this->db->where('documentId', $pDocumentId);
+		// Execute query on database
+		$lQuery = $this->db->get();
+		// Create document array
+        $lAdmins = array();
+		foreach($lQuery->result() as $lRow){
+			array_push($lAdmins, $this->_createUser($lRow));
+		}
+		return $lAdmins;
+    }
+
+    public function getByDocumentListId($pDocumentListId) {
+        $this->db->select('*');
+		$this->db->from($this->tableName);
+		$this->db->join($this->documentListsToAdminsTable, $this->tableName . '.id = ' . $this->documentListsToAdminsTable . '.documentListId', 'left');
+		$this->db->where($this->documentListsToAdminsTable . '.documentListId', $pDocumentListId);
+		// Execute query on database
+		$lQuery = $this->db->get();
+		// Create document array
+        $lAdmins = array();
+		foreach($lQuery->result() as $lRow){
+			array_push($lAdmins, $this->_createUser($lRow));
+		}
+		return $lAdmins;
+    }
+
 
     /**
      *
