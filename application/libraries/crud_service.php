@@ -83,7 +83,7 @@ class Crud_service {
 			$crud->set_rules('title', 'Titel', 'required');
 			$crud->set_rules('authors', 'Autoren', 'required');
 			$crud->set_rules('explicitId', 'explizite ID', 'required|is_unique[documents.explicitId]');
-			
+			$crud->set_rules('admin', 'verwaltet von', 'required');
 			
 			/** Callbacks for actions: */
 			
