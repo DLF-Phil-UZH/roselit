@@ -20,10 +20,20 @@ class Manager extends CI_Controller {
 		$this->load->library('Crud_service');			
 	}
 	
-	private function _render_output($output = null)
-	{
-		$this->load->view('header', array('title' => 'RoSeLit'));
-		$this->load->view('crud',$output);	
+	/**
+	 * Renders CRUD output on crud view.
+	 * 
+	 * @param	string	$pPage		Name of displayed page ("lists" or "documents")
+	 * @param			$pOutput	CRUD output
+	 * @access	private
+	 */
+	private function _render_output($pPage, $pOutput = null){
+		$this->load->view('header', array('title' => 'RoSeLit',
+										  'page' => $pPage,
+										  'width' => 'normal',
+										  'access' => ($this->shib_auth->verify_user() !== false)));
+		$this->load->view('crud', $pOutput);
+		$this->load->view('footer');
 	}
 
 			
@@ -40,7 +50,7 @@ class Manager extends CI_Controller {
 	
 		try{
 			$crudOutput = $this->crud_service->getDocumentsCrud();
-			$this->_render_output($crudOutput);
+			$this->_render_output("documents", $crudOutput);
 		}catch(Exception $e){
 			show_error($e->getMessage().' --- '.$e->getTraceAsString());
 		}
@@ -156,7 +166,7 @@ class Manager extends CI_Controller {
 	{
 		try {
 			$crudOutput = $this->crud_service->getDocumentListsCrud();
-			$this->_render_output($crudOutput);
+			$this->_render_output("lists", $crudOutput);
 		} catch(Exception $e) {
 			show_error($e->getMessage().' --- '.$e->getTraceAsString());
 		}

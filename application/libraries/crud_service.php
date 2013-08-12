@@ -4,7 +4,7 @@
 
 class Crud_service {
 
-    private $user = NULL;
+	private $user = NULL;
 
     protected function _getCI() {
         return get_instance();
@@ -67,6 +67,7 @@ class Crud_service {
 
             $crud->edit_fields(array_merge($fields, $only_edit_fields));
             $crud->add_fields($fields);
+    
 			$crud->field_type('created', 'readonly')
 				 ->field_type('lastUpdated', 'readonly')
 				 ->field_type('creator', 'readonly');
@@ -101,16 +102,22 @@ class Crud_service {
 				 ->display_as('admin', 'verwaltet von')
 				 ->display_as('lastUpdated', 'zuletzt aktualisiert am')
                  ->display_as('preview', 'Vorschau');
-			
+
+            /** Validation rules of formular entries by user: */
+			$crud->set_rules('title', 'Titel', 'required');
+			$crud->set_rules('authors', 'Autoren', 'required');
+			$crud->set_rules('explicitId', 'explizite ID', 'required|is_unique[documents.explicitId]');
+			$crud->set_rules('admin', 'verwaltet von', 'required');
+            
             /** Callbacks for actions: */
             
             // Will only be called when updating an existing entry
 		    $crud->callback_can_edit(array($this, 'check_edit_permissions_document'));
-			
+
 		    // Will only be called when adding a new entry
 			$crud->callback_after_insert(array($this, 'update_documents_after_insert'));
             
-            // execute:
+			// execute:
 			$output = $crud->render();
 		} catch(Exception $e){
 			show_error($e->getMessage().' --- '.$e->getTraceAsString());
@@ -134,30 +141,32 @@ class Crud_service {
 			$crud->set_relation_n_n('Dokumente', 'documents_documentLists', 'documents', 'documentListId', 'documentId', '{authors} ({year}), {title}');
 
             /** columns: */
-			$crud->columns('checkbox', 'title', 'admin', 'lastUpdated', 'published');
-			$crud->callback_column('checkbox', array($this, 'callback_checkbox_column'));            
+			$crud->columns('title', 'admin', 'lastUpdated', 'published');    
             $crud->order_by('title');
 
             /** fields: */
             $fields = array('title', 'published', 'Dokumente', 'creator', 'Verwalter', 'lastUpdated');
 			$crud->edit_fields($fields);
             $crud->add_fields('title', 'published', 'Dokumente');
+
 			$crud->field_type('created', 'readonly')
 				 ->field_type('lastUpdated', 'readonly')
 				 ->field_type('published', 'readonly')
 				 ->field_type('creator', 'readonly');
 
 			// Field / column aliases:
-            $crud->display_as('checkbox', '')
-			     ->display_as('title','Titel')
+			$crud->display_as('checkbox', '')
+				 ->display_as('title', 'Titel')
 				 ->display_as('creator', 'erstellt von')
 				 ->display_as('admin', 'verwaltet von')
-				 ->display_as('creator', 'erstellt von')
 				 ->display_as('lastUpdated', 'zuletzt aktualisiert am')
 				 ->display_as('published', 'bereits veröffentlicht');
 			
-
-            /** Callbacks for actions: */
+			/** Validation rules of formular entries by user: */
+			$crud->set_rules('title', 'Titel', 'required');
+			$crud->set_rules('admin', 'verwaltet von', 'required');
+			
+			/** Callbacks for actions: */
 
 			// Will only be called when updating an existing entry
 			$crud->callback_can_edit(array($this, 'check_edit_permissions_documentlist'));
@@ -180,17 +189,17 @@ class Crud_service {
 		try{
 		    /** config */
 			$crud->set_table('users');
-            $crud->set_subject('Benutzer');
+			$crud->set_subject('Benutzer');
 
-            /** columns: */
+			/** columns: */
 			$crud->columns('id', 'aaiId', 'firstname', 'lastname', 'email');
 
-            /** fields: */
+			/** fields: */
 			$crud->field_type('created', 'readonly')
 				 ->field_type('lastLogin', 'readonly');
 			$crud->unset_add_fields('created', 'lastLogin');
 
-            /** Field / column aliases: */
+			/** Field / column aliases: */
 			$crud->display_as('id','ID')
 				  ->display_as('aaiId', 'AAI UniqueID')
 				  ->display_as('firstname', 'Vorname')
@@ -198,6 +207,12 @@ class Crud_service {
 				  ->display_as('email', 'E-Mail')
 				  ->display_as('lastLogin', 'letzter Login am')
 				  ->display_as('created', 'registriert seit');
+			
+			/** Validation rules of formular entries by user: */
+			$crud->set_rules('aaiId', 'AAI UniqueID', 'required|is_Unique[users.aaiId]');
+			$crud->set_rules('firstname', 'Vorname', 'required');
+			$crud->set_rules('lastname', 'Nachname', 'required');
+			$crud->set_rules('email', 'E-Mail', 'required');
 
             // execute: 
 			$output = $crud->render();
@@ -219,25 +234,24 @@ class Crud_service {
                  ->unset_read()
 				 ->unset_edit();
             
-            /** columns: */
-            $crud->columns('aaiId', 'firstname', 'lastname', 'email', 'created');
+			/** columns: */
+			$crud->columns('aaiId', 'firstname', 'lastname', 'email', 'created');
 
-            /** fields: */
+			/** fields: */
 			$crud->field_type('created', 'readonly');
 
-            /** Field / column aliases: */
+			/** Field / column aliases: */
 			$crud->display_as('aaiId', 'AAI UniqueID')
 				  ->display_as('firstname', 'Vorname')
 				  ->display_as('lastname', 'Nachname')
 				  ->display_as('email', 'E-Mail-Adresse')
 				  ->display_as('created', 'eingegangen am');
 
-          			
-		    /** actions: */
+			/** actions: */
 			// add custom action to accept request
 			$crud->add_action('Accept', '', 'admin/user_requests/accept','ui-icon-plus');
 
-            // execute:
+			// execute:
 			$output = $crud->render();
 		}catch(Exception $e){
 			show_error($e->getMessage().' --- '.$e->getTraceAsString());
