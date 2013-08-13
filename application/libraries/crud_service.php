@@ -41,8 +41,7 @@ class Crud_service {
 			$crud->set_relation_n_n('Listen', 'documents_documentLists', 'documentLists', 'documentId', 'documentListId', 'title');
 
             /** columns: */
-			$crud->columns('checkbox', 'explicitId','authors', 'title', 'publication', 'volume', 'year', 'pages', 'fileName');
-			$crud->callback_column('checkbox', array($this, 'callback_checkbox_column'));
+			$crud->columns('explicitId','authors', 'title', 'publication', 'volume', 'year', 'pages', 'fileName');
             $crud->callback_column('fileName', array($this, 'callback_fileName_column'));
             $crud->order_by('explicitId');
     
@@ -87,8 +86,7 @@ class Crud_service {
             }
 
             /** field / column aliases: */
-            $crud->display_as('checkbox', '')
-                 ->display_as('title','Titel')
+            $crud->display_as('title','Titel')
 				 ->display_as('authors', 'Autoren')
 				 ->display_as('explicitId', 'explizite ID')
 				 ->display_as('publication', 'Werk- oder Zeitschriftentitel')
@@ -156,8 +154,7 @@ class Crud_service {
 				 ->field_type('creator', 'readonly');
 
 			// Field / column aliases:
-			$crud->display_as('checkbox', '')
-				 ->display_as('title', 'Titel')
+			$crud->display_as('title', 'Titel')
 				 ->display_as('creator', 'erstellt von')
 				 ->display_as('admin', 'verwaltet von')
 				 ->display_as('lastUpdated', 'zuletzt aktualisiert am')
