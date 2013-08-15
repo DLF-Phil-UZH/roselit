@@ -35,13 +35,13 @@
 					</a>
 				<?php }?>
 
-				<?php if(!$unset_edit){?>
+				<?php if(!$unset_edit && ($row->edit_url != NULL)){?>
 					<a href="<?php echo $row->edit_url?>" class="edit_button ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" role="button">
 						<span class="ui-button-icon-primary ui-icon ui-icon-pencil"></span>
 						<span class="ui-button-text">&nbsp;<?php echo $this->l('list_edit'); ?></span>
 					</a>
 				<?php }?>
-				<?php if(!$unset_delete){?>
+				<?php if(!$unset_delete && ($row->delete_url != NULL)){?>
 					<a onclick = "javascript: return delete_row('<?php echo $row->delete_url?>', '<?php echo $num_row?>')"
 						href="javascript:void(0)" class="delete_button ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" role="button">
 						<span class="ui-button-icon-primary ui-icon ui-icon-circle-minus"></span>
