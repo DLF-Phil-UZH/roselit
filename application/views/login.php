@@ -34,7 +34,7 @@
 	// URL on this resource that the user shall be returned to after authentication
 	// Examples: "https://econf.switch.ch/aai/home", "https://olat.uzh.ch/my/courses"
 	// [Mandatory]
-	var wayf_return_url = <?php echo '"' . site_url('manager/documents') . '"' ?>; 
+	var wayf_return_url = <?php echo '"' . site_url($return_url) . '"' ?>; 
 
 
 	//////////////////// RECOMMENDED SETTINGS ////////////////////
