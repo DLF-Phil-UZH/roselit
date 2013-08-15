@@ -59,7 +59,25 @@
 							<?php }
 							else{ ?>
 								<a href="<?php echo site_url('manager/lists'); ?>">Listen</a>
-							<?php } ?>
+							<?php }
+						if(isset($admin) && $admin === true){ ?>
+							<div class="linkseparator">&#8226;</div>
+							<?php
+								if(strcmp($page, 'users') === 0){ ?>
+									<a class="active" href="<?php echo site_url('admin/users'); ?>">Benutzer</a>
+								<?php }
+								else{ ?>
+									<a href="<?php echo site_url('admin/users'); ?>">Benutzer</a>
+								<?php } ?>
+							<div class="linkseparator">&#8226;</div>
+							<?php
+								if(strcmp($page, 'user_requests') === 0){ ?>
+									<a class="active" href="<?php echo site_url('admin/user_requests'); ?>">Benutzeranfragen</a>
+								<?php }
+								else{ ?>
+									<a href="<?php echo site_url('admin/user_requests'); ?>">Benutzeranfragen</a>
+								<?php }
+						} ?>
 					</div>
 				<?php } ?>
 			<div class="floatclear">

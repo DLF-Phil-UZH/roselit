@@ -15,9 +15,13 @@ class Manager extends CI_Controller {
 		if ($user !== false && $user->getRole() == 'new') {
 			show_error('404');
 		}
+		
+		// Check if user is admin for displaying navigation
+		$this->adminaccess = $user->isAdmin();
+		
 		// save the user somewhere
 		$this->load->helper('html');
-		$this->load->library('Crud_service');			
+		$this->load->library('Crud_service');
 	}
 	
 	/**
@@ -31,7 +35,8 @@ class Manager extends CI_Controller {
 		$this->load->view('header', array('title' => 'RoSeLit',
 										  'page' => $pPage,
 										  'width' => 'normal',
-										  'access' => ($this->shib_auth->verify_user() !== false)));
+										  'access' => ($this->shib_auth->verify_user() !== false),
+										  'admin' => $this->adminaccess));
 		$this->load->view('crud', $pOutput);
 		$this->load->view('footer');
 	}

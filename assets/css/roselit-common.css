@@ -92,6 +92,32 @@ div#primarnav
 	float: left; */
 }
 
+/* Grocery CRUD add button (views/list_template.php) */
+div.datatables-add-button
+{
+	margin-left: 20px !important;
+}
+
+/* Grocery CRUD buttonset ("Export" and "Druck") */
+div.DTTT_container.ui-buttonset.ui-buttonset-multi
+{
+	margin-right: 0px !important;
+}
+
+/* Grocery CRUD list view (views/list_template.php) */
+div.dataTablesContainer
+{
+	margin-left: 20px !important;
+	margin-right: 20px !important;
+}
+
+/* Grocery CRUD edit form (used when adding/editing a new/existing document/list) */
+div.ui-widget-content.ui-corner-all.datatables
+{
+	margin-left: 20px !important;
+	margin-right: 20px !important;
+}
+
 div.footertopnav
 {
     /* text-align: right;
