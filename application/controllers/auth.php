@@ -4,33 +4,19 @@ class Auth extends CI_Controller {
 	
 	public function __construct() {
 		parent::__construct();
-
-		// if already logged in, redirect to manager
 		$this->load->library('shibboleth_authentication_service', NULL, 'shib_auth');
-		$this->load->helper('url');
-		if ($user = $this->shib_auth->verify_user() !== false) {
-			// if there is a user and he has access, redirect to
-			// the manager page
-			redirect('manager/documents');
-		}
 	}
 
 	/**
-	 * Index Page for this controller.
-	 *
-	 * Maps to the following URL
-	 * 		http://example.com/index.php/welcome
-	 *	- or -  
-	 * 		http://example.com/index.php/welcome/index
-	 *	- or -
-	 * Since this controller is set as the default controller in 
-	 * config/routes.php, it's displayed at http://example.com/
-	 *
-	 * So any other public methods not prefixed with an underscore will
-	 * map to /index.php/welcome/<method_name>
-	 * @see http://codeigniter.com/user_guide/general/urls.html
+     * 
 	 */
 	public function index(){
+        if ($user = $this->shib_auth->verify_user() !== false) {
+			// if there is a user and he has access, redirect to
+			// the manager page
+			redirect('welcome');
+		}
+
 		// If user has already logged in over AAI
 		if($this->shib_auth->verify_shibboleth_session()){
 			$this->load->view('header', array('title' => 'RoSeLit: Zugang beantragen',
@@ -45,7 +31,8 @@ class Auth extends CI_Controller {
 										  'page' => 'authentification',
 										  'width' => 'small',
 										  'access' => false));
-			$this->load->view('login');
+            $return_url = site_url('welcome');
+			$this->load->view('login', array('return_url' => $return_url));
 		}
 		$this->load->view('footer');
 	}
@@ -53,7 +40,13 @@ class Auth extends CI_Controller {
 	/**
 	 *
 	 */
-	public function request_access() {
+    public function request_access() {
+        if ($user = $this->shib_auth->verify_user() !== false) {
+			// if there is a user and he has access, redirect to
+			// the manager page
+			redirect('welcome');
+		}
+
 		if (!$this->shib_auth->verify_shibboleth_session()) {
 			redirect('auth');
 		}
@@ -98,8 +91,24 @@ class Auth extends CI_Controller {
 	/**
 	 *
 	 */
-	public function logout() {
-    
+    public function logout() {
+        $user = $this->shib_auth->verify_user();
+        if ($user !== false) {
+            // TODO: clean up locks
+            // $this->shib_auth->log_out();
+            $user_id = $user->getId();
+
+            $this->load->library('Grocery_CRUD');
+            $grocery_crud = new Grocery_CRUD($user);
+            $success = $grocery_crud->unlock_all_records();
+            if ($success) {
+                echo 'All locks removed.';
+            }
+            echo 'User logged out.';
+            // TODO: display log out view.
+        } else {
+            redirect('auth');
+        }
 	}
 	
 }
