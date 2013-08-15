@@ -78,12 +78,13 @@ class Crud_service {
                 // FIXME: this fails if readForm is displayed in edit action because another
                 // user is editing the record!
                 $crud->callback_field('fileName', array($this, 'callback_upload_field_read'));
-                // 
+			    $crud->callback_field('explicitId', array($this, 'callback_explicit_id_field_read'));
             } else {
 			    $crud->callback_field('explicitId', array($this, 'callback_explicit_id_field'));
                 $crud->callback_field('fileName', array($this, 'callback_upload_field'));
-                $crud->callback_field('preview', array($this, 'callback_preview_field'));
             }
+            $crud->callback_field('preview', array($this, 'callback_preview_field'));
+            
 
             /** field / column aliases: */
             $crud->display_as('title','Titel')
@@ -270,7 +271,7 @@ class Crud_service {
 
 	public function callback_fileName_column($pValue, $pRow){
 		if ($pValue != '') {
-			return '<a href="'.site_url('manager/documents_file/'.$pRow->id).'" target="_blank">Datei herunterladen</a>';
+			return '<a href="'.site_url('manager/documents/file/'.$pRow->id).'" target="_blank">Datei herunterladen</a>';
 		}
 		return '';
 	}
@@ -282,6 +283,10 @@ class Crud_service {
         );
         $explicit_id_input = $this->_getCI()->load->view('crud/explicit_id_field', $view_data, true);
         return $explicit_id_input;
+    }
+
+    public function callback_explicit_id_field_read($pValue, $pId) {
+        return '<div id="field-explicitId" class="readonly_label">' . $pValue . '</div>';
     }
 
     public function callback_upload_field_read($pValue, $pId) {
