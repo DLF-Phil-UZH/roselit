@@ -20,7 +20,7 @@ class Shibboleth_authentication_service {
 	 *
 	 */
 	public function verify_shibboleth_session() {
-        return $this->$shibboleth_session_exists;
+        return $this->shibboleth_session_exists;
 	}
 
 	/**
