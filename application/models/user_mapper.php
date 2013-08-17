@@ -14,7 +14,12 @@ class User_mapper extends CI_Model {
     private $tableName = "users";
 
     private $documentsToAdminsTable = "documents_admins";
-    private $documentListsToAdminsTable = "documentLists_admins";    
+    private $documentListsToAdminsTable = "documentLists_admins";
+
+    public function __construct() {
+        parent::__construct();
+        $this->load->database();
+    }   
 
 	public function save(User_model $pUser){
 		$lData = array(
