@@ -6,8 +6,7 @@ class Manager extends CI_Controller {
 	{
 		parent::__construct();
 		
-		$this->load->database();
-		$this->load->library('Shibboleth_authentication_service', '','shib_auth');
+		$this->load->library('Shibboleth_authentication_service', NULL, 'shib_auth');
 		$user = $this->shib_auth->verify_user();
 		if ($user == false) {
 			redirect('auth');
@@ -15,9 +14,6 @@ class Manager extends CI_Controller {
 		if ($user !== false && $user->getRole() == 'new') {
 			show_error('404');
 		}
-		// save the user somewhere
-		$this->load->helper('html');
-		$this->load->library('Crud_service');			
 	}
 	
 	/**
@@ -47,7 +43,7 @@ class Manager extends CI_Controller {
      */
 	public function documents()
 	{
-	
+		$this->load->library('Crud_service');			
 		try{
 			$crudOutput = $this->crud_service->getDocumentsCrud();
 			$this->_render_output("documents", $crudOutput);
@@ -164,6 +160,7 @@ class Manager extends CI_Controller {
 
 	public function lists()
 	{
+		$this->load->library('Crud_service');			
 		try {
 			$crudOutput = $this->crud_service->getDocumentListsCrud();
 			$this->_render_output("lists", $crudOutput);
