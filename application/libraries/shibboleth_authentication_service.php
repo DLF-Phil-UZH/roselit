@@ -2,7 +2,6 @@
 
 class Shibboleth_authentication_service {
 
-    private $session;
     private $shibboleth_session_exists = false;
 
 	public function __construct() {
@@ -10,7 +9,11 @@ class Shibboleth_authentication_service {
         if (isset($_SERVER['Shib-Identity-Provider'])) {
 			$this->shibboleth_session_exists = true;
         }
-	}
+    }
+
+    protected function _getCI() {
+        return get_instance();
+    }
 	
 	/**
 	 * Verifies if user has already logged in over AAI
@@ -36,17 +39,15 @@ class Shibboleth_authentication_service {
 	 */
     public function verify_user() {
         if ($this->verify_shibboleth_session() !== false) {
-
             if (!isset($_SERVER['Shib-SwissEP-UniqueID'])) {
                 throw new Exception('Shib-SwissEP-UniqueID not set.');
             }
             $lAaiId = $_SERVER['Shib-SwissEP-UniqueID'];
 			// check if a user with that shibboleth id exists in the db
 			// if not create one, but set role to "not granted"
-			$ci = &get_instance();
-            $lAaiId = $_SERVER['Shib-SwissEP-UniqueID'];
-            $ci->load->model('user_mapper');
-            $user = $ci->user_mapper->getByAaiId($lAaiId);
+			$ci = $this->_getCI();            
+            $ci->load->model('User_mapper');
+            $user = $ci->User_mapper->getByAaiId($lAaiId);
             if ($user !== false) {
                 return $user;
             }
@@ -60,7 +61,7 @@ class Shibboleth_authentication_service {
                 throw new Exception('Shib-SwissEP-UniqueID not set.');
             }
             $lAaiId = $_SERVER['Shib-SwissEP-UniqueID'];
-            $ci = &get_instance();
+            $ci = $this->_getCI(); 
             $ci->load->database();
             $lQuery = $ci->db->get_where('user_requests', array("aaiId" => $lAaiId), 1);
             if ($lQuery->num_rows() > 0) {
