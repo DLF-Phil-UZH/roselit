@@ -118,8 +118,6 @@ class Document_mapper extends CI_Model {
 
 		$lDocument->setLastUpdated(new DateTime($pRow->lastUpdated));
 		$lDocument->setCreated(new DateTime($pRow->created));
-		$lDocument->setCurrentUserId($pRow->currentUserId);
-		$lDocument->setEditTimestamp(new DateTime($pRow->editTimestamp));
 		return $lDocument;
 	}
 

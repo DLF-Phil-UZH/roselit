@@ -19,8 +19,6 @@ class Document_model extends Abstract_base_model{
 	private $admins = array(); // Admin
 	private $lastUpdated; // Date and time of last update (type DateTime)
 	private $created; // Date and time of creation (type DateTime)
-	private $currentUserId; // Id of user that is currently editing document at backend
-	private $editTimestamp; // Timestamp of moment when document is opened for being edited by any authorized user
 	
 	public function __construct($pExplicitId, $pFileName, $pTitle, $pAuthors, $pPublication, $pVolume, $pEditors, $pPlaces, $pPublishingHouse, $pYear, $pPages, $pCreator){
 		$this->explicitId = $pExplicitId;
@@ -99,14 +97,6 @@ class Document_model extends Abstract_base_model{
 		$this->created = $pCreated;
 	}
 	
-	public function setCurrentUserId($pCurrentUserId){
-		$this->currentUserId = $pCurrentUserId;
-	}
-	
-	public function setEditTimestamp(DateTime $pEditTimestamp){
-		$this->editTimestamp = $pEditTimestamp;
-	}
-	
 	// Getters
 	
 	public function getId(){
@@ -180,14 +170,6 @@ class Document_model extends Abstract_base_model{
 	
 	public function getCreated(){
 		return $this->created;
-	}
-	
-	public function getCurrentUserId(){
-		return $this->currentUserId;
-	}
-	
-	public function getEditTimestamp(){
-		return $this->editTimestamp;
 	}
 	
 	// Other methods

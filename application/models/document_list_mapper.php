@@ -17,8 +17,6 @@ class Document_list_mapper extends CI_Model {
 					   "creator" => $pDocList->getCreator()->getId(),
 					   // "admin" => $pDocList->getAdmin()->getId(),
 					   "published" => (int) $pDocList->getPublished(),
-					   "currentUserId" => $pDocList->getCurrentUserId(),
-					   "editTimestamp" => $pDocList->getEditTimestamp());
 		if($pDocList->isNew()){
 			$lData["created"] = null;
 			$this->db->insert($this->tableName, $lData);
@@ -69,8 +67,6 @@ class Document_list_mapper extends CI_Model {
 			$lDocList->setLastUpdated(new DateTime($lResult->lastUpdated));
 			$lDocList->setCreated(new DateTime($lResult->created));
 			$lDocList->setPublished((bool) $lResult->published);
-			$lDocList->setCurrentUserId($lResult->currentUserId);
-			$lDocList->setEditTimestamp(new DateTime($lResult->editTimestamp));
 
             // add creator and admins:
             $this->load->model("User_mapper");

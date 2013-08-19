@@ -10,8 +10,6 @@ class Document_list_model extends Abstract_base_model{
 	private $lastUpdated; // Date and time of last update (type DateTime)
 	private $created; // Date and time of creation (type DateTime)
 	private $published; // Flag (binary), has value 1 if list has been published anywhere at least once
-	private $currentUserId; // Id of user that is currently editing document at backend
-	private $editTimestamp; // Timestamp of moment when document is opened for being edited by any authorized user
 	private $documents = array(); // Document objects that belong to the list, might be used later
 	
 	public function __construct($pTitle, $pCreator){
@@ -43,14 +41,6 @@ class Document_list_model extends Abstract_base_model{
 	
 	public function setPublished($pPublished){
 		$this->published = $pPublished;
-	}
-	
-	public function setCurrentUserId($pCurrentUserId){
-		$this->currentUserId = $pCurrentUserId;
-	}
-	
-	public function setEditTimestamp(DateTime $pEditTimestamp){
-		$this->editTimestamp = $pEditTimestamp;
 	}
 	
 	// Getters
@@ -99,14 +89,6 @@ class Document_list_model extends Abstract_base_model{
 	// Returns document objects, might be used later
 	public function getDocuments(){
 		return $this->documents;
-	}
-	
-	public function getCurrentUserId(){
-		return $this->currentUserId;
-	}
-	
-	public function getEditTimestamp(){
-		return $this->editTimestamp;
 	}
 	
 	/*
