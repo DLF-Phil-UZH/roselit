@@ -37,7 +37,7 @@ class Document_list_mapper extends CI_Model {
 			$lListData[] = array("documentListId" => $lDocListId,
 								 "documentId" => $lDocumentId);
         }
-        if (count($listData) > 0) {
+        if (count($lListData) > 0) {
 		    // Rewrite all mapping entries
             $this->db->insert_batch($this->docToListTable, $lListData);
         }
