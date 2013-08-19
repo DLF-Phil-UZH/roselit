@@ -186,13 +186,8 @@ class Manager extends CI_Controller {
             show_404(); 
         } else {
             $lDocumentList->setPublished(true);
-            $status = $this->document_list_mapper->save($lDocumentList);
-            if ($status) {
-                redirect('manager/lists/success/' . $pId);
-            } else {
-                // TODO: redirect to list view and display error.
-                echo 'Leider ist ein Fehler aufgetreten.';
-            }
+            $this->document_list_mapper->save($lDocumentList);
+            redirect('manager/lists/success/' . $pId);
         }
     }
 }
