@@ -36,7 +36,6 @@ class Crud_service {
 		    /** config: */
 			$crud->set_table('documents');
 			$crud->set_subject('Dokument');
-			$crud->set_relation('creator','users','{firstname} {lastname} ({aaiId})');
 			$crud->set_relation_n_n('Verwalter','documents_admins', 'users', 'documentId', 'userId', '{firstname} {lastname} ({aaiId})');
 			$crud->set_relation_n_n('Listen', 'documents_documentLists', 'documentLists', 'documentId', 'documentListId', 'title');
 
@@ -63,14 +62,13 @@ class Crud_service {
                 'preview'
             );
             // additional fields that should be displayed in edit / read form:
-            $only_edit_fields = array('creator', 'Verwalter', 'lastUpdated');
+            $only_edit_fields = array('Verwalter', 'lastUpdated');
 
             $crud->edit_fields(array_merge($fields, $only_edit_fields));
             $crud->add_fields($fields);
     
 			$crud->field_type('created', 'readonly')
-				 ->field_type('lastUpdated', 'readonly')
-				 ->field_type('creator', 'readonly');
+				 ->field_type('lastUpdated', 'readonly');
 			
             // Use special fields only in edit and add, not in read!
             $state = $crud->getState();
@@ -98,7 +96,6 @@ class Crud_service {
 				 ->display_as('publishingHouse', 'Verlag')
 				 ->display_as('pages', 'Seiten')
 				 ->display_as('fileName', 'Datei')
-				 ->display_as('creator', 'erstellt von')
 				 ->display_as('admin', 'verwaltet von')
 				 ->display_as('lastUpdated', 'zuletzt aktualisiert am')
                  ->display_as('preview', 'Vorschau');
@@ -134,7 +131,6 @@ class Crud_service {
 		    /** config: */
 			$crud->set_table('documentLists');
 			$crud->set_subject('Liste');
-			$crud->set_relation('creator','users','{firstname} {lastname} ({aaiId})');
 			$crud->set_relation_n_n('Verwalter','documentLists_admins', 'users', 'documentListId', 'userId', '{firstname} {lastname} ({aaiId})');
 			$crud->set_relation_n_n('Dokumente', 'documents_documentLists', 'documents', 'documentListId', 'documentId', '{authors} ({year}), {title}');
 
@@ -143,14 +139,13 @@ class Crud_service {
             $crud->order_by('title');
 
             /** fields: */
-            $fields = array('title', 'published', 'Dokumente', 'creator', 'Verwalter', 'lastUpdated');
+            $fields = array('title', 'published', 'Dokumente', 'Verwalter', 'lastUpdated');
 			$crud->edit_fields($fields);
             $crud->add_fields('title', 'published', 'Dokumente');
 
 			$crud->field_type('created', 'readonly')
 				 ->field_type('lastUpdated', 'readonly')
-				 ->field_type('published', 'readonly')
-				 ->field_type('creator', 'readonly');
+				 ->field_type('published', 'readonly');
 
 			// Field / column aliases:
 			$crud->display_as('title', 'Titel')
@@ -208,7 +203,6 @@ class Crud_service {
             $crud->required_fields(array('aaiId', 'firstname', 'lastname', 'email'));
             $crud->unique_fields('aaiId');
             
-
             // execute: 
 			$output = $crud->render();
 		}catch(Exception $e){
@@ -356,7 +350,7 @@ class Crud_service {
 	 *
 	 */
 	public function update_documents_after_insert($pPostArray, $pId){
-        return $this->_update_table_after_insert('documentLists', $postArray, $pId);
+        return $this->_update_table_after_insert('documents', 'documents_admins', 'documentId', $pPostArray, $pId);
     }
 
     /**
@@ -376,7 +370,7 @@ class Crud_service {
 	 *
 	 */
     public function update_documentlists_after_insert($pPostArray, $pId){
-        return $this->_update_table_after_insert('documents', $postArray, $pId);
+        return $this->_update_table_after_insert('documentLists', 'documentLists_admins', 'documentListId', $pPostArray, $pId);
     }
 
     /**
@@ -390,7 +384,7 @@ class Crud_service {
 	 * @access  private	
      * 
      */
-    private function _update_table_after_insert($pTableName, $pPostArray, $pId) {
+    private function _update_table_after_insert($pTableName, $adminsTableName, $foreignKeyColumnName, $pPostArray, $pId) {
         try{
             // load database:
             $lCi = $this->_getCI();
@@ -401,16 +395,26 @@ class Crud_service {
 			$lUser = $this->_get_user(); 
 			$lUserId = $lUser->getId();
 			
-			$lQuery = 'UPDATE ' . $lDb->protect_identifiers($pTableName);
-			$lQuery .= ' SET ' . $lDb->protect_identifiers('creator') . ' = ? ,';
-			$lQuery .= $lDb->protect_identifiers('admin') . ' = ? ,';
-			$lQuery .= $lDb->protect_identifiers('created') . ' = ' . $lDb->protect_identifiers('lastUpdated');
-			$lQuery .= ' WHERE ' . $lDb->protect_identifiers('id') . ' = ?;';
+            $lDb->trans_start();
+
+            $lDb->where('id', $pId);
+            $lDb->update($pTableName, array('creator' => $lUserId, 'created' => 'lastUpdated'));
+			// $lQuery = 'UPDATE ' . $lDb->protect_identifiers($pTableName);
+			// $lQuery .= ' SET ' . $lDb->protect_identifiers('creator') . ' = ? ,';
+		    // $lQuery .= $lDb->protect_identifiers('created') . ' = ' . $lDb->protect_identifiers('lastUpdated');
+			// $lQuery .= ' WHERE ' . $lDb->protect_identifiers('id') . ' = ?;';
+            // $status = $lDb->query($lQuery, array($lUserId, $lUserId, $pId));
+
+            $lDb->insert($adminsTableName, array($foreignKeyColumnName => $pId, 'userId' => $lUserId));
+
+            $lDb->trans_complete();
+            $status = $lDb->trans_status();
+
+            $lDb->trans_off();
             
-			if($lDb->query($lQuery, array($lUserId, $lUserId, $pId)) === true){
+			if($status === true) {
 				return $pPostArray;
-			}
-			else{
+			} else {
 				return false;
 			}
 		}
