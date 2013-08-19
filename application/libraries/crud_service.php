@@ -104,10 +104,8 @@ class Crud_service {
                  ->display_as('preview', 'Vorschau');
 
             /** Validation rules of formular entries by user: */
-			$crud->set_rules('title', 'Titel', 'required');
-			$crud->set_rules('authors', 'Autoren', 'required');
-			$crud->set_rules('explicitId', 'explizite ID', 'required|is_unique[documents.explicitId]');
-			$crud->set_rules('admin', 'verwaltet von', 'required');
+            $crud->required_fields(array('title', 'auhtors', 'explicitId', 'admin'));
+            $crud->unique_fields('explicitId');
             
             /** Callbacks for actions: */
             
@@ -162,8 +160,7 @@ class Crud_service {
 				 ->display_as('published', 'bereits veröffentlicht');
 			
 			/** Validation rules of formular entries by user: */
-			$crud->set_rules('title', 'Titel', 'required');
-			$crud->set_rules('admin', 'verwaltet von', 'required');
+            $crud->required_fields(array('title', 'admin'));
 			
 			/** Callbacks for actions: */
 
@@ -208,10 +205,9 @@ class Crud_service {
 				  ->display_as('created', 'registriert seit');
 			
 			/** Validation rules of formular entries by user: */
-			$crud->set_rules('aaiId', 'AAI UniqueID', 'required|is_Unique[users.aaiId]');
-			$crud->set_rules('firstname', 'Vorname', 'required');
-			$crud->set_rules('lastname', 'Nachname', 'required');
-			$crud->set_rules('email', 'E-Mail', 'required');
+            $crud->required_fields(array('aaiId', 'firstname', 'lastname', 'email'));
+            $crud->unique_fields('aaiId');
+            
 
             // execute: 
 			$output = $crud->render();
