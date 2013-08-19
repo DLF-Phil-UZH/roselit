@@ -12,16 +12,22 @@ class Admin extends CI_Controller {
 		if ($user == false) {
 			redirect('auth');
    		} elseif ($user->isAdmin() === false) {
-            // TODO: redirect to not allowed
-            echo "not allowed";
-            show_404();
-        }
-		$this->load->database();		
+			$this->adminaccess = false;
+        } else {
+			$this->adminaccess = true;
+		}
+		$this->load->database();
 	}
 
-	public function index()
-	{	
-		$this->load->view('db_admin');
+	public function index(){
+		// If user is admin
+		if($this->adminaccess === true){
+			$this->users();
+		}
+		// If user is not an admin
+		else{
+			$this->access_denied();
+		}
 	}
 
 	public function create_tables()
@@ -44,26 +50,57 @@ class Admin extends CI_Controller {
 		$this->load->view('db_setup_complete');
 	}
 
-	public function users() {
-		$this->load->library('Crud_service');		
-		try{
-			$crudOutput = $this->crud_service->getUsersCrud();
-			$this->load->view('crud.php',$crudOutput);
-		}catch(Exception $e){
-			show_error($e->getMessage().' --- '.$e->getTraceAsString());
+	public function users(){
+		if($this->adminaccess === true){
+			$this->load->library('Crud_service');
+			try{
+				$crudOutput = $this->crud_service->getUsersCrud();
+				$this->load->view('header', array('title' => 'RoSeLit: Administration',
+											  'page' => 'users',
+											  'width' => 'normal',
+											  'access' => ($this->shib_auth->verify_user() !== false),
+											  'admin' => $this->adminaccess));
+				$this->load->view('crud.php',$crudOutput);
+				$this->load->view('footer');
+			}catch(Exception $e){
+				show_error($e->getMessage().' --- '.$e->getTraceAsString());
+			}
 		}
-		
+		// If user is not an admin
+		else{
+			$this->access_denied();
+		}
 	}
 
-	public function user_requests() {
-		$this->load->library('Crud_service');		
-		try{
-			$crudOutput = $this->crud_service->getUserRequestsCrud();
-			$this->load->view('crud.php',$crudOutput);
-		}catch(Exception $e){
-			show_error($e->getMessage().' --- '.$e->getTraceAsString());
+	public function user_requests(){
+		if($this->adminaccess === true){
+			$this->load->library('Crud_service');
+			try{
+				$crudOutput = $this->crud_service->getUserRequestsCrud();
+				$this->load->view('header', array('title' => 'RoSeLit: Administration',
+											  'page' => 'user_requests',
+											  'width' => 'normal',
+											  'access' => ($this->shib_auth->verify_user() !== false),
+											  'admin' => $this->adminaccess));
+				$this->load->view('crud.php',$crudOutput);
+				$this->load->view('footer');
+			}catch(Exception $e){
+				show_error($e->getMessage().' --- '.$e->getTraceAsString());
+			}
 		}
-
+		// If user is not an admin
+		else{
+			$this->access_denied();
+		}
+	}
+	
+	public function access_denied(){
+		$this->load->view('header', array('title' => 'RoSeLit: Zugriff verweigert',
+										  'page' => 'access_denied',
+										  'width' => 'small',
+										  'access' => ($this->shib_auth->verify_user() !== false)));
+		$this->load->view('access_denied');
+		$this->load->view('footer');
 	}
 
 	/**
