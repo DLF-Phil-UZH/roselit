@@ -16,7 +16,8 @@ class Document_list_mapper extends CI_Model {
 		$lData = array("title" => $pDocList->getTitle(),
 					   "creator" => $pDocList->getCreator()->getId(),
 					   // "admin" => $pDocList->getAdmin()->getId(),
-					   "published" => (int) $pDocList->getPublished(),
+					   "published" => (int) $pDocList->getPublished()
+                   );
 		if($pDocList->isNew()){
 			$lData["created"] = null;
 			$this->db->insert($this->tableName, $lData);
@@ -35,9 +36,11 @@ class Document_list_mapper extends CI_Model {
 		foreach($pDocList->getDocumentIds() as $lDocumentId){
 			$lListData[] = array("documentListId" => $lDocListId,
 								 "documentId" => $lDocumentId);
-		}
-		// Rewrite all mapping entries
-        $this->db->insert_batch($this->docToListTable, $lListData);
+        }
+        if (count($listData) > 0) {
+		    // Rewrite all mapping entries
+            $this->db->insert_batch($this->docToListTable, $lListData);
+        }
 
         // $this->db->delete($this->doclistToAdminsTable, array("documentListId" => $lDocListId)); 
         // $admins = $pDocList->getAdmins();
