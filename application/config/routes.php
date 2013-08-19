@@ -43,6 +43,7 @@ $route['404_override'] = '';
 $route['manager/documents/file/(:num)'] = 'manager/documents_file/$1';
 $route['manager/documents/file/upload/(:num)'] = 'manager/documents_file_upload/$1';
 $route['manager/documents/file/delete/(:num)'] = 'manager/documents_file_delete/$1';
+$route['manager/lists/publish/(:num)'] = 'manager/publish_list/$1';
 
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

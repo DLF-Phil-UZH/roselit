@@ -158,6 +158,8 @@ class Crud_service {
             $crud->required_fields(array('title', 'admin'));
 			
 			/** Callbacks for actions: */
+            // add custom action to publish a list
+            $crud->add_action('Publizieren', '', 'manager/lists/publish','publish-button');
 
 			// Will only be called when updating an existing entry
 			$crud->callback_can_edit(array($this, 'check_edit_permissions_documentlist'));

@@ -93,7 +93,7 @@ class Manager extends CI_Controller {
 		$lDocument = $this->document_mapper->get($pId);
 		if (!$lDocument) {
             // TODO: return some error message
-            echo "Document not found";
+            $this->output->set_status_header(500);
             return;
         }
         $this->config->load('pdf_upload', TRUE);
@@ -172,5 +172,28 @@ class Manager extends CI_Controller {
 			show_error($e->getMessage().' --- '.$e->getTraceAsString());
 		}
 	}
+
+    /**
+     * Publish a list, so that it is accessible via OLAT.
+     */
+    public function publish_list($pId) {
+        $this->load->model('document_list_mapper');
+        $lDocumentList = $this->document_list_mapper->get($pId);
+        // $lDocumentList = false;
+        $status = false;
+        if ($lDocumentList == false) {
+             // TODO: return some error message
+            show_404(); 
+        } else {
+            $lDocumentList->setPublished(true);
+            $status = $this->document_list_mapper->save($lDocumentList);
+            if ($status) {
+                redirect('manager/lists/success/' . $pId);
+            } else {
+                // TODO: redirect to list view and display error.
+                echo 'Leider ist ein Fehler aufgetreten.';
+            }
+        }
+    }
 }
 
