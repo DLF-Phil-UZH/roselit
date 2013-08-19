@@ -12,7 +12,7 @@ class Manager extends CI_Controller {
 			redirect('auth');
 		} 
 		if ($user !== false && $user->getRole() == 'new') {
-			show_error('404');
+			show_error('403');
 		}
 	}
 	
@@ -43,7 +43,7 @@ class Manager extends CI_Controller {
      */
 	public function documents()
 	{
-		$this->load->library('Crud_service');			
+        $this->load->library('crud_service');
 		try{
 			$crudOutput = $this->crud_service->getDocumentsCrud();
 			$this->_render_output("documents", $crudOutput);
@@ -58,14 +58,12 @@ class Manager extends CI_Controller {
 	public function documents_file($pId) {
 		$this->load->model('document_mapper');
 		$lDocument = $this->document_mapper->get($pId);
-		if (!$lDocument) {
-			// TODO: return some error message
-			return;
-		}
-		$l_file = '/usr/local/ftp/phil_elearning/roselit/files/' . $lDocument->getFileName();
-		$l_documentname = $lDocument->getExplicitId() . '.pdf';
+		if ($lDocument != false) {
+		    $l_file = '/usr/local/ftp/phil_elearning/roselit/files/' . $lDocument->getFileName();
+            $l_documentname = $lDocument->getExplicitId() . '.pdf';
+        }
 
-		if (file_exists($l_file)) {
+		if (isset($l_file) && file_exists($l_file)) {
 			header('Content-Description: File Transfer');
 			header('Content-Type: application/pdf');
 			header('Content-Disposition: attachment; filename='.$l_documentname);
@@ -78,7 +76,9 @@ class Manager extends CI_Controller {
 			flush();
 			readfile($l_file);
 			exit;
-		}
+		} else {
+            show_404();
+        }
     }
 
    	/**
@@ -160,7 +160,7 @@ class Manager extends CI_Controller {
 
 	public function lists()
 	{
-		$this->load->library('Crud_service');			
+		$this->load->library('crud_service');			
 		try {
 			$crudOutput = $this->crud_service->getDocumentListsCrud();
 			$this->_render_output("lists", $crudOutput);
