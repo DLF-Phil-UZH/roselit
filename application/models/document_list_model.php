@@ -83,12 +83,13 @@ class Document_list_model extends Abstract_base_model{
 	
 	// Returns ids of documents, might later be deleted
 	public function getDocumentIds(){
-		return array_keys($this->documentIds);
+		return array_keys($this->documents);
 	}
 	
 	// Returns document objects, might be used later
 	public function getDocuments(){
-		return $this->documents;
+        $documents = $this->documents;
+		return $documents;
 	}
 	
 	/*
@@ -182,12 +183,6 @@ class Document_list_model extends Abstract_base_model{
 			unset($this->admins[$lId]);
 		}
     }
-	
-	public function addDocumentById($pDocumentId){
-		if(!array_key_exists($pDocumentId, $this->documents)){
-			$this->documents[$lId] = $lId; // Entry: Id as key of array, id as value at key of array
-		}
-	}
 	
 	// Document object as parameter
 	public function addDocument(Document_model $pDocument){
