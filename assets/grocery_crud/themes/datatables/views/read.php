@@ -44,8 +44,10 @@
 				?>
 			<!-- End of hidden inputs -->
 			<?php if ($is_ajax) { ?><input type="hidden" name="is_ajax" value="true" /><?php }?>
-			<div class='line-1px'></div>
-			<div id='report-error' class='report-div error'></div>
+            <div class='line-1px'></div>
+            <div id='report-error' class='report-div error'  <?php if ($show_error) { echo 'style="display:block;"'; } ?> >
+                <?php if ($show_error) { echo $error_message; } ?>
+            </div>
 			<div id='report-success' class='report-div success'></div>
 		</div>
 		<div class='buttons-box'>

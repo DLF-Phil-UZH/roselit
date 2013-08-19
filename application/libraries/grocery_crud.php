@@ -1083,6 +1083,137 @@ class grocery_CRUD_Model_Driver extends grocery_CRUD_Field_Types
 		}
 	}
 
+    /* begin grocery-crud-elk */
+
+    /**
+     *
+     */
+    public function unlock_all_records() {
+        $user = $this->get_user();
+        if (!$user) {
+            throw new Exception('No user specified.');
+            // throw exception?
+        }
+        $user_id = $user->getId();
+        // load db:
+        $ci = &get_instance();
+        $ci->load->database();
+        $db = $ci->db;
+        $lock_tablename = 'groceryCrudLocks';
+        $delete_success = false;
+        $sql = 'DELETE FROM ' . $db->protect_identifiers($lock_tablename);
+        $sql .= ' WHERE ' . $db->protect_identifiers('userId') . ' = ?;';
+        $query_result = $db->query($sql, $user_id);
+        return $query_result;
+    }
+
+    /**
+     *  
+     */
+    protected function lock_record_for_edit($primary_key) {
+
+        $user = $this->get_user();
+        if (!$user) {
+            throw new Exception('No user specified.');
+            // throw exception?
+        }
+        $user_id = $user->getId();
+         // load db:
+        $ci = &get_instance();
+        $ci->load->database();
+        $db = $ci->db;
+        $lock_tablename = 'groceryCrudLocks';
+        $tablename = $this->get_table();
+        $query = $db->get_where($lock_tablename, array('tablename' => $tablename, 'recordId' => $primary_key));
+        if ($query->num_rows() > 1) {
+            // Throw exception!
+        }
+        
+        $lock_success = false;
+        $current_timestamp = new DateTime();        
+        // if logged in user was working on entry or no one was working on entry or if edit time has run up
+        if($query->num_rows() == 0) {
+            // set currentuserid to logged in user and edittimestamp to current time
+            $insert_data = array(
+                'tablename' => $tablename,
+                'recordId' => $primary_key,
+                'userId' => $user_id,
+                'timestamp' => $current_timestamp->format('Y-m-d H:i:s')
+            );
+            $lock_success = $db->insert($lock_tablename, $insert_data);
+        } else {
+            $row = $query->row();
+            $current_user_id = $row->userId;
+            $edit_timestamp = new DateTime($row->timestamp);
+            $time_difference = ($current_timestamp->format("U") - $edit_timestamp->format("U"));
+
+            if ($current_user_id == $user_id || $current_user_id == 0 || $time_difference > 3600) {
+                // set currentuserid to logged in user and edittimestamp to current time
+                $update_data = array(
+                    'userId' => $user_id,
+                    'timestamp' => $current_timestamp->format('Y-m-d H:i:s')
+                );
+                $db->where(array('tablename' => $tablename, 'recordId' => $primary_key));
+                $lock_success = $db->update($lock_tablename, $update_data);
+            }
+        }
+        return $lock_success;
+    }
+
+    /**
+     *
+     */
+    protected function unlock_record_for_edit($primary_key) {
+        $unlock_success = false;
+        $user = $this->get_user();
+        if (!$user) {
+            throw new Exception('No user specified.');
+            // throw exception?
+        }
+        $user_id = $user->getId();
+         // load db:
+        $ci = &get_instance();
+        $ci->load->database();
+        $db = $ci->db;        
+        $lock_tablename = 'groceryCrudLocks';
+        $tablename = $this->get_table();
+        $unlock_success = $db->delete($lock_tablename, array('tablename' => $tablename, 'recordId' => $primary_key, 'userId' => $user_id));
+        
+        return $unlock_success;
+    }
+
+    /**
+     *
+     */
+    protected function record_is_locked_for_edit($primary_key) {
+        $user = $this->get_user();
+        if (!$user) {
+            // throw exception?
+            throw new Exception('No user specified.');
+        }
+        // load db:
+        $ci = &get_instance();
+        $ci->load->database();
+        $db = $ci->db;        
+        $lock_tablename = 'groceryCrudLocks';
+        $tablename = $this->get_table();
+        $query = $db->get_where($lock_tablename, array('tablename' => $tablename, 'recordId' => $primary_key));
+        if ($query->num_rows() > 1) {
+            // Throw exception!
+        }
+        $row = $query->row();
+        $current_user_id = $row->currentUserId;
+        $edit_timestamp = new DateTime($row->editTimestamp);
+        $current_timestamp = new DateTime(); 
+        $time_difference = ($current_timestamp->format("U") - $edit_timestamp->format("U"));
+
+        if ($current_user_id == $user_id && $time_difference <= 3600) {
+            return true;
+        }
+        return false;
+    }
+    /* end grocery-crud-elk */
+
 	protected function _convert_date_to_sql_date($date)
 	{
 		$date = substr($date,0,10);
@@ -1537,6 +1668,7 @@ class grocery_CRUD_Layout extends grocery_CRUD_Model_Driver
 
 		foreach($data->list as $num_row => $row)
         {
+            /* begin grocery-crud-elk */
             $can_edit = true;
 			if (isset($this->callback_can_edit)) {
 				$can_edit = call_user_func($this->callback_can_edit,$row->{$data->primary_key});
@@ -1547,7 +1679,8 @@ class grocery_CRUD_Layout extends grocery_CRUD_Model_Driver
 			} else {
 				$data->list[$num_row]->edit_url = null;
 				$data->list[$num_row]->delete_url = null;
-			}
+            }
+            /* end grocery-crud-elk */
 			$data->list[$num_row]->read_url = $data->read_url.'/'.$row->{$data->primary_key};
 		}
 
@@ -1784,16 +1917,6 @@ class grocery_CRUD_Layout extends grocery_CRUD_Model_Driver
 
 	protected function showEditForm($state_info)
 	{
-        $can_edit = true;
-		if (isset($this->callback_can_edit)) {
-			$can_edit = call_user_func($this->callback_can_edit,$state_info->primary_key);
-		} 
-		if (!$can_edit) {
-            // TODO: show some message to the user on the read form!
-            // Maybe: $state_info->error_message = 'Some error message';
-			return $this->showReadForm($state_info);
-		}
-
 		$this->set_js_lib($this->default_javascript_path.'/'.grocery_CRUD::JQUERY);
 
 		$data 				= $this->get_common_data();
@@ -1807,6 +1930,7 @@ class grocery_CRUD_Layout extends grocery_CRUD_Model_Driver
 		$data->update_url	= $this->getUpdateUrl($state_info);
 		$data->delete_url	= $this->getDeleteUrl($state_info);
 		$data->read_url		= $this->getReadUrl($state_info->primary_key);
+        $data->abort_edit_url = $this->getAbortEditUrl($state_info->primary_key);
 		$data->input_fields = $this->get_edit_input_fields($data->field_values);
 		$data->unique_hash			= $this->get_method_hash();
 
@@ -1848,20 +1972,39 @@ class grocery_CRUD_Layout extends grocery_CRUD_Model_Driver
 		$data->validation_url	= $this->getValidationUpdateUrl($state_info->primary_key);
 		$data->is_ajax 			= $this->_is_ajax();
 
+        /* begin grocery-crud-elk */
+        $data->show_error = false;
+        if (isset($state_info->error_message)) {
+            $data->show_error = true;
+            $data->error_message = $state_info->error_message;
+        }
+        /* end grocery-crud-elk */
+
 		$this->_theme_view('read.php',$data);
 		$this->_inline_js("var js_date_format = '".$this->js_date_format."';");
 
 		$this->_get_ajax_results();
 	}
 
-	protected function delete_layout($delete_result = true)
+	protected function delete_layout($delete_result = true, $custom_error_message)
 	{
 		@ob_end_clean();
 		if($delete_result === false)
 		{
-			$error_message = '<p>'.$this->l('delete_error_message').'</p>';
+              /* begin grocery-crud-elk */
+            if (isset($custom_error_message)) {
+                $error_message = '<p>'.$custom_error_message.'</p>';
+            } else {
+                $error_message = '<p>'.$this->l('delete_error_message').'</p>';
+            }
 
-			echo json_encode(array('success' => $delete_result ,'error_message' => $error_message));
+            echo json_encode(array('success' => $delete_result ,'error_message' => $error_message));
+            /* end grocery-crud-elk */
+            /* begin grocery-crud */
+            // $error_message = '<p>'.$this->l('delete_error_message').'</p>';
+
+            // echo json_encode(array('success' => $delete_result ,'error_message' => $error_message));
+            /* end grocery-crud */
 		}
 		else
 		{
@@ -1871,6 +2014,25 @@ class grocery_CRUD_Layout extends grocery_CRUD_Model_Driver
 		}
 		$this->set_echo_and_die();
 	}
+
+    /* begin grocery-crud-elk */
+
+    protected function abort_layout($lock_result = true)
+	{
+		@ob_end_clean();
+		if($lock_result === false)
+        {
+            $error_message = '<p>Fehlermeldung</p>';
+
+            echo json_encode(array('success' => $lock_result,'error_message' => $error_message));
+		}
+		else
+		{
+			echo json_encode(array('success' => true ));
+		}
+		$this->set_echo_and_die();
+    }
+    /* end grocery-crud-elk */
 
 	protected function get_success_message_at_list($field_info = null)
 	{
@@ -2118,7 +2280,16 @@ class grocery_CRUD_Layout extends grocery_CRUD_Model_Driver
 		@ob_end_clean();
 		if($update_result === false)
 		{
-			echo json_encode(array('success' => $update_result));
+            /* begin grocery-crud-elk */
+            $data = array('success' => $update_result);
+            if ($state_info != null && isset($state_info->error_message)) {
+                $data['error_message'] = $state_info->error_message;
+            }
+            echo json_encode($data);
+            /* end grocery-crud-elk */
+            /* begin grocery-crud */
+            // echo json_encode(array('success' => $update_result));
+            /* end grocery-crud */
 		}
 		else
 		{
@@ -2911,7 +3082,10 @@ class grocery_CRUD_States extends grocery_CRUD_Layout
 		15	=> 'success',
 		16  => 'export',
 		17  => 'print',
-		18  => 'read'
+        18  => 'read',
+        /* begin grocery-crud-elk */
+        19  => 'abort_edit'
+        /* end grocery-crud-elk */
 	);
 
 	protected function getStateCode()
@@ -3083,6 +3257,16 @@ class grocery_CRUD_States extends grocery_CRUD_Layout
 			return $this->state_url('read/'.$primary_key);
 	}
 
+    /* begin grocery-crud-elk */
+    protected function getAbortEditUrl($primary_key = null)
+	{
+		if($primary_key === null)
+			return $this->state_url('abort_edit');
+		else
+			return $this->state_url('abort_edit/'.$primary_key);
+	}
+    /* end grocery-crud-elk */
+
 	protected function getUpdateUrl($state_info)
 	{
 		return $this->state_url('update/'.$state_info->primary_key);
@@ -3142,6 +3326,7 @@ class grocery_CRUD_States extends grocery_CRUD_Layout
 
 			case 3:
 			case 18: // read
+            case 19: // abort_edit
 				if($first_parameter !== null)
 				{
 					$state_info = (object)array('primary_key' => $first_parameter);
@@ -3319,6 +3504,10 @@ class Grocery_CRUD extends grocery_CRUD_States
 	const	JQUERY_UI_JS 	= "jquery-ui-1.10.3.custom.min.js";
 	const	JQUERY_UI_CSS 	= "jquery-ui-1.10.1.custom.min.css";
 
+    /* begin grocery-crud-elk */
+    protected $user                 = false;
+    /* end grocery-crud-elk */
+    
 	protected $state_code 			= null;
 	protected $state_info 			= null;
 	protected $columns				= null;
@@ -3400,7 +3589,9 @@ class Grocery_CRUD extends grocery_CRUD_States
 	protected $callback_upload			= null;
 	protected $callback_before_upload	= null;
 	protected $callback_after_upload	= null;
-	protected $callback_can_edit	 	= null;		
+    /* begin grocery-crud-elk */
+    protected $callback_can_edit	 	= null;		
+    /* end grocery-crud-elk */
 
 	protected $default_javascript_path				= null; //autogenerate, please do not modify
 	protected $default_css_path						= null; //autogenerate, please do not modify
@@ -3416,10 +3607,18 @@ class Grocery_CRUD extends grocery_CRUD_States
 	 *
 	 * @access	public
 	 */
-	public function __construct()
+	public function __construct($user = false)
 	{
+        $this->user = $user;
+    }
 
-	}
+    /**
+     * Get the user specified for this crud.
+     */ 
+    public function get_user() {
+        return $this->user;
+    }
+
 
 	/**
 	 * The displayed columns that user see
@@ -4263,11 +4462,14 @@ class Grocery_CRUD extends grocery_CRUD_States
 
 		switch ($this->state_code) {
 			case 15://success
-                $state_info = $this->getStateInfo();
+                /* begin grocery-crud-elk */
+                $state_info = $this->getstateinfo();
                 if (isset($state_info->primary_key)) {
                     // if a primary key is specified, unlock:
                     $this->unlock_record_for_edit($state_info->primary_key);
                 }
+                // continue with list view
+                /* end grocery-crud-elk */
 			case 1://list
 				if($this->unset_list)
 				{
@@ -4305,11 +4507,18 @@ class Grocery_CRUD extends grocery_CRUD_States
 			break;
 
 			case 3://edit
-				if($this->unset_edit)
+                /* begin grocery-crud-elk */
+                $state_info = $this->getStateInfo();
+                $can_edit = true;
+			    if (isset($this->callback_can_edit)) {
+				    $can_edit = call_user_func($this->callback_can_edit,$state_info->primary_key);
+                }
+                if($this->unset_edit || !$can_edit)
 				{
 					throw new Exception('You don\'t have permissions for this operation', 14);
 					die();
 				}
+                /* end grocery-crud-elk */                
 
 				if($this->theme === null)
 					$this->set_theme($this->default_theme);
@@ -4317,28 +4526,57 @@ class Grocery_CRUD extends grocery_CRUD_States
 
 				$this->set_basic_Layout();
 
-				$state_info = $this->getStateInfo();
+                /* begin grocery-crud-elk */
+                $lock_result = $this->lock_record_for_edit($state_info->primary_key);
+                if ($lock_result) {
+                    $this->showEditForm($state_info);
+                } else {
+                    $state_info->error_message = 'Dieser Eintrag wird gerade von einem anderen Benutzer bearbeitet.';
+                    $this->showReadForm($state_info);
+                }
+                /* end grocery-crud-elk */
+                /* begin grocery-crud */
+                // $this->showEditForm($state_info);
+                /* end grocery-crud */
 
-				$this->showEditForm($state_info);
 
 			break;
 
-			case 4://delete
-                
+            case 4://delete
+                /* begin grocery-crud-elk */
+                $state_info = $this->getStateInfo();
                 $can_edit = true;
 			    if (isset($this->callback_can_edit)) {
-				    $can_edit = call_user_func($this->callback_can_edit,$row->{$data->primary_key});
+				    $can_edit = call_user_func($this->callback_can_edit,$state_info->primary_key);
                 }
-				if($this->unset_delete || !$can_edit)
+                if($this->unset_delete || !$can_edit)
 				{
 					throw new Exception('This user is not allowed to do this operation', 14);
 					die();
 				}
+                /* end grocery-crud-elk */
 
-				$state_info = $this->getStateInfo();
-				$delete_result = $this->db_delete($state_info);
+                /* begin grocery-crud-elk */
+                $primary_key = $state_info->primary_key;                
+                // lock row:
+                $lock_result = $this->lock_record_for_edit($primary_key);
+                // $lock_result = true;
+                if ($lock_result) {
+                    $delete_result = $this->db_delete($state_info);
+                    // unlock row:
+                    $this->unlock_record_for_edit($primary_key);
+				    $this->delete_layout( $delete_result);                    
+                } else {
+                    $delete_result = false;
+                    $error_message = 'Dieser Eintrag wird gerade von einem anderen Benutzer bearbeitet.';
+				    $this->delete_layout( $delete_result, $error_message);
+                }
+                /* end grocery-crud-elk */
+                /* begin grocery-crud */
+                // $delete_result = $this->db_delete($state_info);
+                // $this->delete_layout( $delete_result );
+                /* end grocery-crud */
 
-				$this->delete_layout( $delete_result );
 			break;
 
             case 5://insert
@@ -4357,19 +4595,41 @@ class Grocery_CRUD extends grocery_CRUD_States
 
 			case 6://update
 
+                /* grocery-crud-elk */
+                $state_info = $this->getStateInfo();
                 $can_edit = true;
 			    if (isset($this->callback_can_edit)) {
-				    $can_edit = call_user_func($this->callback_can_edit,$row->{$data->primary_key});
+				    $can_edit = call_user_func($this->callback_can_edit, $state_info->primary_key);
                 }
 
 				if($this->unset_edit || !$can_edit)
+                /* end grocery-crud-elk */
 				{
 					throw new Exception('This user is not allowed to do this operation', 14);
 					die();
 				}
 
 				$state_info = $this->getStateInfo();
-				$update_result = $this->db_update($state_info);
+
+                /* begin grocery-crud-elk */
+                $primary_key = $state_info->primary_key;
+                // check if row is locked:
+                $is_locked = $this->record_is_locked_for_edit($primary_key);
+                // $is_locked = true;
+                if ($is_locked) {
+                    $update_result = $this->db_update($state_info);
+    				$this->update_layout( $update_result,$state_info);
+                    // do not unlock the row here! user stays on the edit site.
+                } else {
+                    $update_result = false;
+                    $state_info->error_message = 'dieser eintrag wird gerade von einem anderen benutzer bearbeitet.';
+    			    $this->update_layout( $update_result,$state_info);                    
+                }
+                /* end grocery-crud-elk */
+                /* beging grocery-crud: */
+                // $update_result = $this->db_update($state_info);
+                // $this->update_layout( $update_result,$state_info);
+                /* end grocery-crud */
 
 				$this->update_layout( $update_result,$state_info);
 			break;
@@ -4516,7 +4776,21 @@ class Grocery_CRUD extends grocery_CRUD_States
 				$this->showReadForm($state_info);
 			break;
 
-		}
+            /* begin grocery-crud-elk */
+            case 19: //abort_edit
+                $state_info = $this->getStateInfo();
+                $unlock_result = false;
+                
+                if (isset($state_info->primary_key)) {
+                    // if a primary key is specified, unlock:
+                    $unlock_result = $this->unlock_record_for_edit($state_info->primary_key);
+                }
+
+                $this->abort_layout($unlock_result, $state_info);
+            break;
+            /* end grocery-crud-elk */
+        }
+
 
 		return $this->get_layout();
 	}
@@ -4727,6 +5001,7 @@ class Grocery_CRUD extends grocery_CRUD_States
 
 	}
 
+    /* begin grocery-crud-elk */
     /**
 	 * 
      * A callback that is triggered before the edit or delete action is started,
@@ -4735,7 +5010,8 @@ class Grocery_CRUD extends grocery_CRUD_States
 	public function callback_can_edit($callback = null)
 	{
 		$this->callback_can_edit = $callback;
-	}
+    }
+    /* end grocery-crud-elk */
 
 	/**
 	 *

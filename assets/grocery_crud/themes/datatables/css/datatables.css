@@ -19,16 +19,15 @@
 div.DTTT_container
 {
 	margin-bottom: 8px !important;
-	margin-right: 0px; /* Overwrites margin-right of assets/grocery_crud/css/ui/simple/jquery-ui-1.9.0.custom.min.css */
 }
 .form-title
 {
 	padding: 0.4em !important;
-	font-weight: bold !important;
+	font-weight: bold !important;	
 }
 .ui-input-button
 {
-	font-size: 15px !important;
+	font-size: 15px !important;	
 }
 .form-content
 {
@@ -210,9 +209,8 @@ ul.chzn-choices li.search-field input
 .datatables-add-button
 {
 	position: absolute;
-	float: left;
 	margin-top:10px;
-	margin-left: 20px;
+	margin-left:5px;		
 	z-index: 5;
 }
 
@@ -258,7 +256,7 @@ table.dataTable thead tr th.actions
 {
 	text-align:right;
 } 
-1dd8c7cdc384f7a13790742138baf223fb5ceeac.ui-widget
+.ui-widget
 {
 	font-size: 12px !important;
 }

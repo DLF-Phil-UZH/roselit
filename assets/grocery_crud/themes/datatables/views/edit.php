@@ -70,7 +70,8 @@
 </div>
 <script>
 	var validation_url = '<?php echo $validation_url?>';
-	var list_url = '<?php echo $list_url?>';
+    var list_url = '<?php echo $list_url?>';
+    var abort_edit_url = '<?php echo $abort_edit_url?>';
 
 	var message_alert_edit_form = "<?php echo $this->l('alert_edit_form')?>";
 	var message_update_error = "<?php echo $this->l('update_error')?>";

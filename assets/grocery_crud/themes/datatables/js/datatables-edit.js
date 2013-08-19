@@ -1,6 +1,7 @@
 $(function(){
 
 	var save_and_close = false;
+    var cancel_button_clicked = false;
 
 	$('#save-and-go-back-button').click(function(){
 		save_and_close = true;
@@ -50,7 +51,12 @@ $(function(){
 							}
 							else
 							{
-								form_error_message(message_update_error);
+                                if (data.error_message) {
+                                    form_error_message(data.error_message);
+                                } else {
+								    form_error_message(message_update_error);
+                                }
+
 							}
 						},
 						error: function(){
@@ -83,9 +89,29 @@ $(function(){
 		$('#cancel-button').click(function(){
 			if( $(this).hasClass('back-to-list') || confirm( message_alert_edit_form ) )
 			{
-				window.location = list_url;
-			}
-
+                if (typeof abort_edit_url === 'string') {
+                    // FIXME: better solution to decide if unlock should be sent
+                     $.ajax({
+                        url: abort_edit_url,
+                        dataType: "json",
+                        success: function(data) {
+                            if (data.success) {
+                                // load the list!
+                                window.location = list_url;   
+                            } else {
+                                // TODO: define error message in php code
+                                error_message('Beim Schliessen ist leider ein Fehler aufgetreten.');
+                            }
+                        },
+                        error: function() {
+                            // TODO: define error message in php code
+                            error_message('Beim Schliessen ist leider ein Fehler aufgetreten.');   
+                        }
+                    });
+                } else {
+                    window.location = list_url;
+                }
+            }
 			return false;
 		});
 
