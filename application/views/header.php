@@ -33,7 +33,7 @@
 				</div>
 				<h1>
 					<a href="<?php echo site_url('manager'); ?>">
-						<heading><?php echo $title ?></heading>
+						<heading>RoSeLit</heading>
 					</a>
 				</h1>
 			</div>
