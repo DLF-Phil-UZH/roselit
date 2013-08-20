@@ -99,7 +99,7 @@ if (defined('ENVIRONMENT'))
 	// $routing['directory'] = '';
 
 	// The controller class file name.  Example:  Mycontroller
-	// $routing['controller'] = '';
+	$routing['controller'] = 'olat';
 
 	// The controller function you wish to be called.
 	// $routing['function']	= '';
@@ -122,9 +122,7 @@ if (defined('ENVIRONMENT'))
  */
 	// $assign_to_config['name_of_config_item'] = 'value of config item';
 
-	$assign_to_config['base_url'] = 'https://www.uzh.ch/phil/elearning/dev/roselit/olat/';
-
-
+	$assign_to_config['base_url'] = 'https://www.uzh.ch/phil/elearning/dev/roselit/api/';
 
 
 // --------------------------------------------------------------------
