@@ -436,7 +436,6 @@ class Crud_service {
 	 * @access	public
 	 */
     public function check_edit_permissions_document($pId){
-        			
 		// Load database
         $lCi = $this->_getCI();
 		$lCi->load->database();
@@ -452,8 +451,9 @@ class Crud_service {
         $lUserId = $lUser->getId();
 		
 		// Get edit information from database
-        $table_name = $lDb->dbprefix('documents_admins');
-		$lQuery = $lDb->get_where($table_name, array('documentId' => $pId, 'userId' => '$lUserId'));
+        // $table_name = $lDb->dbprefix('documents_admins');
+        $table_name = 'documents_admins';
+		$lQuery = $lDb->get_where($table_name, array('documentId' => $pId, 'userId' => $lUserId));
 		if($lQuery->num_rows() == 1){
             return true;
         }
@@ -480,14 +480,15 @@ class Crud_service {
     
         // Get data of currently logged in user
 		$lUser = $this->_get_user();
+
         if ($lUser->isAdmin()) {
             return true;
         }
 		$lUserId = $lUser->getId();
 		
 		// Get edit information from database
-        $table_name = $lDb->dbprefix('documentLists_admins');
-		$lQuery = $lDb->get_where($table_name, array('documentListId' => $pId, 'userId' => '$lUserId'));
+        $table_name = 'documentLists_admins';
+		$lQuery = $lDb->get_where($table_name, array('documentListId' => $pId, 'userId' => $lUserId));
 		if($lQuery->num_rows() == 1){
             return true;
         }
