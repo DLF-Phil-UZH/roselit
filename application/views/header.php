@@ -21,8 +21,12 @@
 			}
 		?>
 			<div id="topline">
+                <?php
+                if (isset($logged_in) && $logged_in) { 
+                    echo '<div id="logout"><a href="' . site_url('/auth/logout') . '" >Abmelden</a></div>';
+                } ?>
 				<p>Literaturverwaltung Romanisches Seminar</p>
-			</div>
+            </div>
 			<div class="floatclear">
 			</div>
 			<div id="headerarea">
@@ -30,9 +34,9 @@
 					<a href="http://www.uzh.ch">
 						<img alt="uzh logo" height="80" src="<?php echo base_url('/assets/images/uzh_logo_d_pos_web_main.jpg'); ?>" width="231" />
 					</a>
-				</div>
-				<h1>
-					<a href="<?php echo site_url('manager'); ?>">
+                </div>
+               	<h1>
+					<a href="<?php echo site_url('welcome'); ?>">
 						<heading>RoSeLit</heading>
 					</a>
 				</h1>

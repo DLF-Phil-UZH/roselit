@@ -58,6 +58,7 @@ class Admin extends CI_Controller {
 				$this->load->view('header', array('title' => 'RoSeLit: Administration',
 											  'page' => 'users',
 											  'width' => 'normal',
+                                              'logged_in' => $this->shib_auth->verify_shibboleth_session(),
 											  'access' => ($this->shib_auth->verify_user() !== false),
 											  'admin' => $this->adminaccess));
 				$this->load->view('crud.php',$crudOutput);
@@ -79,7 +80,8 @@ class Admin extends CI_Controller {
 				$crudOutput = $this->crud_service->getUserRequestsCrud();
 				$this->load->view('header', array('title' => 'RoSeLit: Administration',
 											  'page' => 'user_requests',
-											  'width' => 'normal',
+                                              'width' => 'normal',
+                                              'logged_in' => $this->shib_auth->verify_shibboleth_session(),
 											  'access' => ($this->shib_auth->verify_user() !== false),
 											  'admin' => $this->adminaccess));
 				$this->load->view('crud.php',$crudOutput);
@@ -98,6 +100,7 @@ class Admin extends CI_Controller {
 		$this->load->view('header', array('title' => 'RoSeLit: Zugriff verweigert',
 										  'page' => 'access_denied',
 										  'width' => 'small',
+                                          'logged_in' => $this->shib_auth->verify_shibboleth_session(),
 										  'access' => ($this->shib_auth->verify_user() !== false)));
 		$this->load->view('access_denied');
 		$this->load->view('footer');

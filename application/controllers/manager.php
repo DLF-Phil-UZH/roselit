@@ -30,6 +30,7 @@ class Manager extends CI_Controller {
 		$this->load->view('header', array('title' => 'RoSeLit',
 										  'page' => $pPage,
 										  'width' => 'normal',
+                                          'logged_in' => $this->shib_auth->verify_shibboleth_session(),
 										  'access' => ($this->shib_auth->verify_user() !== false),
 										  'admin' => $this->adminaccess));
 		$this->load->view('crud', $pOutput);

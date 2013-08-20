@@ -78,6 +78,12 @@ div#headerarea h1 a:hover
 	font-size: 20px;
 }
 
+div#logout
+{
+    float:right;
+    margin-right:40px;
+}
+
 div#primarnav 
 {
     /* font-size: 1em;

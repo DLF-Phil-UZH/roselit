@@ -27,6 +27,7 @@ class Welcome extends CI_Controller {
 		$this->load->view('header', array('title' => 'RoSeLit',
 										  'page' => 'Willkommen',
 										  'width' => 'small',
+                                          'logged_in' => $this->shib_auth->verify_shibboleth_session(),
 										  'access' => ($this->shib_auth->verify_user() !== false)));
 		$this->load->view('welcome_message', array('access' => ($this->shib_auth->verify_user() !== false)));
 		$this->load->view('footer');

@@ -22,6 +22,7 @@ class Auth extends CI_Controller {
 			$this->load->view('header', array('title' => 'RoSeLit: Zugang beantragen',
 										  'page' => 'request_access',
 										  'width' => 'small',
+                                          'logged_in' => $this->shib_auth->verify_shibboleth_session(),
 										  'access' => ($this->shib_auth->verify_user() !== false)));
 			$this->load->view('request_access');
 		}
@@ -30,6 +31,7 @@ class Auth extends CI_Controller {
 			$this->load->view('header', array('title' => 'RoSeLit: Authentifizierung',
 										  'page' => 'authentification',
 										  'width' => 'small',
+                                          'logged_in' => false,
 										  'access' => false));
             $return_url = site_url('/manager/documents');
 			$this->load->view('login', array('return_url' => $return_url));
@@ -82,6 +84,7 @@ class Auth extends CI_Controller {
 		$this->load->view('header', array('title' => 'RoSeLit: Zugang beantragt',
 										  'page' => 'access_requested',
 										  'width' => 'small',
+                                          'logged_in' => $this->shib_auth->verify_session(),
 										  'access' => ($this->shib_auth->verify_user() !== false)));
 		$this->load->view('access_requested', array('request_date' => $lRequestDate,
 													'request_time' => $lRequestTime));
@@ -108,6 +111,7 @@ class Auth extends CI_Controller {
             $this->load->view('header', array('title' => 'RoSeLit: Abgemeldet',
 										  'page' => 'logout',
 										  'width' => 'small',
+                                          'logged_in' => false,
                                           'access' => false));
             $this->load->view('logout');
             $this->load->view('footer');
