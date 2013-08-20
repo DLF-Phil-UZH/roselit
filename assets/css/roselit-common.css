@@ -78,7 +78,7 @@ div#headerarea h1 a:hover
 	font-size: 20px;
 }
 
-div#logout
+p#logout
 {
     float:right;
     margin-right:40px;

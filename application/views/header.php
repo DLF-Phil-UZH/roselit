@@ -23,7 +23,7 @@
 			<div id="topline">
                 <?php
                 if (isset($logged_in) && $logged_in) { 
-                    echo '<div id="logout"><a href="' . site_url('/auth/logout') . '" >Abmelden</a></div>';
+                    echo '<p id="logout"><a href="' . site_url('/auth/logout') . '" >Abmelden</a></p>';
                 } ?>
 				<p>Literaturverwaltung Romanisches Seminar</p>
             </div>
