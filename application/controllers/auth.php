@@ -31,7 +31,7 @@ class Auth extends CI_Controller {
 										  'page' => 'authentification',
 										  'width' => 'small',
 										  'access' => false));
-            $return_url = site_url('welcome');
+            $return_url = site_url('/manager/documents');
 			$this->load->view('login', array('return_url' => $return_url));
 		}
 		$this->load->view('footer');
