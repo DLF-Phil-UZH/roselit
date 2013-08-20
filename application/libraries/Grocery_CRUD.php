@@ -1202,12 +1202,12 @@ class grocery_CRUD_Model_Driver extends grocery_CRUD_Field_Types
             // Throw exception!
         }
         $row = $query->row();
-        $current_user_id = $row->currentUserId;
-        $edit_timestamp = new DateTime($row->editTimestamp);
+        $current_user_id = $row->userId;
+        $edit_timestamp = new DateTime($row->timestamp);
         $current_timestamp = new DateTime(); 
         $time_difference = ($current_timestamp->format("U") - $edit_timestamp->format("U"));
 
-        if ($current_user_id == $user_id && $time_difference <= 3600) {
+        if ($current_user_id == $user->getId() && $time_difference <= 3600) {
             return true;
         }
         return false;
@@ -4622,7 +4622,7 @@ class Grocery_CRUD extends grocery_CRUD_States
                     // do not unlock the row here! user stays on the edit site.
                 } else {
                     $update_result = false;
-                    $state_info->error_message = 'dieser eintrag wird gerade von einem anderen benutzer bearbeitet.';
+                    $state_info->error_message = 'Der Datensatz ist nicht mehr gesperrt. Bitte laden Sie das Formular erneut.';
     			    $this->update_layout( $update_result,$state_info);                    
                 }
                 /* end grocery-crud-elk */
@@ -4630,8 +4630,6 @@ class Grocery_CRUD extends grocery_CRUD_States
                 // $update_result = $this->db_update($state_info);
                 // $this->update_layout( $update_result,$state_info);
                 /* end grocery-crud */
-
-				$this->update_layout( $update_result,$state_info);
 			break;
 
 			case 7://ajax_list
