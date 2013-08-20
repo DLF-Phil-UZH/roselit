@@ -183,6 +183,7 @@ class Crud_service {
 		    /** config */
 			$crud->set_table('users');
 			$crud->set_subject('Benutzer');
+            $crud->unset_add();
 
 			/** columns: */
 			$crud->columns('id', 'aaiId', 'firstname', 'lastname', 'email');
@@ -237,9 +238,6 @@ class Crud_service {
 				  ->display_as('lastname', 'Nachname')
 				  ->display_as('email', 'E-Mail-Adresse')
 				  ->display_as('created', 'eingegangen am');
-
-			$crud->unset_add()
-				 ->unset_edit();
 
 			/** actions: */
 			// add custom action to accept request
