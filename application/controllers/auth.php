@@ -101,11 +101,17 @@ class Auth extends CI_Controller {
             $this->load->library('Grocery_CRUD');
             $grocery_crud = new Grocery_CRUD($user);
             $success = $grocery_crud->unlock_all_records();
-            if ($success) {
-                echo 'All locks removed.';
+            if (!$success) {
+                // TODO: log some error message
             }
-            echo 'User logged out.';
-            // TODO: display log out view.
+            // TODO: Display, login link / hide logout link in Header
+            $this->load->view('header', array('title' => 'RoSeLit: Abgemeldet',
+										  'page' => 'logout',
+										  'width' => 'small',
+                                          'access' => false));
+            $this->load->view('logout');
+            $this->load->view('footer');
+
         } else {
             redirect('auth');
         }
