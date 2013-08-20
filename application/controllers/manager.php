@@ -63,7 +63,7 @@ class Manager extends CI_Controller {
 		$this->load->model('document_mapper');
 		$lDocument = $this->document_mapper->get($pId);
 		if ($lDocument != false) {
-		    $l_file = '/usr/local/ftp/phil_elearning/roselit/files/' . $lDocument->getFileName();
+		    $l_file = $lDocument->getFilePath();
             $l_documentname = $lDocument->getExplicitId() . '.pdf';
         }
 
