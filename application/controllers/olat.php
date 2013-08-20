@@ -66,14 +66,5 @@ class Olat extends CI_Controller {
         } 
     }
 
-    // public function _remap($method, $params = array()) {
-    //     $controller = strtolower($this->router->fetch_class());
-    //     $classname = strtolower(get_class($this));
-    //     if ($controller == $classname && method_exists($this, $method))
-    //     {
-    //         return call_user_func_array(array($this, $method), $params);
-    //     }
-    //     show_404();
-    // }
 } 
 
