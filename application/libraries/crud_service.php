@@ -136,23 +136,26 @@ class Crud_service {
 
             /** columns: */
 			$crud->columns('title', 'admin', 'lastUpdated', 'published');    
+            $crud->callback_column('published', array($this, 'callback_published_column'));            
             $crud->order_by('title');
 
             /** fields: */
-            $fields = array('title', 'published', 'Dokumente', 'Verwalter', 'lastUpdated');
+            $fields = array('title', 'Link', 'Dokumente', 'Verwalter', 'lastUpdated');
 			$crud->edit_fields($fields);
-            $crud->add_fields('title', 'published', 'Dokumente');
+            $crud->add_fields('title', 'Dokumente');
 
 			$crud->field_type('created', 'readonly')
-				 ->field_type('lastUpdated', 'readonly')
-				 ->field_type('published', 'readonly');
+                ->field_type('lastUpdated', 'readonly');
+            // $crud->callback_field('published', array($this, 'callback_published_field'));
+            $crud->callback_field('Link', array($this, 'callback_link_field'));
+
 
 			// Field / column aliases:
 			$crud->display_as('title', 'Titel')
 				 ->display_as('creator', 'erstellt von')
 				 ->display_as('admin', 'verwaltet von')
 				 ->display_as('lastUpdated', 'zuletzt aktualisiert am')
-				 ->display_as('published', 'bereits veröffentlicht');
+				 ->display_as('published', 'publiziert');
 			
 			/** Validation rules of formular entries by user: */
             $crud->required_fields(array('title', 'admin'));
@@ -267,6 +270,24 @@ class Crud_service {
 		return '';
 	}
 
+    public function callback_published_column($pValue, $pRow){
+        $published = (bool) $pValue;
+        $value = 'Nein';
+        if ($published) {
+           $value = 'Ja';
+        }
+		return $value;
+	}
+
+    public function callback_published_field($pValue, $pId){
+        $published = (bool) $pValue;
+        $value = 'Nein';
+        if ($published) {
+           $value = 'Ja';
+        }
+        return '<div id="field-published" class="readonly_label">' . $value . '.</div>';
+    }
+
     public function callback_explicit_id_field($pValue, $pId) {
         $view_data = array(
             'value' => $pValue,
@@ -333,8 +354,19 @@ class Crud_service {
         }
         $view_data = array('unique' => uniqid(), 'value' => $pValue);
         return $this->_getCI()->load->view('crud/preview_field', $view_data, true);
-    }    
-	
+    }
+
+    public function callback_link_field($pValue, $pId) {
+        $ci = $this->_getCI();
+        $ci->load->model('document_list_mapper');
+        $list = $ci->document_list_mapper->get($pId);
+        $value = 'Noch nicht veröffentlicht.';
+        if ($list->getPublished()) {
+           $value = site_url('/api/olat/lists/' . $pId);
+        }
+        return '<div id="field-link" class="readonly_label">' . $value . '</div>';
+    }
+
 	/**
      * Sets creator and admin to current user and creation timestamp to
      * lastUpated timestamp 
