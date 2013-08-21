@@ -199,11 +199,12 @@ class Crud_service {
 				  ->display_as('firstname', 'Vorname')
 				  ->display_as('lastname', 'Nachname')
 				  ->display_as('email', 'E-Mail')
+                  ->display_as('role', 'Rolle')
 				  ->display_as('lastLogin', 'letzter Login am')
 				  ->display_as('created', 'registriert seit');
 			
 			/** Validation rules of formular entries by user: */
-            $crud->required_fields(array('aaiId', 'firstname', 'lastname', 'email'));
+            $crud->required_fields(array('aaiId', 'firstname', 'lastname', 'email', 'role'));
             $crud->unique_fields('aaiId');
             
             // execute: 
