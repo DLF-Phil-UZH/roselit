@@ -84,7 +84,7 @@ class Auth extends CI_Controller {
 		$this->load->view('header', array('title' => 'RoSeLit: Zugang beantragt',
 										  'page' => 'access_requested',
 										  'width' => 'small',
-                                          'logged_in' => $this->shib_auth->verify_session(),
+                                          'logged_in' => $this->shib_auth->verify_shibboleth_session(),
 										  'access' => ($this->shib_auth->verify_user() !== false)));
 		$this->load->view('access_requested', array('request_date' => $lRequestDate,
 													'request_time' => $lRequestTime));
