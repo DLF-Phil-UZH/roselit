@@ -18,7 +18,7 @@
 		<?php
 			echo $lDocument->toFormattedString();
 			if(strlen($lDocument->getFileName() > 0)){
-				echo "&nbsp;(<a target=\"_self\" href=\"../../documents/file/" . $lDocument->getId() . "\">";
+				echo "&nbsp;(<a target=\"_self\" href=\"../files/" . $documentList->getId() . "/" . $lDocument->getId() . "\">";
 				echo substr(strrchr($lDocument->getFileName(), "."), 1) . ", " . round($lDocument->getFileSize("MB"), 2) . " MB";
 				echo "</a>)";
 			}
