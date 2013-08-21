@@ -126,6 +126,8 @@ class Crud_service {
 	public function getDocumentListsCrud() {
 		$crud = $this->_getCrud();
 		$output = '';
+        
+        $state = $crud->getState();
 
 		try{
 		    /** config: */
@@ -135,25 +137,26 @@ class Crud_service {
 			$crud->set_relation_n_n('Dokumente', 'documents_documentLists', 'documents', 'documentListId', 'documentId', '{authors} ({year}), {title}');
 
             /** columns: */
-			$crud->columns('title', 'admin', 'lastUpdated', 'published');    
+          	$crud->columns('title', 'lastUpdated', 'published');    
             $crud->callback_column('published', array($this, 'callback_published_column'));            
             $crud->order_by('title');
 
             /** fields: */
-            $fields = array('title', 'Link', 'Dokumente', 'Verwalter', 'lastUpdated');
+            if ($state == 'read') {
+                 $fields = array('title', 'Link', 'lastUpdated');    
+            } else {
+                 $fields = array('title', 'Link', 'Dokumente', 'Verwalter', 'lastUpdated');
+            }
 			$crud->edit_fields($fields);
             $crud->add_fields('title', 'Dokumente');
 
 			$crud->field_type('created', 'readonly')
                 ->field_type('lastUpdated', 'readonly');
-            // $crud->callback_field('published', array($this, 'callback_published_field'));
             $crud->callback_field('Link', array($this, 'callback_link_field'));
-
 
 			// Field / column aliases:
 			$crud->display_as('title', 'Titel')
 				 ->display_as('creator', 'erstellt von')
-				 ->display_as('admin', 'verwaltet von')
 				 ->display_as('lastUpdated', 'zuletzt aktualisiert am')
 				 ->display_as('published', 'publiziert');
 			
@@ -172,6 +175,17 @@ class Crud_service {
 
             // execute:
 			$output = $crud->render();
+    
+            if ($state == 'read') {
+                $lCi = $this->_getCI();
+                $lCi->load->model('document_list_mapper');
+                $doclist_id = $crud->getStateInfo()->primary_key;
+                $document_list = $lCi->document_list_mapper->get($doclist_id);
+
+                $list_view = $lCi->load->view('document_list', array("documentList" => $document_list), true);
+                // append the list to the output
+                $output->output .= $list_view;
+            }
 		}catch(Exception $e){
 			show_error($e->getMessage().' --- '.$e->getTraceAsString());
 		}
@@ -278,15 +292,6 @@ class Crud_service {
         }
 		return $value;
 	}
-
-    public function callback_published_field($pValue, $pId){
-        $published = (bool) $pValue;
-        $value = 'Nein';
-        if ($published) {
-           $value = 'Ja';
-        }
-        return '<div id="field-published" class="readonly_label">' . $value . '.</div>';
-    }
 
     public function callback_explicit_id_field($pValue, $pId) {
         $view_data = array(
