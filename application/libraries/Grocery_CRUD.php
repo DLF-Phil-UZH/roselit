@@ -1670,6 +1670,7 @@ class grocery_CRUD_Layout extends grocery_CRUD_Model_Driver
         {
             /* begin grocery-crud-elk */
             $can_edit = true;
+            $data->list[$num_row]->can_edit = $can_edit;
 			if (isset($this->callback_can_edit)) {
 				$can_edit = call_user_func($this->callback_can_edit,$row->{$data->primary_key});
 			} 
@@ -1678,8 +1679,10 @@ class grocery_CRUD_Layout extends grocery_CRUD_Model_Driver
 				$data->list[$num_row]->delete_url = $data->delete_url.'/'.$row->{$data->primary_key};
 			} else {
 				$data->list[$num_row]->edit_url = null;
-				$data->list[$num_row]->delete_url = null;
+                $data->list[$num_row]->delete_url = null;
             }
+            $data->list[$num_row]->allow_edit = $can_edit;
+
             /* end grocery-crud-elk */
 			$data->list[$num_row]->read_url = $data->read_url.'/'.$row->{$data->primary_key};
 		}
