@@ -36,7 +36,7 @@ class Olat extends CI_Controller {
             'documentId' => $pDocumentId);
         $query = $this->db->get_where('documents_documentLists', $where);
         if ($query->num_rows() == 1) {
-
+            $this->load->model('document_mapper');
             $lDocument = $this->document_mapper->get($pDocumentId);
 
             if ($lDocument != false) {
