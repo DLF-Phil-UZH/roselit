@@ -22,7 +22,9 @@ class Olat extends CI_Controller {
             show_404();
         }
 		if($lDocumentList->getPublished()){
-			$this->load->view('document_list', array("documentList" => $lDocumentList));
+			$this->load->view('document_list_header', array("documentList" => $lDocumentList));
+            $this->load->view('document_list', array("documentList" => $lDocumentList));
+			$this->load->view('document_list_footer', array("documentList" => $lDocumentList));
 		}
 		else{
 			show_404();
