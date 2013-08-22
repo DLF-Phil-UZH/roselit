@@ -93,8 +93,6 @@ $(function(){
 			$('#cancel-button').click(function(){
 				if( confirm( message_alert_add_form ) )
 				{
-                    // unlock the record:
-                    $.ajax(unlock_url);
 					window.location = list_url;
 				}
 
