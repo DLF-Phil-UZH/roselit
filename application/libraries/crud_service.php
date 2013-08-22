@@ -176,7 +176,7 @@ class Crud_service {
             // execute:
 			$output = $crud->render();
     
-            if ($state == 'read') {
+            if ($state == 'read' || $state == 'edit') {
                 $lCi = $this->_getCI();
                 $lCi->load->model('document_list_mapper');
                 $doclist_id = $crud->getStateInfo()->primary_key;
@@ -184,7 +184,7 @@ class Crud_service {
 
                 $list_view = $lCi->load->view('document_list', array("documentList" => $document_list), true);
                 // append the list to the output
-                $output->output .= $list_view;
+                $output->output .= '<div class="list-preview"><h3>Vorschau der Liste</h3>' . $list_view . '</div>';
             }
 		}catch(Exception $e){
 			show_error($e->getMessage().' --- '.$e->getTraceAsString());

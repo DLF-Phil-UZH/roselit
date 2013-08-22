@@ -124,6 +124,13 @@ div.ui-widget-content.ui-corner-all.datatables
 	margin-right: 20px !important;
 }
 
+div.list-preview
+{
+	margin-left: 20px !important;
+	margin-right: 20px !important;
+}
+
+
 div.footertopnav
 {
     /* text-align: right;
