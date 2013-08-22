@@ -350,6 +350,15 @@ class Document_model extends Abstract_base_model{
 			$lFormattedString .= $this->pages;
 			$lFormattedString .= ".";
 		}
+		// If document type cannot be determined, use minimal citation
+		else{
+			if(strlen($this->authors) > 0){
+				$lFormattedString .= $this->authors;
+				$lFormattedString .= ": ";
+			}
+			$lFormattedString .= $this->title;
+			$lFormattedString .= ".";
+		}
 		return $lFormattedString;
 	}
 	
