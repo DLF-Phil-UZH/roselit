@@ -62,7 +62,7 @@ class Crud_service {
                 'preview'
             );
             // additional fields that should be displayed in edit / read form:
-            $only_edit_fields = array('Verwalter', 'lastUpdated');
+            $only_edit_fields = array('Verwalter', 'created', 'lastUpdated');
 
             $crud->edit_fields(array_merge($fields, $only_edit_fields));
             $crud->add_fields($fields);
@@ -145,7 +145,7 @@ class Crud_service {
             if ($state == 'read') {
                  $fields = array('title', 'Link', 'lastUpdated');    
             } else {
-                 $fields = array('title', 'Link', 'Dokumente', 'Verwalter', 'lastUpdated');
+                 $fields = array('title', 'Link', 'Dokumente', 'Verwalter', 'created', 'lastUpdated');
             }
 			$crud->edit_fields($fields);
             $crud->add_fields('title', 'Dokumente');
@@ -206,7 +206,9 @@ class Crud_service {
 			$crud->columns('id', 'aaiId', 'firstname', 'lastname', 'email');
 
 			/** fields: */
-			$crud->field_type('created', 'readonly')
+            $crud->field_type('id', 'readonly')
+                 ->field_type('aaiId', 'readonly')
+                 ->field_type('created', 'readonly')
 				 ->field_type('lastLogin', 'readonly');
 			$crud->unset_add_fields('created', 'lastLogin');
 
@@ -221,8 +223,7 @@ class Crud_service {
 				  ->display_as('created', 'registriert seit');
 			
 			/** Validation rules of formular entries by user: */
-            $crud->required_fields(array('aaiId', 'firstname', 'lastname', 'email', 'role'));
-            $crud->unique_fields('aaiId');
+            $crud->required_fields(array('firstname', 'lastname', 'email', 'role'));
             
             // execute: 
 			$output = $crud->render();
