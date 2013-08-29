@@ -4,6 +4,7 @@ class Document_model extends Abstract_base_model{
 
 	private $explicitId; // Combined document ID
 	private $fileName; // Name of document file
+    private $fileDirPath;
 	private $title; // Title (chapter or article)
 	private $authors; // Authors of document
 	private $publication; // Title of publication
@@ -33,6 +34,9 @@ class Document_model extends Abstract_base_model{
 		$this->year = $pYear;
 		$this->pages = $pPages;
 		$this->creator = $pCreator;
+
+        $this->config->load('pdf_upload', TRUE);
+        $this->fileDirPath = $this->config->item('upload_path', 'pdf_upload');
 	}
 	
 	// Setters
@@ -363,7 +367,7 @@ class Document_model extends Abstract_base_model{
 	}
 	
 	public function getFilePath(){
-		$lAbsPathPrefix = "/usr/local/ftp/phil_elearning/roselit/files/";
+		$lAbsPathPrefix = $this->fileDirPath;
 		if(file_exists($lAbsPathPrefix . $this->fileName)){
 			return $lAbsPathPrefix . $this->fileName;
 		}
