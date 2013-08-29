@@ -7,16 +7,16 @@ class Manager extends CI_Controller {
 		parent::__construct();
 		
 		$this->load->library('Shibboleth_authentication_service', NULL, 'shib_auth');
-		$user = $this->shib_auth->verify_user();
-		if ($user == false) {
+		$this->user = $this->shib_auth->verify_user();
+		if ($this->user == false) {
 			redirect('auth');
 		} 
-		if ($user !== false && $user->getRole() == 'new') {
+		if ($this->user !== false && $this->user->getRole() == 'new') {
 			show_error('Sie haben keine Berechtigung.', 403);
 		}
 
 		// Check if user is admin for displaying navigation
-		$this->adminaccess = $user->isAdmin();
+		$this->adminaccess = $this->user->isAdmin();
 	}
 	
 	/**
@@ -90,6 +90,10 @@ class Manager extends CI_Controller {
 	 *
 	 */
     public function documents_file_upload($pId) {
+        if (!$this->_document_is_locked_for_edit()) {
+            $this->output->set_status_header(403);        
+            return;
+        }
 		$this->load->model('document_mapper');
 		$lDocument = $this->document_mapper->get($pId);
 		if (!$lDocument) {
@@ -123,7 +127,6 @@ class Manager extends CI_Controller {
 		$this->document_mapper->save($lDocument);
  
         // TODO: return a JSON
-        $file_data = $this->upload->data();
         $json_data = array(
                         "files" => array(
                             "name" => $file_data['file_name'],
@@ -142,6 +145,10 @@ class Manager extends CI_Controller {
      * Delete the PDF file associated with the Document_model.
      */
     public function documents_file_delete($pId) {
+        if (!$this->_document_is_locked_for_edit()) {
+            $this->output->set_status_header(403);        
+            return;
+        }
         $this->load->model('document_mapper');
 		$lDocument = $this->document_mapper->get($pId);
 		if (!$lDocument) {
@@ -192,6 +199,10 @@ class Manager extends CI_Controller {
         }
     }
 
+    private function _get_user() {
+        return $this->user;
+    }
+
     private function _handle_crud_exception(Exception $e) {
         if (e.getCode() == 14) {
                 show_error('Sie haben keine Berechtigung.', 403);
@@ -200,5 +211,36 @@ class Manager extends CI_Controller {
 
         }
     }
+
+    private function _document_is_locked_for_edit($primary_key) {
+        // copy of the function Grocery_CRUD::record_is_locked_for_edit
+        // TODO: put this function in a separate class
+        $user = $this->_get_user();
+        if (!$user) {
+            // throw exception?
+            throw new Exception('No user specified.');
+        }
+        // load db:
+        $ci = &get_instance();
+        $this->load->database();
+        $db = $this->db;        
+        $lock_tablename = 'groceryCrudLocks';
+        $tablename = $this->get_table();
+        $query = $db->get_where($lock_tablename, array('tablename' => $tablename, 'recordId' => $primary_key));
+        if ($query->num_rows() > 1) {
+            // Throw exception!
+        }
+        $row = $query->row();
+        $current_user_id = $row->userId;
+        $edit_timestamp = new DateTime($row->timestamp);
+        $current_timestamp = new DateTime(); 
+        $time_difference = ($current_timestamp->format("U") - $edit_timestamp->format("U"));
+
+        if ($current_user_id == $user->getId() && $time_difference <= 3600) {
+            return true;
+        }
+        return false;
+    }
+
 }
 
