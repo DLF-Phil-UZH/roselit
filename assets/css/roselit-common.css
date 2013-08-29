@@ -98,6 +98,13 @@ div#primarnav
 	float: left; */
 }
 
+/* Grocery CRUD report div */
+div.report-div
+{
+    margin-left: 20px !important;
+    margin-right: 20px !important;
+}
+
 /* Grocery CRUD add button (views/list_template.php) */
 div.datatables-add-button
 {
