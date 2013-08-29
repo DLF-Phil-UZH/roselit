@@ -20,16 +20,7 @@ class Admin extends CI_Controller {
 	}
 
 	public function index(){
-		// If user is admin
-		if($this->adminaccess === true){
-			$this->users();
-		}
-		// If user is not an admin
-		else{
-			$this->access_denied();
-		}
-	}
-
+	    redirect(site_url('/admin/users'));	
 	}
 
 	public function users(){
