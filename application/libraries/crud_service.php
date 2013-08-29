@@ -260,7 +260,7 @@ class Crud_service {
 
 			/** actions: */
 			// add custom action to accept request
-			$crud->add_action('Accept', '', 'admin/user_requests/accept','ui-icon-plus');
+			$crud->add_action('Annehmen', '', 'admin/user_requests/accept','ui-icon-plus');
 
 			// execute:
 			$output = $crud->render();
