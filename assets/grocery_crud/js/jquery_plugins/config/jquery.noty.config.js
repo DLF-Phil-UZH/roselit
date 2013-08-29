@@ -18,11 +18,12 @@ function success_message(success_message)
 
 function error_message(error_message)
 {
+    $.noty.closeAll();       
 	noty({
 		  text: error_message,
 		  type: 'error',
 		  layout: 'top',
-		  dismissQueue: true
+		  dismissQueue: true,
 	});
 }
 
@@ -36,7 +37,8 @@ function form_success_message(success_message)
 		  type: 'success',
 		  dismissQueue: true,
 		  layout: 'top',
-	});
+          timeout: 7000
+    });
     /* end grocery-crud-elk */
 
 	if ($('#report-success').closest('.ui-dialog').length !== 0) {
@@ -59,6 +61,7 @@ function form_error_message(error_message)
 	// $('#report-error').slideDown('normal');
 	// $('#report-success').slideUp('fast').html('');
     /* begin grocery-crud-elk */
+    $.noty.closeAll();   
     noty({
 		  text: error_message,
 		  type: 'error',
