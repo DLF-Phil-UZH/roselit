@@ -30,24 +30,6 @@ class Admin extends CI_Controller {
 		}
 	}
 
-	public function create_tables()
-	{
-		$this->load->library('migration');
-		if ( ! $this->migration->version(1))
-		{
-			show_error($this->migration->error_string());
-		}
-		$this->load->view('db_setup_complete');
-	}
-
-	public function update_tables()
-	{
-		$this->load->library('migration');
-		if ( ! $this->migration->current())
-		{
-			show_error($this->migration->error_string());
-		}
-		$this->load->view('db_setup_complete');
 	}
 
 	public function users(){
