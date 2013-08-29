@@ -98,6 +98,7 @@ class Crud_service {
 				 ->display_as('pages', 'Seiten')
 				 ->display_as('fileName', 'Datei')
 				 ->display_as('admin', 'verwaltet von')
+                 ->display_as('created', 'erstellt am')                 
 				 ->display_as('lastUpdated', 'zuletzt aktualisiert am')
                  ->display_as('preview', 'Vorschau');
 
@@ -147,7 +148,7 @@ class Crud_service {
                 $fields = array('title', 'Link', 'Verwalter', 'lastUpdated');    
 			    $crud->callback_field('Verwalter', array($this, 'callback_admins_field_read'));                                 
             } else {
-                 $fields = array('title', 'Link', 'Dokumente', 'Verwalter', 'created', 'lastUpdated');
+                 $fields = array('title', 'Link', 'Dokumente', 'Verwalter', 'lastUpdated');
             }
 			$crud->edit_fields($fields);
             $crud->add_fields('title', 'Dokumente');
@@ -159,6 +160,7 @@ class Crud_service {
 			// Field / column aliases:
 			$crud->display_as('title', 'Titel')
 				 ->display_as('creator', 'erstellt von')
+                 ->display_as('created', 'erstellt am')
 				 ->display_as('lastUpdated', 'zuletzt aktualisiert am')
 				 ->display_as('published', 'publiziert');
 			
@@ -445,13 +447,11 @@ class Crud_service {
 			
             $lDb->trans_start();
 
-            $lDb->where('id', $pId);
-            $lDb->update($pTableName, array('creator' => $lUserId, 'created' => 'lastUpdated'));
-			// $lQuery = 'UPDATE ' . $lDb->protect_identifiers($pTableName);
-			// $lQuery .= ' SET ' . $lDb->protect_identifiers('creator') . ' = ? ,';
-		    // $lQuery .= $lDb->protect_identifiers('created') . ' = ' . $lDb->protect_identifiers('lastUpdated');
-			// $lQuery .= ' WHERE ' . $lDb->protect_identifiers('id') . ' = ?;';
-            // $status = $lDb->query($lQuery, array($lUserId, $lUserId, $pId));
+			$lQuery = 'UPDATE ' . $lDb->protect_identifiers($pTableName);
+			$lQuery .= ' SET ' . $lDb->protect_identifiers('creator') . ' = ? ,';
+		    $lQuery .= $lDb->protect_identifiers('created') . ' = CURRENT_TIMESTAMP';
+			$lQuery .= ' WHERE ' . $lDb->protect_identifiers('id') . ' = ?;';
+            $lDb->query($lQuery, array($lUserId, $pId));
 
             $lDb->insert($adminsTableName, array($foreignKeyColumnName => $pId, 'userId' => $lUserId));
 
