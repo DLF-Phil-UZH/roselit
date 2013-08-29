@@ -35,8 +35,11 @@ class Document_model extends Abstract_base_model{
 		$this->pages = $pPages;
 		$this->creator = $pCreator;
 
-        $this->config->load('pdf_upload', TRUE);
-        $this->fileDirPath = $this->config->item('upload_path', 'pdf_upload');
+
+        $ci = &get_instance();
+        $ci->config->load('pdf_upload', TRUE);
+        $upload_config = $ci->config->item('pdf_upload');
+        $this->fileDirPath = $upload_config['upload_path'];
 	}
 	
 	// Setters
@@ -367,7 +370,7 @@ class Document_model extends Abstract_base_model{
 	}
 	
 	public function getFilePath(){
-		$lAbsPathPrefix = $this->fileDirPath;
+		$lAbsPathPrefix = $this->fileDirPath . '/';
 		if(file_exists($lAbsPathPrefix . $this->fileName)){
 			return $lAbsPathPrefix . $this->fileName;
 		}
