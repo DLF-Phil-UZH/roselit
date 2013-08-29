@@ -281,9 +281,9 @@ class Crud_service {
 
 	public function callback_fileName_column($pValue, $pRow){
 		if ($pValue != '') {
-			return '<a href="'.site_url('manager/documents/file/'.$pRow->id).'" target="_blank">Datei herunterladen</a>';
+			return '<a href="'.site_url('manager/documents/file/'.$pRow->id).'" target="_blank">Ja</a>';
 		}
-		return '';
+		return 'Nein';
 	}
 
     public function callback_published_column($pValue, $pRow){
