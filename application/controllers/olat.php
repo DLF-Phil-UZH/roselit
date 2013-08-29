@@ -9,7 +9,7 @@ class Olat extends CI_Controller {
        // check login:
         if ( !isset($_SERVER['REMOTE_USER'])
             || ($_SERVER['REMOTE_USER'] != 'olataccess')) {
-            show_error('403');
+            show_error('Sie sind nicht berechtigt.', 401);
         }
 	}
 
