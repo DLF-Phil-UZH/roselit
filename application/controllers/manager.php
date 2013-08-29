@@ -194,7 +194,7 @@ class Manager extends CI_Controller {
 
     private function _handle_crud_exception(Exception $e) {
         if (e.getCode() == 14) {
-                show_error('Sie haben keine Berechtigung.', 403)
+                show_error('Sie haben keine Berechtigung.', 403);
         } else {
 	        show_error($e->getMessage().' --- '.$e->getTraceAsString());
 
