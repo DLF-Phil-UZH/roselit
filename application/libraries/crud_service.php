@@ -77,6 +77,7 @@ class Crud_service {
                 // user is editing the record!
                 $crud->callback_field('fileName', array($this, 'callback_upload_field_read'));
 			    $crud->callback_field('explicitId', array($this, 'callback_explicit_id_field_read'));
+			    $crud->callback_field('Verwalter', array($this, 'callback_admins_field_read'));                
             } else {
 			    $crud->callback_field('explicitId', array($this, 'callback_explicit_id_field'));
                 $crud->callback_field('fileName', array($this, 'callback_upload_field'));
@@ -143,7 +144,8 @@ class Crud_service {
 
             /** fields: */
             if ($state == 'read') {
-                 $fields = array('title', 'Link', 'lastUpdated');    
+                $fields = array('title', 'Link', 'Verwalter', 'lastUpdated');    
+			    $crud->callback_field('Verwalter', array($this, 'callback_admins_field_read'));                                 
             } else {
                  $fields = array('title', 'Link', 'Dokumente', 'Verwalter', 'created', 'lastUpdated');
             }
@@ -374,6 +376,10 @@ class Crud_service {
            $value = site_url('/api/olat/lists/' . $pId);
         }
         return '<div id="field-link" class="readonly_label">' . $value . '</div>';
+    }
+    
+    public function callback_admins_field_read($pValue, $pId) {
+        return '<div id="field-link" class="readonly_label">' . implode($pValue, ', ') . '</div>';
     }
 
 	/**
