@@ -25,16 +25,16 @@ $(function() {
             // the same function.
             //
             // prepare year, places, publishingHouse, pages (always same formatting):
-            var yearPart = year == '' ? ' (' + year + ')' : '';
+            var yearPart = year != '' ? ' (' + year + ')' : '';
             var placesPart = (places != '' || publishingHouse != '') ? ' ,' + places : '';            
             var publishingHousePart = (places.length != '' && publishingHouse != '') ? ' : ' + publishingHouse : publishingHouse;
             var pagesPart = pages.length != '' ? ', ' + pages : '';
             var endPart = '.';
             
             // If document is a monography without page indication
-            if((editors.length + pages.length + publication.length) == 0){
+            if((editors.length + pages.length + publication.length) == 0 && authors.length > 0){
                 preview += authors;
-                preview += yearStr;
+                preview += yearPart;
                 preview += ": <i>";
                 preview += title;
                 preview += "</i>";
@@ -47,7 +47,7 @@ $(function() {
                 preview += endPart;
             }
             // If document is a monography with page indication
-            else if((editors.length + publication.length) == 0 && pages.length > 0){
+            else if((editors.length + publication.length) == 0 && pages.length > 0 && authors.length > 0){
                 preview += authors;
                 preview += yearPart;
                 preview += ": <i>";
@@ -63,7 +63,7 @@ $(function() {
                 preview += endPart;
             }
             // If document is a chapter of a book
-            else if(editors.length == 0 && places.length > 0 && publishingHouse.length > 0){
+            else if(editors.length == 0 && places.length > 0 && publishingHouse.length > 0 && authors.length > 0 && publication.length > 0){
                 preview += authors;
                 preview += yearPart;
                 preview += ": \"";
@@ -83,7 +83,7 @@ $(function() {
                 preview += endPart;
             }
             // If document is a magazine article
-            else if((editors.length + places.length + publishingHouse.length) == 0){
+            else if((editors.length + places.length + publishingHouse.length) == 0 && authors.length > 0 && publication.length > 0){
                 preview += authors;
                 preview += yearPart;
                 preview += ": \"";
@@ -126,8 +126,9 @@ $(function() {
             }
             else if (title.length != 0) {
                 // fallback: if nothing matched 
-				$preview += authors != '' ? authors + ': ' : '';
-			    $preview += title;
+				preview += authors != '' ? authors + ': ' : '';
+			    preview += '<i>' + title + '</i>';
+                preview += endPart;
             }
             else {
                 preview = 'Vorschau konnte nicht generiert werden.';
