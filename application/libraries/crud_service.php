@@ -211,6 +211,7 @@ class Crud_service {
                  ->field_type('created', 'readonly')
 				 ->field_type('lastLogin', 'readonly');
 			$crud->unset_add_fields('created', 'lastLogin');
+            $crud->unset_edit_fields('lastLogin');
 
 			/** Field / column aliases: */
 			$crud->display_as('id','ID')
