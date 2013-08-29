@@ -12,7 +12,7 @@ class Manager extends CI_Controller {
 			redirect('auth');
 		} 
 		if ($user !== false && $user->getRole() == 'new') {
-			show_error('403');
+			show_error('Sie haben keine Berechtigung.', 403);
 		}
 
 		// Check if user is admin for displaying navigation
@@ -53,7 +53,7 @@ class Manager extends CI_Controller {
 			$crudOutput = $this->crud_service->getDocumentsCrud();
 			$this->_render_output("documents", $crudOutput);
 		}catch(Exception $e){
-			show_error($e->getMessage().' --- '.$e->getTraceAsString());
+            $this->_handle_crud_exception(e);	
 		}
     }
 
@@ -170,7 +170,7 @@ class Manager extends CI_Controller {
 			$crudOutput = $this->crud_service->getDocumentListsCrud();
 			$this->_render_output("lists", $crudOutput);
 		} catch(Exception $e) {
-			show_error($e->getMessage().' --- '.$e->getTraceAsString());
+		    $this->_handle_crud_exception(e);	
 		}
 	}
 
@@ -189,6 +189,15 @@ class Manager extends CI_Controller {
             $lDocumentList->setPublished(true);
             $this->document_list_mapper->save($lDocumentList);
             redirect('manager/lists/success/' . $pId);
+        }
+    }
+
+    private function _handle_crud_exception(Exception $e) {
+        if (e.getCode() == 14) {
+                show_error('Sie haben keine Berechtigung.', 403)
+        } else {
+	        show_error($e->getMessage().' --- '.$e->getTraceAsString());
+
         }
     }
 }
