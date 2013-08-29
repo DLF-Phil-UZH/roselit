@@ -17,10 +17,10 @@ $(function() {
                 // remove the first name
                 var authorName = authorsArray[i];
                 var endOfLastname = authorName.indexOf(",");
-                if (endOfLastName == -1) {
+                if (endOfLastname == -1) {
                     authorsArray[i] = $.trim(authorName);    
                 } else {
-                    authorsArray[i] = $.trim(authorName.substring(0, endOfLastName));
+                    authorsArray[i] = $.trim(authorName.substring(0, endOfLastname));
                 }
             }
             // combine lastnames of the authors:
@@ -35,7 +35,7 @@ $(function() {
             explicitId += year.length > 0 ? "_" + $.trim(year) : '';
             explicitId = explicitId.replace(' ', '_');
             if (explicitId == '') {
-                alert('Es konnte kein Vorschlag für die explizite ID generiert werden.');
+                form_error_message('Es konnte kein Vorschlag für die explizite ID generiert werden.');
             } else {
                $('#field-explicitId').val(explicitId);
             }
