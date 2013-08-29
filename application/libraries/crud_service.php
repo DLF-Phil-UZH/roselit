@@ -361,7 +361,7 @@ class Crud_service {
             $document_model = $lCi->document_mapper->get($pId);
             $pValue = $document_model->toFormattedString();
         } else {
-            $pValue = 'Vorschau konnte nicht generiert werden.'
+            $pValue = 'Vorschau konnte nicht generiert werden.';
         }
         $view_data = array('unique' => uniqid(), 'value' => $pValue);
         return $this->_getCI()->load->view('crud/preview_field', $view_data, true);
