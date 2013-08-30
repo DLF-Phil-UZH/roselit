@@ -95,8 +95,13 @@ class Auth extends CI_Controller {
 	 *
 	 */
     public function logout() {
+        if (!$this->shib_auth->verify_shibboleth_session()) {
+            redirect('auth');
+            return;
+		}
+
         $user = $this->shib_auth->verify_user();
-        if ($user !== false) {
+        if ($user != false) {
             // TODO: clean up locks
             // $this->shib_auth->log_out();
             $user_id = $user->getId();
@@ -107,19 +112,18 @@ class Auth extends CI_Controller {
             if (!$success) {
                 // TODO: log some error message
             }
-            // TODO: Display, login link / hide logout link in Header
-            $this->load->view('header', array('title' => 'RoSeLit: Abgemeldet',
-										  'page' => 'logout',
-										  'width' => 'small',
-                                          'logged_in' => false,
-                                          'access' => false));
-            $this->load->view('logout');
-            $this->load->view('footer');
-
-        } else {
-            redirect('auth');
         }
-	}
+
+        // TODO: Display, login link / hide logout link in Header
+        $this->load->view('header', array('title' => 'RoSeLit: Abgemeldet',
+                                      'page' => 'logout',
+                                      'width' => 'small',
+                                      'logged_in' => false,
+                                      'access' => false));
+        $this->load->view('logout');
+        $this->load->view('footer');
+
+    }
 	
 }
 
