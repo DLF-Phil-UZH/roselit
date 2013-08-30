@@ -82,6 +82,8 @@
 									<a href="<?php echo site_url('admin/user_requests'); ?>">Benutzeranfragen</a>
 								<?php }
 						} ?>
+							<div class="linkseparator">&#8226;</div>
+                            <a href="<?php echo site_url('assets/help/anleitung_liste_einbinden.html') ?>" target="_blank">Anleitung zum Einbinden</a>
 					</div>
 				<?php } ?>
 			<div class="floatclear">
