@@ -186,7 +186,7 @@ class Crud_service {
                 $doclist_id = $crud->getStateInfo()->primary_key;
                 $document_list = $lCi->document_list_mapper->get($doclist_id);
 
-                $list_view = $lCi->load->view('document_list', array("documentList" => $document_list), true);
+                $list_view = $lCi->load->view('document_list', array("is_preview" => true, "documentList" => $document_list), true);
                 // append the list to the output
                 $output->output .= '<div class="list-preview"><h3>Vorschau der Liste</h3>' . $list_view . '</div>';
             }
