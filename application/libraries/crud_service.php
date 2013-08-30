@@ -113,6 +113,9 @@ class Crud_service {
 
 		    // Will only be called when adding a new entry
 			$crud->callback_after_insert(array($this, 'update_documents_after_insert'));
+
+            // Callback to delete the pdf file:
+			$crud->callback_before_delete(array($this, 'delete_document_file'));
             
 			// execute:
 			$output = $crud->render();
@@ -470,6 +473,24 @@ class Crud_service {
 			show_error($e->getMessage().' --- '.$e->getTraceAsString());
         }
 
+    }
+
+    /**
+     * Delete the PDF of a document before the document itself is deleted from the db.
+     * @param {int} $pId
+     */
+    public function delete_document_file($pId) {
+        $ci = $this->_getCI();
+        $ci->load->model('document_mapper');
+        $document = $ci->document_mapper->get($pId);
+        $filePath = '';
+        if ($document != false) {
+            $filePath = $document->getFilePath();
+        }
+        if (file_exists($filePath)) {
+            $status = unlink($filePath);
+        }
+        return true;
     }
 	
 	/**
