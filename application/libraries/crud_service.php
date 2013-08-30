@@ -59,15 +59,16 @@ class Crud_service {
                 'year',
                 'pages',
                 'fileName',
-                'preview'
+                'preview',
             );
             // additional fields that should be displayed in edit / read form:
-            $only_edit_fields = array('Verwalter', 'created', 'lastUpdated');
+            $only_edit_fields = array('Listen', 'Verwalter', 'created', 'lastUpdated');
 
             $crud->edit_fields(array_merge($fields, $only_edit_fields));
             $crud->add_fields($fields);
     
-			$crud->field_type('created', 'readonly')
+            $crud->field_type('Listen', 'readonly')
+                 ->field_type('created', 'readonly')
 				 ->field_type('lastUpdated', 'readonly');
 			
             // Use special fields only in edit and add, not in read!
@@ -83,6 +84,7 @@ class Crud_service {
                 $crud->callback_field('fileName', array($this, 'callback_upload_field'));
             }
             $crud->callback_field('preview', array($this, 'callback_preview_field'));
+            $crud->callback_field('Listen', array($this, 'callback_lists_field'));
             
 
             /** field / column aliases: */
@@ -372,6 +374,10 @@ class Crud_service {
         }
         $view_data = array('unique' => uniqid(), 'value' => $pValue);
         return $this->_getCI()->load->view('crud/preview_field', $view_data, true);
+    }
+
+    public function callback_lists_field($pValue, $pId, $pFieldInfo, $pList) {
+        return '<div id="field-link" class="readonly_label">' . implode($pValue, ', ') . '</div>';        
     }
 
     public function callback_link_field($pValue, $pId, $pFieldInfo, $pList) {
