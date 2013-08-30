@@ -2,6 +2,9 @@
 
 class Manager extends CI_Controller {
 
+    private $user = false;
+    private $adminaccess = false;
+
 	public function __construct()
 	{
 		parent::__construct();
@@ -90,7 +93,7 @@ class Manager extends CI_Controller {
 	 *
 	 */
     public function documents_file_upload($pId) {
-        if (!$this->_document_is_locked_for_edit()) {
+        if (!$this->_document_is_locked_for_edit($pId)) {
             $this->output->set_status_header(403);        
             return;
         }
@@ -145,7 +148,7 @@ class Manager extends CI_Controller {
      * Delete the PDF file associated with the Document_model.
      */
     public function documents_file_delete($pId) {
-        if (!$this->_document_is_locked_for_edit()) {
+        if (!$this->_document_is_locked_for_edit($pId)) {
             $this->output->set_status_header(403);        
             return;
         }
@@ -221,11 +224,10 @@ class Manager extends CI_Controller {
             throw new Exception('No user specified.');
         }
         // load db:
-        $ci = &get_instance();
         $this->load->database();
         $db = $this->db;        
         $lock_tablename = 'groceryCrudLocks';
-        $tablename = $this->get_table();
+        $tablename = 'documents';
         $query = $db->get_where($lock_tablename, array('tablename' => $tablename, 'recordId' => $primary_key));
         if ($query->num_rows() > 1) {
             // Throw exception!
