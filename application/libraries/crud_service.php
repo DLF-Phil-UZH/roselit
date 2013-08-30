@@ -148,10 +148,10 @@ class Crud_service {
 
             /** fields: */
             if ($state == 'read') {
-                $fields = array('title', 'Link', 'Verwalter', 'lastUpdated');    
+                $fields = array('title', 'Link', 'Benutzer', 'Passwort', 'Verwalter', 'lastUpdated');    
 			    $crud->callback_field('Verwalter', array($this, 'callback_admins_field_read'));                                 
             } else {
-                 $fields = array('title', 'Link', 'Dokumente', 'Verwalter', 'lastUpdated');
+                 $fields = array('title', 'Link', 'Benutzer', 'Passwort', 'Dokumente', 'Verwalter', 'lastUpdated');
             }
 			$crud->edit_fields($fields);
             $crud->add_fields('title', 'Dokumente');
@@ -159,6 +159,8 @@ class Crud_service {
 			$crud->field_type('created', 'readonly')
                 ->field_type('lastUpdated', 'readonly');
             $crud->callback_field('Link', array($this, 'callback_link_field'));
+            $crud->callback_field('Benutzer', array($this, 'callback_user_field'));
+            $crud->callback_field('Passwort', array($this, 'callback_password_field'));
 
 			// Field / column aliases:
 			$crud->display_as('title', 'Titel')
@@ -372,13 +374,30 @@ class Crud_service {
         return $this->_getCI()->load->view('crud/preview_field', $view_data, true);
     }
 
-    public function callback_link_field($pValue, $pId) {
-        $ci = $this->_getCI();
-        $ci->load->model('document_list_mapper');
-        $list = $ci->document_list_mapper->get($pId);
+    public function callback_link_field($pValue, $pId, $pFieldInfo, $pList) {
         $value = 'Noch nicht veröffentlicht.';
-        if ($list->getPublished()) {
+        if ((bool) $pList->published) {
            $value = site_url('/api/olat/lists/' . $pId);
+        }
+        return '<div id="field-link" class="readonly_label">' . $value . '</div>';
+    }
+
+    public function callback_user_field($pValue, $pId, $pFieldInfo, $pList) {
+        $value = '-';
+        if ((bool) $pList->published) {
+            $ci = $this->_getCI();
+            $ci->config->load('roselit_api');
+            $value = $ci->config->item('roselit_api_username');
+        }
+        return '<div id="field-link" class="readonly_label">' . $value . '</div>';
+    }
+
+    public function callback_password_field($pValue, $pId, $pFieldInfo, $pList) {
+        $value = '-';
+        if ((bool) $pList->published) {
+            $ci = $this->_getCI();
+            $ci->config->load('roselit_api');
+            $value = $ci->config->item('roselit_api_password');
         }
         return '<div id="field-link" class="readonly_label">' . $value . '</div>';
     }
