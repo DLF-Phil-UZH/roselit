@@ -66,9 +66,9 @@ class Auth extends CI_Controller {
 			$lRequestTime = date_format($lRequestedTimestamp, 'H:i:s');
 		} else {
 			// ok make an access request entry in the db
-			$lFirstname = $_SERVER['Shib-InetOrgPerson-givenName'];
-			$lLastname = $_SERVER['Shib-Person-surname'];
-			$lEmail = $_SERVER['Shib-InetOrgPerson-mail'];
+			$lFirstname = $_SERVER['givenName'];
+			$lLastname = $_SERVER['surname'];
+			$lEmail = $_SERVER['mail'];
 
 			$lData = array(
 						'aaiId' => $lAaiId,
