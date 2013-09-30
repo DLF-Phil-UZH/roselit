@@ -37,7 +37,7 @@ class Crud_service {
 			$crud->set_table('documents');
 			$crud->set_subject('Dokument');
 			$crud->set_relation_n_n('Verwalter','documents_admins', 'users', 'documentId', 'userId', '{firstname} {lastname} ({aaiId})');
-			$crud->set_relation_n_n('Listen', 'documents_documentLists', 'documentLists', 'documentId', 'documentListId', 'title');
+			// $crud->set_relation_n_n('Listen', 'documents_documentLists', 'documentLists', 'documentId', 'documentListId', 'title');
 
             /** columns: */
 			$crud->columns('explicitId','authors', 'title', 'publication', 'volume', 'year', 'pages', 'fileName');
@@ -67,8 +67,7 @@ class Crud_service {
             $crud->edit_fields(array_merge($fields, $only_edit_fields));
             $crud->add_fields($fields);
     
-            $crud->field_type('Listen', 'readonly')
-                 ->field_type('created', 'readonly')
+            $crud->field_type('created', 'readonly')
 				 ->field_type('lastUpdated', 'readonly');
 			
             // Use special fields only in edit and add, not in read!
@@ -377,7 +376,23 @@ class Crud_service {
     }
 
     public function callback_lists_field($pValue, $pId, $pFieldInfo, $pList) {
-        return '<div id="field-link" class="readonly_label">' . implode($pValue, ', ') . '</div>';        
+        $lCi = $this->_getCI();
+        $lCi->load->database();
+		$lDb = $lCi->db;
+
+        // build the query to get list titles:
+        $lDb->select('documentLists.title');
+        $lDb->from('documentLists');
+        $lDb->join('documents_documentLists', 'documentLists.id = documents_documentLists.documentListId');
+        $lDb->where('documents_documentLists.documentId', $pId);
+        
+        $query = $lDb->get();
+        $listTitles = array();
+        foreach ($query->result() as $row) {
+            $listTitles[] = $row->title;
+        }
+
+        return '<div id="field-link" class="readonly_label">' . implode($listTitles, ', ') . '</div>';        
     }
 
     public function callback_link_field($pValue, $pId, $pFieldInfo, $pList) {
