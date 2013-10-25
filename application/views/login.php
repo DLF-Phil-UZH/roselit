@@ -29,7 +29,7 @@
 	// Shibboleth Service Provider handler URL
 	// Examples: "https://point.switch.ch/Shibboleth.sso", "https://rr.aai.switch.ch/aaitest/Shibboleth.sso"
 	// [Mandatory, if wayf_use_discovery_service = false]
-	var wayf_sp_handlerURL = "https://www.uzh.ch/Shibboleth.sso/DS";
+	var wayf_sp_handlerURL = "https://www.uzh.ch/Shibboleth.sso";
 
 	// URL on this resource that the user shall be returned to after authentication
 	// Examples: "https://econf.switch.ch/aai/home", "https://olat.uzh.ch/my/courses"
@@ -162,7 +162,7 @@
 	//  or if wayf_additional_idps is not empty, default: commented out]
 	// Standard var wayf_sp_samlDSURL = "https://www.uzh.ch/Shibboleth.sso/Login";
 	// "https://www.uzh.ch/Shibboleth.sso/Login" doesn't work!!!
-	var wayf_sp_samlDSURL = "https://www.uzh.ch/Shibboleth.sso/DS";
+	var wayf_sp_samlDSURL = "https://www.uzh.ch/Shibboleth.sso/Login";
 
 	// Default IdP to preselect when central WAYF couldn't guess IdP either
 	// This is usually the case the first time ever a user accesses a resource
@@ -288,7 +288,7 @@
 	  is logged in into your application.
 	  -->
 	  <p>
-		<strong>Login:</strong> Javascript is not enabled for your web browser. Please <a href="/Shibboleth.sso/DS?target=https%3A%2F%2Fwww.uzh.ch%2F">use non-Javascript Login</a>.
+		<strong>Login:</strong> Javascript is not enabled for your web browser. Please <a href="/Shibboleth.sso/Login?target=https%3A%2F%2Fwww.uzh.ch%2F">use non-Javascript Login</a>.
 	  </p>
 	</noscript>
 
