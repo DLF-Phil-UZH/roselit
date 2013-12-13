@@ -53,7 +53,7 @@ class Auth extends CI_Controller {
 			redirect('auth');
 		}
 		$this->load->database();
-		$lAaiId = $_SERVER['Shib-SwissEP-UniqueID'];
+		$lAaiId = $_SERVER['uniqueID'];
 		// check if request already exists
 		$lQuery = $this->db->get_where('user_requests', array("aaiId" => $lAaiId), 1);
 		if ($lQuery->num_rows() > 0) {
