@@ -44,7 +44,6 @@ class Shibboleth_authentication_service {
             }
             $lAaiId = $_SERVER['uniqueID'];
 			// check if a user with that shibboleth id exists in the db
-			// if not create one, but set role to "not granted"
 			$ci = $this->_getCI();            
             $ci->load->model('User_mapper');
             $user = $ci->User_mapper->getByAaiId($lAaiId);
