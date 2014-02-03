@@ -70,8 +70,19 @@ class Shibboleth_authentication_service {
         return false;
     }
 
-}
+    /**
+     * Returns the unique user ID provided by the Shibboleth authentication service.
+     * 
+     * @return {String|NULL} the unique user ID or NULL if no user ID is found.
+     */
+    public function get_unique_user_id() {
+        if (isset($_SERVER['uniqueID']) {
+            return $_SERVER['uniqueID'];
+        }
+        return false;
+    }
 
+}
 /* End of file shibboleth_authentication_service.php */
 /* Location: ./application/library/shibboleth_authentication_service.php */
 

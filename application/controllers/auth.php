@@ -53,7 +53,10 @@ class Auth extends CI_Controller {
 			redirect('auth');
 		}
 		$this->load->database();
-		$lAaiId = $_SERVER['uniqueID'];
+		$lAaiId = $this->shib_auth->get_unique_user_id();
+        if ($lAaiId === false) {
+            throw new Exception('No shibboleth uniqueID specified.');
+        }
 		// check if request already exists
 		$lQuery = $this->db->get_where('user_requests', array("aaiId" => $lAaiId), 1);
 		if ($lQuery->num_rows() > 0) {
