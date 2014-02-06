@@ -104,12 +104,14 @@ class Manager extends CI_Controller {
             $this->output->set_status_header(500);
             return;
         }
-        $this->config->load('pdf_upload', TRUE);
-        $global_upload_config = $this->config->item('pdf_upload');
-        $upload_config = $global_upload_config;
-        $upload_config['file_name'] = uniqid();
+        // no longer needed, as settings are loaded automatically from upload.php
+        // $this->config->load('pdf_upload', TRUE);
+        // $global_upload_config = $this->config->item('pdf_upload');
+        // $upload_config = $global_upload_config;
+        // $upload_config['file_name'] = uniqid();
 
-        $this->load->library('upload', $upload_config);
+        // $this->load->library('upload', $upload_config);
+        $this->load->library('upload');
 
         // TODO: test if filetype is pdf
 		$lUploadStatus = $this->upload->do_upload();
