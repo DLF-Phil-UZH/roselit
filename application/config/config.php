@@ -26,7 +26,7 @@ $config['base_url']	= '';
 | variable so that it is blank.
 |
 */
-$config['index_page'] = 'index.php';
+$config['index_page'] = '';
 
 /*
 |--------------------------------------------------------------------------
@@ -356,6 +356,44 @@ $config['rewrite_short_tags'] = FALSE;
 |
 */
 $config['proxy_ips'] = '';
+
+
+/*
+|--------------------------------------------------------------------------
+| PDF folder
+|--------------------------------------------------------------------------
+|
+| Folder to store the uploaded pdfs. Fullpath (with tralining '/' )to the
+| folder is required 
+|
+*/
+$config['pdf_folder'] = ''; 
+
+
+/*
+|--------------------------------------------------------------------------
+| API credentials                                                      
+|--------------------------------------------------------------------------
+|
+| The credentials that are used to access lists via the external api (ex.
+| from OLAT).
+|
+*/
+$config['api_username'] = '';
+$config['api_password'] = '';
+
+
+/*
+|--------------------------------------------------------------------------
+| Citation style                                                        
+|--------------------------------------------------------------------------
+|
+| Citation style for the output in the lists.
+| Supported: ROSE. 
+| TODO: APA, MLA.
+|
+*/
+$config['citation_style'] = 'ROSE';
 
 
 /* End of file config.php */

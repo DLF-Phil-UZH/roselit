@@ -7,8 +7,7 @@ class Olat extends CI_Controller {
 		parent::__construct();
 
         // check login:
-        $this->config->load('roselit_api');
-        $username = $this->config->item('roselit_api_username');
+        $username = $this->config->item('api_username');
         if ( !isset($_SERVER['REMOTE_USER'])
             || ($_SERVER['REMOTE_USER'] != $username)) {
             show_error('Sie sind nicht berechtigt.', 401);

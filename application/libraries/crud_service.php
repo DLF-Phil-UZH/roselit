@@ -407,8 +407,7 @@ class Crud_service {
         $value = '-';
         if ((bool) $pList->published) {
             $ci = $this->_getCI();
-            $ci->config->load('roselit_api');
-            $value = $ci->config->item('roselit_api_username');
+            $value = $ci->config->item('api_username');
         }
         return '<div id="field-link" class="readonly_label">' . $value . '</div>';
     }
@@ -417,8 +416,7 @@ class Crud_service {
         $value = '-';
         if ((bool) $pList->published) {
             $ci = $this->_getCI();
-            $ci->config->load('roselit_api');
-            $value = $ci->config->item('roselit_api_password');
+            $value = $ci->config->item('api_password');
         }
         return '<div id="field-link" class="readonly_label">' . $value . '</div>';
     }

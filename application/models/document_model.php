@@ -35,11 +35,8 @@ class Document_model extends Abstract_base_model{
 		$this->pages = $pPages;
 		$this->creator = $pCreator;
 
-
         $ci = &get_instance();
-        $ci->config->load('pdf_upload', TRUE);
-        $upload_config = $ci->config->item('pdf_upload');
-        $this->fileDirPath = $upload_config['upload_path'];
+        $this->fileDirPath = $ci->config->item('pdf_folder');
 	}
 	
 	// Setters
@@ -246,133 +243,34 @@ class Document_model extends Abstract_base_model{
 
 	// Returns formatted HTML string according to specifications on citation style submitted in an e-mail by A. Robert-Tissot, 10.06.2013
 	public function toFormattedString(){
-		$lFormattedString = "";
-		// If document is a monography without page indication
-		if(strlen($this->editors) + strlen($this->pages) + strlen($this->publication) == 0){
-			$lFormattedString .= $this->authors;
-			$lFormattedString .= " (";
-			$lFormattedString .= $this->year;
-			$lFormattedString .= "): <i>";
-			$lFormattedString .= $this->title;
-			$lFormattedString .= "</i>";
-			if(strlen($this->volume) > 0){
-				$lFormattedString .= " ";
-				$lFormattedString .= $this->volume;
-			}
-			$lFormattedString .= ", ";
-			$lFormattedString .= $this->places;
-			$lFormattedString .= ": ";
-			$lFormattedString .= $this->publishingHouse;
-			$lFormattedString .= ".";
-		}
-		// If document is a monography with page indication
-		elseif(strlen($this->editors) + strlen($this->publication) == 0 && strlen($this->pages) > 0){
-			$lFormattedString .= $this->authors;
-			$lFormattedString .= " (";
-			$lFormattedString .= $this->year;
-			$lFormattedString .= "): <i>";
-			$lFormattedString .= $this->title;
-			$lFormattedString .= "</i>";
-			if(strlen($this->volume) > 0){
-				$lFormattedString .= " ";
-				$lFormattedString .= $this->volume;
-			}
-			$lFormattedString .= ", ";
-			$lFormattedString .= $this->places;
-			$lFormattedString .= ": ";
-			$lFormattedString .= $this->publishingHouse;
-			$lFormattedString .= ", ";
-			$lFormattedString .= $this->pages;
-			$lFormattedString .= ".";
-		}
-		// If document is a chapter of a book
-		elseif(strlen($this->editors) == 0 && strlen($this->places) > 0 && strlen($this->publishingHouse) > 0){
-			$lFormattedString .= $this->authors;
-			$lFormattedString .= " (";
-			$lFormattedString .= $this->year;
-			$lFormattedString .= "): \"";
-			$lFormattedString .= $this->title;
-			$lFormattedString .= "\", in: ";
-			$lFormattedString .= $this->authors;
-			$lFormattedString .= ": <i>";
-			$lFormattedString .= $this->publication;
-			$lFormattedString .= "</i>";
-			if(strlen($this->volume) > 0){
-				$lFormattedString .= " ";
-				$lFormattedString .= $this->volume;
-			}
-			$lFormattedString .= ", ";
-			$lFormattedString .= $this->places;
-			$lFormattedString .= ": ";
-			$lFormattedString .= $this->publishingHouse;
-			$lFormattedString .= ", ";
-			$lFormattedString .= $this->pages;
-			$lFormattedString .= ".";
-		}
-		// If document is a magazine article
-		elseif(strlen($this->editors) + strlen($this->places) + strlen($this->publishingHouse) == 0){
-			$lFormattedString .= $this->authors;
-			$lFormattedString .= " (";
-			$lFormattedString .= $this->year;
-			$lFormattedString .= "): \"";
-			$lFormattedString .= $this->title;
-			$lFormattedString .= "\", in: <i>";
-			$lFormattedString .= $this->publication;
-			$lFormattedString .= "</i>";
-			if(strlen($this->volume) > 0){
-				$lFormattedString .= " ";
-				$lFormattedString .= $this->volume;
-			}
-			$lFormattedString .= ", ";
-			$lFormattedString .= $this->pages;
-			$lFormattedString .= ".";
-		}
-		// If document is an article in a book
-		elseif(strlen($this->title) != 0 &&
-				strlen($this->authors) != 0 &&
-				strlen($this->publication) != 0 &&
-				strlen($this->editors) != 0 &&
-				strlen($this->places) != 0 &&
-				strlen($this->publishingHouse) != 0 &&
-				strlen($this->pages) != 0){
-			$lFormattedString .= $this->authors;
-			$lFormattedString .= " (";
-			$lFormattedString .= $this->year;
-			$lFormattedString .= "): \"";
-			$lFormattedString .= $this->title;
-			$lFormattedString .= "\", in: ";
-			$lFormattedString .= $this->editors;
-			$lFormattedString .= ": <i>";
-			$lFormattedString .= $this->publication;
-			$lFormattedString .= "</i>";
-			if(strlen($this->volume) > 0){
-				$lFormattedString .= " ";
-				$lFormattedString .= $this->volume;
-			}
-			$lFormattedString .= ", ";
-			$lFormattedString .= $this->places;
-			$lFormattedString .= ": ";
-			$lFormattedString .= $this->publishingHouse;
-			$lFormattedString .= ", ";
-			$lFormattedString .= $this->pages;
-			$lFormattedString .= ".";
-		}
-		// If document type cannot be determined, use minimal citation
-		else{
-			if(strlen($this->authors) > 0){
-				$lFormattedString .= $this->authors;
-				$lFormattedString .= ": ";
-			}
-			$lFormattedString .= $this->title;
-			$lFormattedString .= ".";
-		}
-		return $lFormattedString;
+        $style = $this->config->item('citation_style');
+
+        $lFormattedString = "";
+        switch ($style) {
+            /*
+            case 'MLA':
+                // TODO: implement
+                break;
+
+            case 'APA':
+                // TODO: implement
+                break;
+            */
+
+            case 'ROSE':
+                $lFormattedString = $this->_toFormattedStringROSE();
+                break;
+
+            default:
+                throw new Exception("Unexpected configuration option citation_style = '" + $style + "'.");
+        }    
+
+        return $lFormattedString;
 	}
 	
 	public function getFilePath(){
-		$lAbsPathPrefix = $this->fileDirPath . '/';
-		if(file_exists($lAbsPathPrefix . $this->fileName)){
-			return $lAbsPathPrefix . $this->fileName;
+		if(file_exists($this->fileDirPath . $this->fileName)){
+			return $this->fileDirPath . $this->fileName;
 		}
 		else{
 			return false;
@@ -404,7 +302,132 @@ class Document_model extends Abstract_base_model{
 			}
 		}
 		return $lFileSize;
-	}
+    }
+
+    private function _toFormattedStringROSE() {
+        // If document is a monography without page indication
+            if(strlen($this->editors) + strlen($this->pages) + strlen($this->publication) == 0){
+                $lFormattedString .= $this->authors;
+                $lFormattedString .= " (";
+                $lFormattedString .= $this->year;
+                $lFormattedString .= "): <i>";
+                $lFormattedString .= $this->title;
+                $lFormattedString .= "</i>";
+                if(strlen($this->volume) > 0){
+                    $lFormattedString .= " ";
+                    $lFormattedString .= $this->volume;
+                }
+                $lFormattedString .= ", ";
+                $lFormattedString .= $this->places;
+                $lFormattedString .= ": ";
+                $lFormattedString .= $this->publishingHouse;
+                $lFormattedString .= ".";
+            }
+            // If document is a monography with page indication
+            elseif(strlen($this->editors) + strlen($this->publication) == 0 && strlen($this->pages) > 0){
+                $lFormattedString .= $this->authors;
+                $lFormattedString .= " (";
+                $lFormattedString .= $this->year;
+                $lFormattedString .= "): <i>";
+                $lFormattedString .= $this->title;
+                $lFormattedString .= "</i>";
+                if(strlen($this->volume) > 0){
+                    $lFormattedString .= " ";
+                    $lFormattedString .= $this->volume;
+                }
+                $lFormattedString .= ", ";
+                $lFormattedString .= $this->places;
+                $lFormattedString .= ": ";
+                $lFormattedString .= $this->publishingHouse;
+                $lFormattedString .= ", ";
+                $lFormattedString .= $this->pages;
+                $lFormattedString .= ".";
+            }
+            // If document is a chapter of a book
+            elseif(strlen($this->editors) == 0 && strlen($this->places) > 0 && strlen($this->publishingHouse) > 0){
+                $lFormattedString .= $this->authors;
+                $lFormattedString .= " (";
+                $lFormattedString .= $this->year;
+                $lFormattedString .= "): \"";
+                $lFormattedString .= $this->title;
+                $lFormattedString .= "\", in: ";
+                $lFormattedString .= $this->authors;
+                $lFormattedString .= ": <i>";
+                $lFormattedString .= $this->publication;
+                $lFormattedString .= "</i>";
+                if(strlen($this->volume) > 0){
+                    $lFormattedString .= " ";
+                    $lFormattedString .= $this->volume;
+                }
+                $lFormattedString .= ", ";
+                $lFormattedString .= $this->places;
+                $lFormattedString .= ": ";
+                $lFormattedString .= $this->publishingHouse;
+                $lFormattedString .= ", ";
+                $lFormattedString .= $this->pages;
+                $lFormattedString .= ".";
+            }
+            // If document is a magazine article
+            elseif(strlen($this->editors) + strlen($this->places) + strlen($this->publishingHouse) == 0){
+                $lFormattedString .= $this->authors;
+                $lFormattedString .= " (";
+                $lFormattedString .= $this->year;
+                $lFormattedString .= "): \"";
+                $lFormattedString .= $this->title;
+                $lFormattedString .= "\", in: <i>";
+                $lFormattedString .= $this->publication;
+                $lFormattedString .= "</i>";
+                if(strlen($this->volume) > 0){
+                    $lFormattedString .= " ";
+                    $lFormattedString .= $this->volume;
+                }
+                $lFormattedString .= ", ";
+                $lFormattedString .= $this->pages;
+                $lFormattedString .= ".";
+            }
+            // If document is an article in a book
+            elseif(strlen($this->title) != 0 &&
+                    strlen($this->authors) != 0 &&
+                    strlen($this->publication) != 0 &&
+                    strlen($this->editors) != 0 &&
+                    strlen($this->places) != 0 &&
+                    strlen($this->publishingHouse) != 0 &&
+                    strlen($this->pages) != 0){
+                $lFormattedString .= $this->authors;
+                $lFormattedString .= " (";
+                $lFormattedString .= $this->year;
+                $lFormattedString .= "): \"";
+                $lFormattedString .= $this->title;
+                $lFormattedString .= "\", in: ";
+                $lFormattedString .= $this->editors;
+                $lFormattedString .= ": <i>";
+                $lFormattedString .= $this->publication;
+                $lFormattedString .= "</i>";
+                if(strlen($this->volume) > 0){
+                    $lFormattedString .= " ";
+                    $lFormattedString .= $this->volume;
+                }
+                $lFormattedString .= ", ";
+                $lFormattedString .= $this->places;
+                $lFormattedString .= ": ";
+                $lFormattedString .= $this->publishingHouse;
+                $lFormattedString .= ", ";
+                $lFormattedString .= $this->pages;
+                $lFormattedString .= ".";
+            }
+            // If document type cannot be determined, use minimal citation
+            else{
+                if(strlen($this->authors) > 0){
+                    $lFormattedString .= $this->authors;
+                    $lFormattedString .= ": ";
+                }
+                $lFormattedString .= $this->title;
+                $lFormattedString .= ".";
+            }
+            break;
+
+            return $lFormattedString;
+    }
 
 }
 
