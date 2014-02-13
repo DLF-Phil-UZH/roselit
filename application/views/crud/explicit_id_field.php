@@ -16,7 +16,12 @@ $(function() {
             for (var i = 0; i < authorsArray.length; i++) {
                 // remove the first name
                 var authorName = authorsArray[i];
-                authorsArray[i] = $.trim(authorName.substring(0, authorName.indexOf(",")));
+                var endOfLastname = authorName.indexOf(",");
+                if (endOfLastname == -1) {
+                    authorsArray[i] = $.trim(authorName);    
+                } else {
+                    authorsArray[i] = $.trim(authorName.substring(0, endOfLastname));
+                }
             }
             // combine lastnames of the authors:
             explicitId += authorsArray.join("_");
@@ -27,9 +32,13 @@ $(function() {
             // Delete edition number, if given
             year = year.replace(/<sup>\d+<\/sup>/, '');
             
-            explicitId += "_" + $.trim(year);
-            
-            $('#field-explicitId').val(explicitId);
+            explicitId += year.length > 0 ? "_" + $.trim(year) : '';
+            explicitId = explicitId.replace(' ', '_');
+            if (explicitId == '') {
+                form_error_message('Es konnte kein Vorschlag für die explizite ID generiert werden.');
+            } else {
+               $('#field-explicitId').val(explicitId);
+            }
         })
     });
 </script>

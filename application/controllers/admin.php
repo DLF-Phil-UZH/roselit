@@ -20,34 +20,7 @@ class Admin extends CI_Controller {
 	}
 
 	public function index(){
-		// If user is admin
-		if($this->adminaccess === true){
-			$this->users();
-		}
-		// If user is not an admin
-		else{
-			$this->access_denied();
-		}
-	}
-
-	public function create_tables()
-	{
-		$this->load->library('migration');
-		if ( ! $this->migration->version(1))
-		{
-			show_error($this->migration->error_string());
-		}
-		$this->load->view('db_setup_complete');
-	}
-
-	public function update_tables()
-	{
-		$this->load->library('migration');
-		if ( ! $this->migration->current())
-		{
-			show_error($this->migration->error_string());
-		}
-		$this->load->view('db_setup_complete');
+	    redirect(site_url('/admin/users'));	
 	}
 
 	public function users(){
@@ -64,12 +37,12 @@ class Admin extends CI_Controller {
 				$this->load->view('crud.php',$crudOutput);
 				$this->load->view('footer');
 			}catch(Exception $e){
-				show_error($e->getMessage().' --- '.$e->getTraceAsString());
+				$this->_handle_crud_exception($e);
 			}
 		}
 		// If user is not an admin
 		else{
-			$this->access_denied();
+			$this->_access_denied();
 		}
 	}
 
@@ -87,25 +60,15 @@ class Admin extends CI_Controller {
 				$this->load->view('crud.php',$crudOutput);
 				$this->load->view('footer');
 			}catch(Exception $e){
-				show_error($e->getMessage().' --- '.$e->getTraceAsString());
+				$this->_handle_crud_exception($e);
 			}
 		}
 		// If user is not an admin
 		else{
-			$this->access_denied();
+			$this->_access_denied();
 		}
 	}
 	
-	public function access_denied(){
-		$this->load->view('header', array('title' => 'RoSeLit: Zugriff verweigert',
-										  'page' => 'access_denied',
-										  'width' => 'small',
-                                          'logged_in' => $this->shib_auth->verify_shibboleth_session(),
-										  'access' => ($this->shib_auth->verify_user() !== false)));
-		$this->load->view('access_denied');
-		$this->load->view('footer');
-	}
-
 	/**
 	 *
 	 */
@@ -116,6 +79,26 @@ class Admin extends CI_Controller {
         // redirect to user_requests admin interface
         redirect(site_url() . '/admin/user_requests');
 	}
+
+    private function _access_denied() {
+        $this->output->set_status_header('403');
+		$this->load->view('header', array('title' => 'RoSeLit: Zugriff verweigert',
+										  'page' => 'access_denied',
+										  'width' => 'small',
+                                          'logged_in' => $this->shib_auth->verify_shibboleth_session(),
+										  'access' => ($this->shib_auth->verify_user() !== false)));
+		$this->load->view('access_denied');
+		$this->load->view('footer');
+	}
+
+    private function _handle_crud_exception(Exception $e) {
+        if (e.getCode() == 14) {
+            $this->_access_denied(); 
+        } else {
+	        show_error($e->getMessage().' --- '.$e->getTraceAsString());
+
+        }
+    }
 }
 
 /* End of file admin.php */

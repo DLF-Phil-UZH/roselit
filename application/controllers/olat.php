@@ -4,12 +4,14 @@
 class Olat extends CI_Controller {
 	
 	public function __construct() {
-		 parent::__construct();
+		parent::__construct();
 
-       // check login:
+        // check login:
+        $this->config->load('roselit_api');
+        $username = $this->config->item('roselit_api_username');
         if ( !isset($_SERVER['REMOTE_USER'])
-            || ($_SERVER['REMOTE_USER'] != 'olataccess')) {
-            show_error('403');
+            || ($_SERVER['REMOTE_USER'] != $username)) {
+            show_error('Sie sind nicht berechtigt.', 401);
         }
 	}
 
@@ -22,7 +24,9 @@ class Olat extends CI_Controller {
             show_404();
         }
 		if($lDocumentList->getPublished()){
-			$this->load->view('document_list/index', array("documentList" => $lDocumentList));
+			$this->load->view('document_list_header', array("documentList" => $lDocumentList));
+            $this->load->view('document_list', array("documentList" => $lDocumentList));
+			$this->load->view('document_list_footer', array("documentList" => $lDocumentList));
 		}
 		else{
 			show_404();
@@ -36,7 +40,7 @@ class Olat extends CI_Controller {
             'documentId' => $pDocumentId);
         $query = $this->db->get_where('documents_documentLists', $where);
         if ($query->num_rows() == 1) {
-
+            $this->load->model('document_mapper');
             $lDocument = $this->document_mapper->get($pDocumentId);
 
             if ($lDocument != false) {

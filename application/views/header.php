@@ -23,7 +23,7 @@
 			<div id="topline">
                 <?php
                 if (isset($logged_in) && $logged_in) { 
-                    echo '<div id="logout"><a href="' . site_url('/auth/logout') . '" >Abmelden</a></div>';
+                    echo '<p id="logout"><a href="' . site_url('/auth/logout') . '" >Abmelden</a></p>';
                 } ?>
 				<p>Literaturverwaltung Romanisches Seminar</p>
             </div>
@@ -82,6 +82,8 @@
 									<a href="<?php echo site_url('admin/user_requests'); ?>">Benutzeranfragen</a>
 								<?php }
 						} ?>
+							<div class="linkseparator">&#8226;</div>
+                            <a href="<?php echo site_url('assets/help/anleitung_liste_einbinden.html') ?>" target="_blank">Anleitung zum Einbinden</a>
 					</div>
 				<?php } ?>
 			<div class="floatclear">

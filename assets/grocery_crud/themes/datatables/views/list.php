@@ -18,7 +18,7 @@
 			<?php if(!$unset_delete || !$unset_edit || !$unset_read || !empty($actions)){?>
 			<td class='actions'>
 				<?php
-				if(!empty($row->action_urls)){
+				if(!empty($row->action_urls) && $row->allow_edit){
 					foreach($row->action_urls as $action_unique_id => $action_url){
 						$action = $actions[$action_unique_id];
 				?>
@@ -35,13 +35,13 @@
 					</a>
 				<?php }?>
 
-				<?php if(!$unset_edit && ($row->edit_url != NULL)){?>
+				<?php if(!$unset_edit && $row->allow_edit){?>
 					<a href="<?php echo $row->edit_url?>" class="edit_button ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" role="button">
 						<span class="ui-button-icon-primary ui-icon ui-icon-pencil"></span>
 						<span class="ui-button-text">&nbsp;<?php echo $this->l('list_edit'); ?></span>
 					</a>
 				<?php }?>
-				<?php if(!$unset_delete && ($row->delete_url != NULL)){?>
+				<?php if(!$unset_delete && $row->allow_edit){?>
 					<a onclick = "javascript: return delete_row('<?php echo $row->delete_url?>', '<?php echo $num_row?>')"
 						href="javascript:void(0)" class="delete_button ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" role="button">
 						<span class="ui-button-icon-primary ui-icon ui-icon-circle-minus"></span>

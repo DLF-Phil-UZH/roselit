@@ -59,6 +59,12 @@ $(function(){
 									form_success_message(data.success_message);
 
 									clearForm();
+
+                                    // redirect to edit form after insert:
+                                    var current_url = window.location.href;
+                                    var editUrl = current_url.substring(0,current_url.lastIndexOf('/'));
+                                    editUrl += "/edit/" + data.insert_primary_key;
+                                    window.location = editUrl; 
 								}
 								else
 								{
@@ -93,8 +99,6 @@ $(function(){
 			$('#cancel-button').click(function(){
 				if( confirm( message_alert_add_form ) )
 				{
-                    // unlock the record:
-                    $.ajax(unlock_url);
 					window.location = list_url;
 				}
 

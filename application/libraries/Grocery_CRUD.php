@@ -1126,7 +1126,7 @@ class grocery_CRUD_Model_Driver extends grocery_CRUD_Field_Types
         $tablename = $this->get_table();
         $query = $db->get_where($lock_tablename, array('tablename' => $tablename, 'recordId' => $primary_key));
         if ($query->num_rows() > 1) {
-            // Throw exception!
+            // TODO: Throw exception!
         }
         
         $lock_success = false;
@@ -1670,6 +1670,7 @@ class grocery_CRUD_Layout extends grocery_CRUD_Model_Driver
         {
             /* begin grocery-crud-elk */
             $can_edit = true;
+            $data->list[$num_row]->can_edit = $can_edit;
 			if (isset($this->callback_can_edit)) {
 				$can_edit = call_user_func($this->callback_can_edit,$row->{$data->primary_key});
 			} 
@@ -1678,8 +1679,10 @@ class grocery_CRUD_Layout extends grocery_CRUD_Model_Driver
 				$data->list[$num_row]->delete_url = $data->delete_url.'/'.$row->{$data->primary_key};
 			} else {
 				$data->list[$num_row]->edit_url = null;
-				$data->list[$num_row]->delete_url = null;
+                $data->list[$num_row]->delete_url = null;
             }
+            $data->list[$num_row]->allow_edit = $can_edit;
+
             /* end grocery-crud-elk */
 			$data->list[$num_row]->read_url = $data->read_url.'/'.$row->{$data->primary_key};
 		}
@@ -4613,8 +4616,8 @@ class Grocery_CRUD extends grocery_CRUD_States
 
                 /* begin grocery-crud-elk */
                 $primary_key = $state_info->primary_key;
-                // check if row is locked:
-                $is_locked = $this->record_is_locked_for_edit($primary_key);
+                // check if row is locked and renew the lock if one is present:
+                $is_locked = $this->lock_record_for_edit($primary_key);
                 // $is_locked = true;
                 if ($is_locked) {
                     $update_result = $this->db_update($state_info);

@@ -1,16 +1,29 @@
 /* Overwrites some CSS rules of uzh.css */
 
+/* Adapt basic styles from Grocery_CRUD: */
 body
 {
-	/* font-family: Arial, Helvetica, FreeSans, sans-serif;
-	font-size: 0.75em;
-	color: #000000;
+	font-family: Arial, Helvetica, FreeSans, sans-serif;
+	font-size: 14px;
+	/* color: #000000;
 	line-height: 1.5em; */
 	margin:0px 20px 0px 20px;
 	/* padding:0px; */
 	background-color:#e3e7ea;
 	/* background-color:#ffffff; */
 	/* 	height:100%; */
+}
+
+a
+{
+    color: blue;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+a:hover
+{
+	text-decoration: underline;
 }
 
 div.bodywidth
@@ -78,7 +91,7 @@ div#headerarea h1 a:hover
 	font-size: 20px;
 }
 
-div#logout
+p#logout
 {
     float:right;
     margin-right:40px;
@@ -96,6 +109,13 @@ div#primarnav
 	min-height: 22px;
 	width: 966px;
 	float: left; */
+}
+
+/* Grocery CRUD report div */
+div.report-div
+{
+    margin-left: 20px !important;
+    margin-right: 20px !important;
 }
 
 /* Grocery CRUD add button (views/list_template.php) */
@@ -123,6 +143,13 @@ div.ui-widget-content.ui-corner-all.datatables
 	margin-left: 20px !important;
 	margin-right: 20px !important;
 }
+
+div.list-preview
+{
+	margin-left: 20px !important;
+	margin-right: 20px !important;
+}
+
 
 div.footertopnav
 {

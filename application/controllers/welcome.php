@@ -22,14 +22,20 @@ class Welcome extends CI_Controller {
 	 * map to /index.php/welcome/<method_name>
 	 * @see http://codeigniter.com/user_guide/general/urls.html
 	 */
-	public function index()
-	{
+    public function index()
+    {
+        $user = $this->shib_auth->verify_user();
+        $admin = false;
+        if ($user !== false) {
+            $admin = $user->isAdmin();
+        }
 		$this->load->view('header', array('title' => 'RoSeLit',
 										  'page' => 'Willkommen',
 										  'width' => 'small',
+                                          'admin' => $admin,
                                           'logged_in' => $this->shib_auth->verify_shibboleth_session(),
-										  'access' => ($this->shib_auth->verify_user() !== false)));
-		$this->load->view('welcome_message', array('access' => ($this->shib_auth->verify_user() !== false)));
+										  'access' => ($user !== false)));
+		$this->load->view('welcome_message', array('access' => ($user !== false)));
 		$this->load->view('footer');
 	}
 }

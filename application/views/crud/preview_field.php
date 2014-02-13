@@ -23,51 +23,50 @@ $(function() {
             // changing the php code.
             // FIXME: preview should be generated on the server by 
             // the same function.
-
+            //
+            // prepare year, places, publishingHouse, pages (always same formatting):
+            var yearPart = year != '' ? ' (' + year + ')' : '';
+            var placesPart = (places != '' || publishingHouse != '') ? ' ,' + places : '';            
+            var publishingHousePart = (places.length != '' && publishingHouse != '') ? ' : ' + publishingHouse : publishingHouse;
+            var pagesPart = pages.length != '' ? ', ' + pages : '';
+            var endPart = '.';
+            
             // If document is a monography without page indication
-            if((editors.length + pages.length + publication.length) == 0){
+            if((editors.length + pages.length + publication.length) == 0 && authors.length > 0){
                 preview += authors;
-                preview += " (";
-                preview += year;
-                preview += "): <i>";
+                preview += yearPart;
+                preview += ": <i>";
                 preview += title;
                 preview += "</i>";
                 if(volume.length > 0){
                     preview += " ";
                     preview += volume;
                 }
-                preview += ", ";
-                preview += places;
-                preview += ": ";
-                preview += publishingHouse;
-                preview += ".";
+                preview += placesPart;
+                preview += publishingHousePart;
+                preview += endPart;
             }
             // If document is a monography with page indication
-            else if((editors.length + publication.length) == 0 && pages.length > 0){
+            else if((editors.length + publication.length) == 0 && pages.length > 0 && authors.length > 0){
                 preview += authors;
-                preview += " (";
-                preview += year;
-                preview += "): <i>";
+                preview += yearPart;
+                preview += ": <i>";
                 preview += title;
                 preview += "</i>";
                 if(volume.length > 0){
                     preview += " ";
                     preview += volume;
                 }
-                preview += ", ";
-                preview += places;
-                preview += ": ";
-                preview += publishingHouse;
-                preview += ", ";
-                preview += pages;
-                preview += ".";
+                preview += placesPart;
+                preview += publishingHousePart;
+                preview += pagesPart;
+                preview += endPart;
             }
             // If document is a chapter of a book
-            else if(editors.length == 0 && places.length > 0 && publishingHouse.length > 0){
+            else if(editors.length == 0 && places.length > 0 && publishingHouse.length > 0 && authors.length > 0 && publication.length > 0){
                 preview += authors;
-                preview += " (";
-                preview += year;
-                preview += "): \"";
+                preview += yearPart;
+                preview += ": \"";
                 preview += title;
                 preview += "\", in: ";
                 preview += authors;
@@ -78,20 +77,16 @@ $(function() {
                     preview += " ";
                     preview += volume;
                 }
-                preview += ", ";
-                preview += places;
-                preview += ": ";
-                preview += publishingHouse;
-                preview += ", ";
-                preview += pages;
-                preview += ".";
+                preview += placesPart;
+                preview += publishingHousePart;
+                preview += pagesPart;
+                preview += endPart;
             }
             // If document is a magazine article
-            else if((editors.length + places.length + publishingHouse.length) == 0){
+            else if((editors.length + places.length + publishingHouse.length) == 0 && authors.length > 0 && publication.length > 0){
                 preview += authors;
-                preview += " (";
-                preview += year;
-                preview += "): \"";
+                preview += yearPart;
+                preview += ": \"";
                 preview += title;
                 preview += "\", in: <i>";
                 preview += publication;
@@ -100,9 +95,8 @@ $(function() {
                     preview += " ";
                     preview += volume;
                 }
-                preview += ", ";
-                preview += pages;
-                preview += ".";
+                preview += pagesPart;
+                preview += endPart;
             }
             // If document is an article in a book
             else if(title.length != 0 &&
@@ -111,11 +105,10 @@ $(function() {
                     editors.length != 0 &&
                     places.length != 0 &&
                     publishingHouse.length != 0 &&
-                    pages.length != 0){
+                    pages.length != 0) {
                 preview += authors;
-                preview += " (";
-                preview += year;
-                preview += "): \"";
+                preview += yearPart;
+                preview += ": \"";
                 preview += title;
                 preview += "\", in: ";
                 preview += editors;
@@ -126,16 +119,21 @@ $(function() {
                     preview += " ";
                     preview += volume;
                 }
-                preview += ", ";
-                preview += places;
-                preview += ": ";
-                preview += publishingHouse;
-                preview += ", ";
-                preview += pages;
-                preview += ".";
-            } else {
+                preview += placesPart;
+                preview += publishingHousePart;
+                preview += pagesPart;
+                preview += endPart;
+            }
+            else if (title.length != 0) {
+                // fallback: if nothing matched 
+				preview += authors != '' ? authors + ': ' : '';
+			    preview += '<i>' + title + '</i>';
+                preview += endPart;
+            }
+            else {
                 preview = 'Vorschau konnte nicht generiert werden.';
             }
+
             $('#field-preview').html(preview);
         })
     });

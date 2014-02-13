@@ -53,7 +53,7 @@ class Auth extends CI_Controller {
 			redirect('auth');
 		}
 		$this->load->database();
-		$lAaiId = $_SERVER['Shib-SwissEP-UniqueID'];
+		$lAaiId = $_SERVER['uniqueID'];
 		// check if request already exists
 		$lQuery = $this->db->get_where('user_requests', array("aaiId" => $lAaiId), 1);
 		if ($lQuery->num_rows() > 0) {
@@ -66,9 +66,9 @@ class Auth extends CI_Controller {
 			$lRequestTime = date_format($lRequestedTimestamp, 'H:i:s');
 		} else {
 			// ok make an access request entry in the db
-			$lFirstname = $_SERVER['Shib-InetOrgPerson-givenName'];
-			$lLastname = $_SERVER['Shib-Person-surname'];
-			$lEmail = $_SERVER['Shib-InetOrgPerson-mail'];
+			$lFirstname = $_SERVER['givenName'];
+			$lLastname = $_SERVER['surname'];
+			$lEmail = $_SERVER['mail'];
 
 			$lData = array(
 						'aaiId' => $lAaiId,
@@ -84,7 +84,7 @@ class Auth extends CI_Controller {
 		$this->load->view('header', array('title' => 'RoSeLit: Zugang beantragt',
 										  'page' => 'access_requested',
 										  'width' => 'small',
-                                          'logged_in' => $this->shib_auth->verify_session(),
+                                          'logged_in' => $this->shib_auth->verify_shibboleth_session(),
 										  'access' => ($this->shib_auth->verify_user() !== false)));
 		$this->load->view('access_requested', array('request_date' => $lRequestDate,
 													'request_time' => $lRequestTime));
@@ -95,8 +95,13 @@ class Auth extends CI_Controller {
 	 *
 	 */
     public function logout() {
+        if (!$this->shib_auth->verify_shibboleth_session()) {
+            redirect('auth');
+            return;
+		}
+
         $user = $this->shib_auth->verify_user();
-        if ($user !== false) {
+        if ($user != false) {
             // TODO: clean up locks
             // $this->shib_auth->log_out();
             $user_id = $user->getId();
@@ -107,19 +112,18 @@ class Auth extends CI_Controller {
             if (!$success) {
                 // TODO: log some error message
             }
-            // TODO: Display, login link / hide logout link in Header
-            $this->load->view('header', array('title' => 'RoSeLit: Abgemeldet',
-										  'page' => 'logout',
-										  'width' => 'small',
-                                          'logged_in' => false,
-                                          'access' => false));
-            $this->load->view('logout');
-            $this->load->view('footer');
-
-        } else {
-            redirect('auth');
         }
-	}
+
+        // TODO: Display, login link / hide logout link in Header
+        $this->load->view('header', array('title' => 'RoSeLit: Abgemeldet',
+                                      'page' => 'logout',
+                                      'width' => 'small',
+                                      'logged_in' => false,
+                                      'access' => false));
+        $this->load->view('logout');
+        $this->load->view('footer');
+
+    }
 	
 }
 

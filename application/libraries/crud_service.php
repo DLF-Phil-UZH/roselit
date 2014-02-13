@@ -37,7 +37,7 @@ class Crud_service {
 			$crud->set_table('documents');
 			$crud->set_subject('Dokument');
 			$crud->set_relation_n_n('Verwalter','documents_admins', 'users', 'documentId', 'userId', '{firstname} {lastname} ({aaiId})');
-			$crud->set_relation_n_n('Listen', 'documents_documentLists', 'documentLists', 'documentId', 'documentListId', 'title');
+			// $crud->set_relation_n_n('Listen', 'documents_documentLists', 'documentLists', 'documentId', 'documentListId', 'title');
 
             /** columns: */
 			$crud->columns('explicitId','authors', 'title', 'publication', 'volume', 'year', 'pages', 'fileName');
@@ -59,15 +59,15 @@ class Crud_service {
                 'year',
                 'pages',
                 'fileName',
-                'preview'
+                'preview',
             );
             // additional fields that should be displayed in edit / read form:
-            $only_edit_fields = array('Verwalter', 'lastUpdated');
+            $only_edit_fields = array('Listen', 'Verwalter', 'created', 'lastUpdated');
 
             $crud->edit_fields(array_merge($fields, $only_edit_fields));
             $crud->add_fields($fields);
     
-			$crud->field_type('created', 'readonly')
+            $crud->field_type('created', 'readonly')
 				 ->field_type('lastUpdated', 'readonly');
 			
             // Use special fields only in edit and add, not in read!
@@ -77,11 +77,13 @@ class Crud_service {
                 // user is editing the record!
                 $crud->callback_field('fileName', array($this, 'callback_upload_field_read'));
 			    $crud->callback_field('explicitId', array($this, 'callback_explicit_id_field_read'));
+			    $crud->callback_field('Verwalter', array($this, 'callback_admins_field_read'));                
             } else {
 			    $crud->callback_field('explicitId', array($this, 'callback_explicit_id_field'));
                 $crud->callback_field('fileName', array($this, 'callback_upload_field'));
             }
             $crud->callback_field('preview', array($this, 'callback_preview_field'));
+            $crud->callback_field('Listen', array($this, 'callback_lists_field'));
             
 
             /** field / column aliases: */
@@ -97,6 +99,7 @@ class Crud_service {
 				 ->display_as('pages', 'Seiten')
 				 ->display_as('fileName', 'Datei')
 				 ->display_as('admin', 'verwaltet von')
+                 ->display_as('created', 'erstellt am')                 
 				 ->display_as('lastUpdated', 'zuletzt aktualisiert am')
                  ->display_as('preview', 'Vorschau');
 
@@ -111,6 +114,9 @@ class Crud_service {
 
 		    // Will only be called when adding a new entry
 			$crud->callback_after_insert(array($this, 'update_documents_after_insert'));
+
+            // Callback to delete the pdf file:
+			$crud->callback_before_delete(array($this, 'delete_document_file'));
             
 			// execute:
 			$output = $crud->render();
@@ -126,6 +132,8 @@ class Crud_service {
 	public function getDocumentListsCrud() {
 		$crud = $this->_getCrud();
 		$output = '';
+        
+        $state = $crud->getState();
 
 		try{
 		    /** config: */
@@ -135,24 +143,32 @@ class Crud_service {
 			$crud->set_relation_n_n('Dokumente', 'documents_documentLists', 'documents', 'documentListId', 'documentId', '{authors} ({year}), {title}');
 
             /** columns: */
-			$crud->columns('title', 'admin', 'lastUpdated', 'published');    
+          	$crud->columns('title', 'lastUpdated', 'published');    
+            $crud->callback_column('published', array($this, 'callback_published_column'));            
             $crud->order_by('title');
 
             /** fields: */
-            $fields = array('title', 'published', 'Dokumente', 'Verwalter', 'lastUpdated');
+            if ($state == 'read') {
+                $fields = array('title', 'Link', 'Benutzer', 'Passwort', 'Verwalter', 'lastUpdated');    
+			    $crud->callback_field('Verwalter', array($this, 'callback_admins_field_read'));                                 
+            } else {
+                 $fields = array('title', 'Link', 'Benutzer', 'Passwort', 'Dokumente', 'Verwalter', 'lastUpdated');
+            }
 			$crud->edit_fields($fields);
-            $crud->add_fields('title', 'published', 'Dokumente');
+            $crud->add_fields('title', 'Dokumente');
 
 			$crud->field_type('created', 'readonly')
-				 ->field_type('lastUpdated', 'readonly')
-				 ->field_type('published', 'readonly');
+                ->field_type('lastUpdated', 'readonly');
+            $crud->callback_field('Link', array($this, 'callback_link_field'));
+            $crud->callback_field('Benutzer', array($this, 'callback_user_field'));
+            $crud->callback_field('Passwort', array($this, 'callback_password_field'));
 
 			// Field / column aliases:
 			$crud->display_as('title', 'Titel')
 				 ->display_as('creator', 'erstellt von')
-				 ->display_as('admin', 'verwaltet von')
+                 ->display_as('created', 'erstellt am')
 				 ->display_as('lastUpdated', 'zuletzt aktualisiert am')
-				 ->display_as('published', 'bereits veröffentlicht');
+				 ->display_as('published', 'publiziert');
 			
 			/** Validation rules of formular entries by user: */
             $crud->required_fields(array('title', 'admin'));
@@ -169,6 +185,17 @@ class Crud_service {
 
             // execute:
 			$output = $crud->render();
+    
+            if ($state == 'read' || $state == 'edit') {
+                $lCi = $this->_getCI();
+                $lCi->load->model('document_list_mapper');
+                $doclist_id = $crud->getStateInfo()->primary_key;
+                $document_list = $lCi->document_list_mapper->get($doclist_id);
+
+                $list_view = $lCi->load->view('document_list', array("is_preview" => true, "documentList" => $document_list), true);
+                // append the list to the output
+                $output->output .= '<div class="list-preview"><h3>Vorschau der Liste</h3>' . $list_view . '</div>';
+            }
 		}catch(Exception $e){
 			show_error($e->getMessage().' --- '.$e->getTraceAsString());
 		}
@@ -189,9 +216,12 @@ class Crud_service {
 			$crud->columns('id', 'aaiId', 'firstname', 'lastname', 'email');
 
 			/** fields: */
-			$crud->field_type('created', 'readonly')
+            $crud->field_type('id', 'readonly')
+                 ->field_type('aaiId', 'readonly')
+                 ->field_type('created', 'readonly')
 				 ->field_type('lastLogin', 'readonly');
 			$crud->unset_add_fields('created', 'lastLogin');
+            $crud->unset_edit_fields('lastLogin');
 
 			/** Field / column aliases: */
 			$crud->display_as('id','ID')
@@ -199,12 +229,12 @@ class Crud_service {
 				  ->display_as('firstname', 'Vorname')
 				  ->display_as('lastname', 'Nachname')
 				  ->display_as('email', 'E-Mail')
+                  ->display_as('role', 'Rolle')
 				  ->display_as('lastLogin', 'letzter Login am')
 				  ->display_as('created', 'registriert seit');
 			
 			/** Validation rules of formular entries by user: */
-            $crud->required_fields(array('aaiId', 'firstname', 'lastname', 'email'));
-            $crud->unique_fields('aaiId');
+            $crud->required_fields(array('firstname', 'lastname', 'email', 'role'));
             
             // execute: 
 			$output = $crud->render();
@@ -241,7 +271,7 @@ class Crud_service {
 
 			/** actions: */
 			// add custom action to accept request
-			$crud->add_action('Accept', '', 'admin/user_requests/accept','ui-icon-plus');
+			$crud->add_action('Annehmen', '', 'admin/user_requests/accept','ui-icon-plus');
 
 			// execute:
 			$output = $crud->render();
@@ -261,9 +291,18 @@ class Crud_service {
 
 	public function callback_fileName_column($pValue, $pRow){
 		if ($pValue != '') {
-			return '<a href="'.site_url('manager/documents/file/'.$pRow->id).'" target="_blank">Datei herunterladen</a>';
+			return '<a href="'.site_url('manager/documents/file/'.$pRow->id).'" target="_blank">Ja</a>';
 		}
-		return '';
+		return 'Nein';
+	}
+
+    public function callback_published_column($pValue, $pRow){
+        $published = (bool) $pValue;
+        $value = 'Nein';
+        if ($published) {
+           $value = 'Ja';
+        }
+		return $value;
 	}
 
     public function callback_explicit_id_field($pValue, $pId) {
@@ -329,11 +368,65 @@ class Crud_service {
             $lCi->load->model('document_mapper');
             $document_model = $lCi->document_mapper->get($pId);
             $pValue = $document_model->toFormattedString();
+        } else {
+            $pValue = 'Vorschau konnte nicht generiert werden.';
         }
         $view_data = array('unique' => uniqid(), 'value' => $pValue);
         return $this->_getCI()->load->view('crud/preview_field', $view_data, true);
-    }    
-	
+    }
+
+    public function callback_lists_field($pValue, $pId, $pFieldInfo, $pList) {
+        $lCi = $this->_getCI();
+        $lCi->load->database();
+		$lDb = $lCi->db;
+
+        // build the query to get list titles:
+        $lDb->select('documentLists.title');
+        $lDb->from('documentLists');
+        $lDb->join('documents_documentLists', 'documentLists.id = documents_documentLists.documentListId');
+        $lDb->where('documents_documentLists.documentId', $pId);
+        
+        $query = $lDb->get();
+        $listTitles = array();
+        foreach ($query->result() as $row) {
+            $listTitles[] = $row->title;
+        }
+
+        return '<div id="field-link" class="readonly_label">' . implode($listTitles, ', ') . '</div>';        
+    }
+
+    public function callback_link_field($pValue, $pId, $pFieldInfo, $pList) {
+        $value = 'Noch nicht veröffentlicht.';
+        if ((bool) $pList->published) {
+           $value = site_url('/api/olat/lists/' . $pId);
+        }
+        return '<div id="field-link" class="readonly_label">' . $value . '</div>';
+    }
+
+    public function callback_user_field($pValue, $pId, $pFieldInfo, $pList) {
+        $value = '-';
+        if ((bool) $pList->published) {
+            $ci = $this->_getCI();
+            $ci->config->load('roselit_api');
+            $value = $ci->config->item('roselit_api_username');
+        }
+        return '<div id="field-link" class="readonly_label">' . $value . '</div>';
+    }
+
+    public function callback_password_field($pValue, $pId, $pFieldInfo, $pList) {
+        $value = '-';
+        if ((bool) $pList->published) {
+            $ci = $this->_getCI();
+            $ci->config->load('roselit_api');
+            $value = $ci->config->item('roselit_api_password');
+        }
+        return '<div id="field-link" class="readonly_label">' . $value . '</div>';
+    }
+    
+    public function callback_admins_field_read($pValue, $pId) {
+        return '<div id="field-link" class="readonly_label">' . implode($pValue, ', ') . '</div>';
+    }
+
 	/**
      * Sets creator and admin to current user and creation timestamp to
      * lastUpated timestamp 
@@ -397,13 +490,11 @@ class Crud_service {
 			
             $lDb->trans_start();
 
-            $lDb->where('id', $pId);
-            $lDb->update($pTableName, array('creator' => $lUserId, 'created' => 'lastUpdated'));
-			// $lQuery = 'UPDATE ' . $lDb->protect_identifiers($pTableName);
-			// $lQuery .= ' SET ' . $lDb->protect_identifiers('creator') . ' = ? ,';
-		    // $lQuery .= $lDb->protect_identifiers('created') . ' = ' . $lDb->protect_identifiers('lastUpdated');
-			// $lQuery .= ' WHERE ' . $lDb->protect_identifiers('id') . ' = ?;';
-            // $status = $lDb->query($lQuery, array($lUserId, $lUserId, $pId));
+			$lQuery = 'UPDATE ' . $lDb->protect_identifiers($pTableName);
+			$lQuery .= ' SET ' . $lDb->protect_identifiers('creator') . ' = ? ,';
+		    $lQuery .= $lDb->protect_identifiers('created') . ' = CURRENT_TIMESTAMP';
+			$lQuery .= ' WHERE ' . $lDb->protect_identifiers('id') . ' = ?;';
+            $lDb->query($lQuery, array($lUserId, $pId));
 
             $lDb->insert($adminsTableName, array($foreignKeyColumnName => $pId, 'userId' => $lUserId));
 
@@ -422,6 +513,24 @@ class Crud_service {
 			show_error($e->getMessage().' --- '.$e->getTraceAsString());
         }
 
+    }
+
+    /**
+     * Delete the PDF of a document before the document itself is deleted from the db.
+     * @param {int} $pId
+     */
+    public function delete_document_file($pId) {
+        $ci = $this->_getCI();
+        $ci->load->model('document_mapper');
+        $document = $ci->document_mapper->get($pId);
+        $filePath = '';
+        if ($document != false) {
+            $filePath = $document->getFilePath();
+        }
+        if (file_exists($filePath)) {
+            $status = unlink($filePath);
+        }
+        return true;
     }
 	
 	/**
