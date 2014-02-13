@@ -76,7 +76,7 @@ class Shibboleth_authentication_service {
      * @return {String|NULL} the unique user ID or NULL if no user ID is found.
      */
     public function get_unique_user_id() {
-        if (isset($_SERVER['uniqueID']) {
+        if (isset($_SERVER['uniqueID'])) {
             return $_SERVER['uniqueID'];
         }
         return false;
