@@ -19,7 +19,8 @@ class Document_model extends Abstract_base_model{
 	private $creator; // Creator
 	private $admins = array(); // Admin
 	private $lastUpdated; // Date and time of last update (type DateTime)
-	private $created; // Date and time of creation (type DateTime)
+    private $created; // Date and time of creation (type DateTime)
+    private $citation_style; // Citation style
 	
 	public function __construct($pExplicitId, $pFileName, $pTitle, $pAuthors, $pPublication, $pVolume, $pEditors, $pPlaces, $pPublishingHouse, $pYear, $pPages, $pCreator){
 		$this->explicitId = $pExplicitId;
@@ -37,6 +38,7 @@ class Document_model extends Abstract_base_model{
 
         $ci = &get_instance();
         $this->fileDirPath = $ci->config->item('pdf_folder');
+        $this->citation_style = $ci->config->item('citation_style');
 	}
 	
 	// Setters
@@ -243,10 +245,8 @@ class Document_model extends Abstract_base_model{
 
 	// Returns formatted HTML string according to specifications on citation style submitted in an e-mail by A. Robert-Tissot, 10.06.2013
 	public function toFormattedString(){
-        $style = $this->config->item('citation_style');
 
-        $lFormattedString = "";
-        switch ($style) {
+        switch ($this->citation_style) {
             /*
             case 'MLA':
                 // TODO: implement
@@ -305,6 +305,7 @@ class Document_model extends Abstract_base_model{
     }
 
     private function _toFormattedStringROSE() {
+        $lFormattedString = "";
         // If document is a monography without page indication
             if(strlen($this->editors) + strlen($this->pages) + strlen($this->publication) == 0){
                 $lFormattedString .= $this->authors;
@@ -424,7 +425,6 @@ class Document_model extends Abstract_base_model{
                 $lFormattedString .= $this->title;
                 $lFormattedString .= ".";
             }
-            break;
 
             return $lFormattedString;
     }
