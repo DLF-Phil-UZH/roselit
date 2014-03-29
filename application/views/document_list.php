@@ -3,7 +3,7 @@
 <p>
     <?php
         echo $lDocument->toFormattedString();
-        if(strlen($lDocument->getFileName() > 0)){
+        if(strlen($lDocument->getFileName()) > 0){
             if (isset($is_preview) && $is_preview) {
                 // don't include links in preview mode!
                 echo "&nbsp;(" . substr(strrchr($lDocument->getFileName(), "."), 1) . ", " . round($lDocument->getFileSize("MB"), 2) . " MB)";
