@@ -78,10 +78,13 @@ class Document_list_mapper extends CI_Model {
                 throw Exception('User with id '. $lResult->creator . ' not found in database.');
             }
             $lDocList->setCreator($lCreator);
-            $lAdmins = $this->User_mapper->getByDocumentListId($pId);
-            foreach ($lAdmins as $lAdmin) {
-                $lDocument->addAdmin($lAdmin);
-            }
+			
+			/* --- UNUSED IN CURRENT MODEL ---
+			$lAdmins = $this->User_mapper->getByDocumentListId($pId);
+			foreach ($lAdmins as $lAdmin) {
+				$lDocument->addAdmin($lAdmin);
+			}
+			--- UNUSED IN CURRENT MODEL --- */
 
 			// Add documents to the list
 			$this->load->model("Document_mapper");
