@@ -243,7 +243,7 @@ class Document_model extends Abstract_base_model{
 		return $lExplicitId;
     }
 
-	// Returns formatted HTML string according to specifications on citation style submitted in an e-mail by A. Robert-Tissot, 10.06.2013
+	// Returns formatted HTML string according to specifications on citation style submitted in an e-mail by A. Robert-Tissot, 10.06.2013 or the official APA / MLA standard
 	public function toFormattedString(){
 
         switch ($this->citation_style) {
@@ -523,7 +523,7 @@ class Document_model extends Abstract_base_model{
                     strlen($this->publishingHouse) != 0 &&
                     strlen($this->pages) != 0){
                 $lFormattedString .= $this->authors;
-                $lFormattedString .= ". ";
+                $lFormattedString .= ". \"";
                 $lFormattedString .= $this->title;
                 $lFormattedString .= ".\"";
                 $lFormattedString .= " <i>";
@@ -564,7 +564,7 @@ class Document_model extends Abstract_base_model{
         // If document is a monography without page indication
             if(strlen($this->editors) + strlen($this->pages) + strlen($this->publication) == 0){
                 $lFormattedString .= $this->authors;
-                $lFormattedString .= ". (";
+                $lFormattedString .= " (";
                 $lFormattedString .= $this->year;
                 $lFormattedString .= "). <i>";
                 $lFormattedString .= $this->title;
@@ -583,7 +583,7 @@ class Document_model extends Abstract_base_model{
             // If document is a monography with page indication
             elseif(strlen($this->editors) + strlen($this->publication) == 0 && strlen($this->pages) > 0){
                 $lFormattedString .= $this->authors;
-                $lFormattedString .= ". (";
+                $lFormattedString .= " (";
                 $lFormattedString .= $this->year;
                 $lFormattedString .= "). <i>";
                 $lFormattedString .= $this->title;
@@ -609,7 +609,7 @@ class Document_model extends Abstract_base_model{
             // If document is a chapter of a book
             elseif(strlen($this->editors) == 0 && strlen($this->places) > 0 && strlen($this->publishingHouse) > 0){
 				$lFormattedString .= $this->authors;
-                $lFormattedString .= ". (";
+                $lFormattedString .= " (";
                 $lFormattedString .= $this->year;
                 $lFormattedString .= "). ";
                 $lFormattedString .= $this->title;
@@ -639,7 +639,7 @@ class Document_model extends Abstract_base_model{
             // If document is a magazine article
             elseif(strlen($this->editors) + strlen($this->places) + strlen($this->publishingHouse) == 0){
                 $lFormattedString .= $this->authors;
-                $lFormattedString .= ". (";
+                $lFormattedString .= " (";
                 $lFormattedString .= $this->year;
                 $lFormattedString .= "). ";
                 $lFormattedString .= $this->title;
@@ -664,7 +664,7 @@ class Document_model extends Abstract_base_model{
                     strlen($this->publishingHouse) != 0 &&
                     strlen($this->pages) != 0){
                 $lFormattedString .= $this->authors;
-                $lFormattedString .= ". (";
+                $lFormattedString .= " (";
                 $lFormattedString .= $this->year;
                 $lFormattedString .= "). ";
                 $lFormattedString .= $this->title;
@@ -695,7 +695,7 @@ class Document_model extends Abstract_base_model{
             else{
                 if(strlen($this->authors) > 0){
                     $lFormattedString .= $this->authors;
-                    $lFormattedString .= ". ";
+                    $lFormattedString .= " ";
                 }
                 $lFormattedString .= $this->title;
                 $lFormattedString .= ".";
