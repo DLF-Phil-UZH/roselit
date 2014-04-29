@@ -1,7 +1,7 @@
 # Protect the directory with http authentication:
 AuthType Basic
 AuthUserFile /path/to/.htpasswd
-AuthName "OLAT Access for RoSeLit"
+AuthName "OLAT Access for Oliv"
 require valid-user
 
 <Files ".htpasswd">

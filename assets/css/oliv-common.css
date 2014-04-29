@@ -47,10 +47,26 @@ div.bodywidthsmall
 	min-height: 100%;
 }
 
-div.roselit_content
+div.oliv_content
 {
 	margin-left: 20px;
 	margin-right: 20px;
+}
+
+div#olivlogo
+{
+	padding: 14px 17px 0 0;
+	height:80px;
+	width: 133px;
+	float: right;
+}
+
+div#uzhlogo
+{
+	padding: 14px 0 0 17px;
+	height:80px;
+	width: 255px;
+	float: left;
 }
 
 /* Embedded script on view 'login.php' */

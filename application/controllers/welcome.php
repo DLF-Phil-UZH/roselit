@@ -29,7 +29,7 @@ class Welcome extends CI_Controller {
         if ($user !== false) {
             $admin = $user->isAdmin();
         }
-		$this->load->view('header', array('title' => 'RoSeLit',
+		$this->load->view('header', array('title' => 'Oliv',
 										  'page' => 'Willkommen',
 										  'width' => 'small',
                                           'admin' => $admin,

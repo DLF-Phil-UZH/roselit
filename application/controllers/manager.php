@@ -30,7 +30,7 @@ class Manager extends CI_Controller {
 	 * @access	private
 	 */
 	private function _render_output($pPage, $pOutput = null){
-		$this->load->view('header', array('title' => 'RoSeLit',
+		$this->load->view('header', array('title' => 'Oliv',
 										  'page' => $pPage,
 										  'width' => 'normal',
                                           'logged_in' => $this->shib_auth->verify_shibboleth_session(),

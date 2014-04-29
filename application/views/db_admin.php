@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>Welcome to RoSeLit DB Admin</title>
+	<title>Welcome to Oliv DB Admin</title>
 
 	<style type="text/css">
 
@@ -67,7 +67,7 @@
 <body>
 
 <div id="container">
-	<h1>RoSeLit DB Admin</h1>
+	<h1>Oliv DB Admin</h1>
 
 	<div id="body">
 		<ul>

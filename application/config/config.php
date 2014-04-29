@@ -389,8 +389,7 @@ $config['api_password'] = '';
 |--------------------------------------------------------------------------
 |
 | Citation style for the output in the lists.
-| Supported: ROSE. 
-| TODO: APA, MLA.
+| Supported: ROSE, APA, MLA. 
 |
 */
 $config['citation_style'] = 'ROSE';

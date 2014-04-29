@@ -4,7 +4,7 @@
 			</div>
 			<div id="footer">
 				<ul>
-					<li class="first">RoSeLit</li>
+					<li class="first">Oliv</li>
 					<li class="separator"> | </li>
 					<li>© <a href="http://www.phil.uzh.ch/fakultaet/elearning.html">E-Learning-Koordination, Philosophische Fakultät, Universität Zürich</a></li>
 					<li class="separator"> | </li>

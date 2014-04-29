@@ -378,7 +378,7 @@ div#breadcrumbnav a:hover
 }
 div#headerarea
 {
-    width: 980px;
+    /*width: 980px;*/
     display:block;
     background-color: transparent;
     height: 140px;

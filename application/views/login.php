@@ -1,6 +1,6 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed'); ?>
 
-	<div class="roselit_content">
+	<div class="oliv_content">
 		<h2>Anmelden</h2>
 		<p>Melden Sie sich hier an, um Zugriff auf die Verwaltungsoberfläche zu erhalten.</p>
 	</div>

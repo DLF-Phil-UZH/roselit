@@ -6,9 +6,9 @@
         <title><?php echo $title; ?></title>
 		<?php
 		echo meta('Content-type', 'text/html; charset=utf-8', 'equiv');
-		echo meta('description', 'RoSeLit');
+		echo meta('description', 'Oliv');
 		echo link_tag(base_url('/assets/css/uzh.css')); // UZH standard, lower priority
-		echo link_tag(base_url('/assets/css/roselit-common.css')); // Higher priority, customized
+		echo link_tag(base_url('/assets/css/oliv-common.css')); // Higher priority, customized
 		?>
    	</head>
     <body>
@@ -25,7 +25,7 @@
                 if (isset($logged_in) && $logged_in) { 
                     echo '<p id="logout"><a href="' . site_url('/auth/logout') . '" >Abmelden</a></p>';
                 } ?>
-				<p>Literaturverwaltung Romanisches Seminar</p>
+				<p>Literaturverwaltung</p>
             </div>
 			<div class="floatclear">
 			</div>
@@ -35,9 +35,14 @@
 						<img alt="uzh logo" height="80" src="<?php echo base_url('/assets/images/uzh_logo_d_pos_web_main.jpg'); ?>" width="231" />
 					</a>
                 </div>
-               	<h1>
+				<div id="olivlogo">
+					<a href="http://www.phil.uzh.ch/fakultaet/elearning.html">
+						<img alt="oliv logo" height="80" src="<?php echo base_url('/assets/images/oliv.png'); ?>" width="133" />
+					</a>
+                </div>
+               	<h1 style="clear:both">
 					<a href="<?php echo site_url('welcome'); ?>">
-						<heading>RoSeLit</heading>
+						<heading>Oliv</heading>
 					</a>
 				</h1>
 			</div>

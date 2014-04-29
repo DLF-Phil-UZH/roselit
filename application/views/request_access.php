@@ -5,13 +5,12 @@
     <script src="<?php echo site_url('assets/grocery_crud/js/jquery-1.10.2.min.js'); ?>"></script>
     <script src="<?php echo site_url('assets/grocery_crud/js/common/lazyload-min.js'); ?>"></script>
 	<script src="<?php echo site_url('assets/grocery_crud/js/jquery_plugins/ui/jquery-ui-1.10.3.custom.min.js'); ?>"></script>
-	<div class="roselit_content">
+	<div class="oliv_content">
 		<h2>Zugriff verweigert</h2>
-		<p>Herzlich willkommen auf RoSeLit.</p>
-		<p>RoSeLit ist ein Dienst des Romanischen Seminars 
-		zum Verwalten der Literaturlisten für die Proseminare.</p>
+		<p>Herzlich willkommen auf Oliv.</p>
+		<p>Oliv ist ein Dienst der E-Learning Koordination der PhF zum Verwalten von Literaturlisten.</p>
 		<p>Tut uns leid, aber Sie sind nicht berechtigt, Literaturlisten
-		zu verwalten. Sind Sie vom Romanischen Seminar? Dann beantragen Sie 
+		zu verwalten. Beantragen Sie 
 		jetzt mit nur einem Klick einen Zugang:</p>
 		<p><a id="request-access-button" href="<?php echo site_url('auth/request_access') ?>" target="_self">Zugang beantragen</a></p>
 		<p>Zugriff auf die Literaturlisten haben Sie direkt über die

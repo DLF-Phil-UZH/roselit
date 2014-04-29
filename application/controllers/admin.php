@@ -28,7 +28,7 @@ class Admin extends CI_Controller {
 			$this->load->library('Crud_service');
 			try{
 				$crudOutput = $this->crud_service->getUsersCrud();
-				$this->load->view('header', array('title' => 'RoSeLit: Administration',
+				$this->load->view('header', array('title' => 'Oliv: Administration',
 											  'page' => 'users',
 											  'width' => 'normal',
                                               'logged_in' => $this->shib_auth->verify_shibboleth_session(),
@@ -51,7 +51,7 @@ class Admin extends CI_Controller {
 			$this->load->library('Crud_service');
 			try{
 				$crudOutput = $this->crud_service->getUserRequestsCrud();
-				$this->load->view('header', array('title' => 'RoSeLit: Administration',
+				$this->load->view('header', array('title' => 'Oliv: Administration',
 											  'page' => 'user_requests',
                                               'width' => 'normal',
                                               'logged_in' => $this->shib_auth->verify_shibboleth_session(),
@@ -82,7 +82,7 @@ class Admin extends CI_Controller {
 
     private function _access_denied() {
         $this->output->set_status_header('403');
-		$this->load->view('header', array('title' => 'RoSeLit: Zugriff verweigert',
+		$this->load->view('header', array('title' => 'Oliv: Zugriff verweigert',
 										  'page' => 'access_denied',
 										  'width' => 'small',
                                           'logged_in' => $this->shib_auth->verify_shibboleth_session(),

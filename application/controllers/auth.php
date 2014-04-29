@@ -19,7 +19,7 @@ class Auth extends CI_Controller {
 
 		// If user has already logged in over AAI
 		if($this->shib_auth->verify_shibboleth_session()){
-			$this->load->view('header', array('title' => 'RoSeLit: Zugang beantragen',
+			$this->load->view('header', array('title' => 'Oliv: Zugang beantragen',
 										  'page' => 'request_access',
 										  'width' => 'small',
                                           'logged_in' => $this->shib_auth->verify_shibboleth_session(),
@@ -28,7 +28,7 @@ class Auth extends CI_Controller {
 		}
 		// If user hasn't logged in over AAI yet, send him to login page
 		else{
-			$this->load->view('header', array('title' => 'RoSeLit: Authentifizierung',
+			$this->load->view('header', array('title' => 'Oliv: Authentifizierung',
 										  'page' => 'authentification',
 										  'width' => 'small',
                                           'logged_in' => false,
@@ -84,7 +84,7 @@ class Auth extends CI_Controller {
 			$lRequestDate = date_format($lRequestedTimestamp, 'd.m.Y');
 			$lRequestTime = date_format($lRequestedTimestamp, 'H:i:s');
 		}
-		$this->load->view('header', array('title' => 'RoSeLit: Zugang beantragt',
+		$this->load->view('header', array('title' => 'Oliv: Zugang beantragt',
 										  'page' => 'access_requested',
 										  'width' => 'small',
                                           'logged_in' => $this->shib_auth->verify_shibboleth_session(),
@@ -118,7 +118,7 @@ class Auth extends CI_Controller {
         }
 
         // TODO: Display, login link / hide logout link in Header
-        $this->load->view('header', array('title' => 'RoSeLit: Abgemeldet',
+        $this->load->view('header', array('title' => 'Oliv: Abgemeldet',
                                       'page' => 'logout',
                                       'width' => 'small',
                                       'logged_in' => false,
