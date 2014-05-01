@@ -25,7 +25,7 @@
                 if (isset($logged_in) && $logged_in) { 
                     echo '<p id="logout"><a href="' . site_url('/auth/logout') . '" >Abmelden</a></p>';
                 } ?>
-				<p>Literaturverwaltung</p>
+				<p>Online Literaturlisten-Verwaltung</p>
             </div>
 			<div class="floatclear">
 			</div>
@@ -87,6 +87,8 @@
 									<a href="<?php echo site_url('admin/user_requests'); ?>">Benutzeranfragen</a>
 								<?php }
 						} ?>
+							<div class="linkseparator">&#8226;</div>
+                            <a href="<?php echo site_url('assets/help/anleitung_eingabe_zitationsstile.html') ?>" target="_blank">Anleitung zur Eingabe</a>
 							<div class="linkseparator">&#8226;</div>
                             <a href="<?php echo site_url('assets/help/anleitung_liste_einbinden.html') ?>" target="_blank">Anleitung zum Einbinden</a>
 					</div>
