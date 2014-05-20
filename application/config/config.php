@@ -392,7 +392,7 @@ $config['api_password'] = '';
 | Supported: ROSE, APA, MLA. 
 |
 */
-$config['citation_style'] = 'ROSE';
+$config['citation_style'] = '';
 
 
 /* End of file config.php */

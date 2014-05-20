@@ -17,10 +17,10 @@ SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 -- --------------------------------------------------------
 
 --
--- Tabellenstruktur für Tabelle `documentLists`
+-- Tabellenstruktur für Tabelle `oliv_documentLists`
 --
 
-CREATE TABLE IF NOT EXISTS `documentLists` (
+CREATE TABLE IF NOT EXISTS `oliv_documentLists` (
   `id` int(9) NOT NULL auto_increment,
   `title` varchar(255) NOT NULL,
   `creator` int(9) NOT NULL,
@@ -33,10 +33,10 @@ CREATE TABLE IF NOT EXISTS `documentLists` (
 -- --------------------------------------------------------
 
 --
--- Tabellenstruktur für Tabelle `documentLists_admins`
+-- Tabellenstruktur für Tabelle `oliv_documentLists_admins`
 --
 
-CREATE TABLE IF NOT EXISTS `documentLists_admins` (
+CREATE TABLE IF NOT EXISTS `oliv_documentLists_admins` (
   `documentListId` int(9) NOT NULL,
   `userId` int(9) NOT NULL,
   `lastUpdated` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
@@ -46,10 +46,10 @@ CREATE TABLE IF NOT EXISTS `documentLists_admins` (
 -- --------------------------------------------------------
 
 --
--- Tabellenstruktur für Tabelle `documents`
+-- Tabellenstruktur für Tabelle `oliv_documents`
 --
 
-CREATE TABLE IF NOT EXISTS `documents` (
+CREATE TABLE IF NOT EXISTS `oliv_documents` (
   `id` int(9) NOT NULL auto_increment,
   `explicitId` varchar(100) NOT NULL,
   `fileName` varchar(100) NOT NULL,
@@ -72,10 +72,10 @@ CREATE TABLE IF NOT EXISTS `documents` (
 -- --------------------------------------------------------
 
 --
--- Tabellenstruktur für Tabelle `documents_admins`
+-- Tabellenstruktur für Tabelle `oliv_documents_admins`
 --
 
-CREATE TABLE IF NOT EXISTS `documents_admins` (
+CREATE TABLE IF NOT EXISTS `oliv_documents_admins` (
   `documentId` int(9) NOT NULL,
   `userId` int(9) NOT NULL,
   `lastUpdated` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
@@ -85,10 +85,10 @@ CREATE TABLE IF NOT EXISTS `documents_admins` (
 -- --------------------------------------------------------
 
 --
--- Tabellenstruktur für Tabelle `documents_documentLists`
+-- Tabellenstruktur für Tabelle `oliv_documents_documentLists`
 --
 
-CREATE TABLE IF NOT EXISTS `documents_documentLists` (
+CREATE TABLE IF NOT EXISTS `oliv_documents_documentLists` (
   `documentId` int(9) NOT NULL,
   `documentListId` int(9) NOT NULL,
   `lastUpdated` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
@@ -99,10 +99,10 @@ CREATE TABLE IF NOT EXISTS `documents_documentLists` (
 -- --------------------------------------------------------
 
 --
--- Tabellenstruktur für Tabelle `groceryCrudLocks`
+-- Tabellenstruktur für Tabelle `oliv_groceryCrudLocks`
 --
 
-CREATE TABLE IF NOT EXISTS `groceryCrudLocks` (
+CREATE TABLE IF NOT EXISTS `oliv_groceryCrudLocks` (
   `tablename` varchar(100) character set utf8 NOT NULL,
   `recordId` int(9) NOT NULL,
   `userId` int(9) NOT NULL,
@@ -113,20 +113,20 @@ CREATE TABLE IF NOT EXISTS `groceryCrudLocks` (
 -- --------------------------------------------------------
 
 --
--- Tabellenstruktur für Tabelle `migrations`
+-- Tabellenstruktur für Tabelle `oliv_migrations`
 --
 
-CREATE TABLE IF NOT EXISTS `migrations` (
+CREATE TABLE IF NOT EXISTS `oliv_migrations` (
   `version` int(3) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
 --
--- Tabellenstruktur für Tabelle `users`
+-- Tabellenstruktur für Tabelle `oliv_users`
 --
 
-CREATE TABLE IF NOT EXISTS `users` (
+CREATE TABLE IF NOT EXISTS `oliv_users` (
   `id` int(9) NOT NULL auto_increment,
   `aaiId` varchar(100) NOT NULL,
   `firstname` varchar(100) NOT NULL,
@@ -142,10 +142,10 @@ CREATE TABLE IF NOT EXISTS `users` (
 -- --------------------------------------------------------
 
 --
--- Tabellenstruktur für Tabelle `user_requests`
+-- Tabellenstruktur für Tabelle `oliv_user_requests`
 --
 
-CREATE TABLE IF NOT EXISTS `user_requests` (
+CREATE TABLE IF NOT EXISTS `oliv_user_requests` (
   `id` int(9) NOT NULL auto_increment,
   `aaiId` varchar(100) NOT NULL,
   `firstname` varchar(100) NOT NULL,
@@ -160,8 +160,8 @@ CREATE TABLE IF NOT EXISTS `user_requests` (
 --
 
 --
--- Constraints der Tabelle `documents_documentLists`
+-- Constraints der Tabelle `oliv_documents_documentLists`
 --
-ALTER TABLE `documents_documentLists`
-  ADD CONSTRAINT `documents_documentLists_ibfk_1` FOREIGN KEY (`documentId`) REFERENCES `documents` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `documents_documentLists_ibfk_2` FOREIGN KEY (`documentListId`) REFERENCES `documentLists` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `oliv_documents_documentLists`
+  ADD CONSTRAINT `documents_documentLists_ibfk_1` FOREIGN KEY (`documentId`) REFERENCES `oliv_documents` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `documents_documentLists_ibfk_2` FOREIGN KEY (`documentListId`) REFERENCES `oliv_documentLists` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;

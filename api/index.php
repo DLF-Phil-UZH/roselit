@@ -122,8 +122,7 @@ if (defined('ENVIRONMENT'))
  */
 	// $assign_to_config['name_of_config_item'] = 'value of config item';
 
-	$assign_to_config['base_url'] = 'https://www.uzh.ch/phil/elearning/dev/oliv/api/';
-	//$assign_to_config['base_url'] = 'https://www.uzh.ch/phil/elearning/demo/oliv/api/';
+	$assign_to_config['base_url'] = '../api/';
 
 
 // --------------------------------------------------------------------
