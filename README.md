@@ -83,7 +83,7 @@ Fill in the credentials from step 4.3 as 'api_username' and 'api_password'. The 
 
 Additionally set a different citation style by setting the option 'citation_style':
 
-	$config['citation_style'] = 'ROSE';
+	$config['citation_style'] = 'APA';
 
 ### 5.2 Edit application/config/upload.php
 
