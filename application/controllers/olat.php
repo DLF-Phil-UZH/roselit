@@ -32,10 +32,19 @@ class Olat extends CI_Controller {
 		}
 	}
 	
-    public function files($pListId, $pDocumentId) {
+    public function files($pListHashedId, $pDocumentHashedId) {
         // check if $pDocumentId is in the list:
         $this->load->database();
-        $where =  array('documentListId' => $pListId,
+		
+		$lQuery = $this->db->get_where('documents', array("hashedId" => $pDocumentHashedId));
+		$pRow = $lQuery->row();
+		$pDocumentId = $pRow->id;
+		
+		$lQuery = $this->db->get_where('documentLists', array("hashedId" => $pListHashedId));
+		$pRow = $lQuery->row();
+		$pListId = $pRow->id;
+        
+		$where =  array('documentListId' => $pListId,
             'documentId' => $pDocumentId);
         $query = $this->db->get_where('documents_documentLists', $where);
         if ($query->num_rows() == 1) {

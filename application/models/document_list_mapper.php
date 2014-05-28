@@ -64,7 +64,7 @@ class Document_list_mapper extends CI_Model {
 		$lQuery = $this->db->get_where($this->tableName, array("id" => $pId));
 		if($lQuery->num_rows() == 1){
 			$lResult = $lQuery->row();
-			$lDocList = new Document_list_model($lResult->title, $lResult->creator);
+			$lDocList = new Document_list_model($lResult->hashedId, $lResult->title, $lResult->creator);
 			$lDocList->setId($lResult->id);
 			// $lDocList->setAdmin($lResult->admin);
 			$lDocList->setLastUpdated(new DateTime($lResult->lastUpdated));

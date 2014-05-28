@@ -94,7 +94,8 @@ class Document_mapper extends CI_Model {
 	}
 	
 	private function _createDocument($pRow){
-		$lDocument = new Document_model($pRow->explicitId,
+		$lDocument = new Document_model($pRow->hashedId,
+										$pRow->explicitId,
 										$pRow->fileName,
 										$pRow->title,
 										$pRow->authors,

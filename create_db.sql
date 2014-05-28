@@ -1,4 +1,4 @@
--- phpMyAdmin SQL Dump
+﻿-- phpMyAdmin SQL Dump
 -- version 3.2.2
 -- http://www.phpmyadmin.net
 --
@@ -22,6 +22,7 @@ SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
 CREATE TABLE IF NOT EXISTS `oliv_documentLists` (
   `id` int(9) NOT NULL auto_increment,
+  `hashedId` varchar(32) NOT NULL,
   `title` varchar(255) NOT NULL,
   `creator` int(9) NOT NULL,
   `lastUpdated` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
@@ -51,6 +52,7 @@ CREATE TABLE IF NOT EXISTS `oliv_documentLists_admins` (
 
 CREATE TABLE IF NOT EXISTS `oliv_documents` (
   `id` int(9) NOT NULL auto_increment,
+  `hashedId` varchar(32) NOT NULL,
   `explicitId` varchar(100) NOT NULL,
   `fileName` varchar(100) NOT NULL,
   `title` varchar(255) NOT NULL,

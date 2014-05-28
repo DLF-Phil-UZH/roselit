@@ -8,7 +8,7 @@
                 // don't include links in preview mode!
                 echo "&nbsp;(" . substr(strrchr($lDocument->getFileName(), "."), 1) . ", " . round($lDocument->getFileSize("MB"), 2) . " MB)";
             } else {
-                echo "&nbsp;(<a target=\"_self\" href=\"../files/" . $documentList->getId() . "/" . $lDocument->getId() . "\">";
+                echo "&nbsp;(<a target=\"_self\" href=\"../files/" . $documentList->getHashedId() . "/" . $lDocument->getHashedId() . "\">";
                 echo substr(strrchr($lDocument->getFileName(), "."), 1) . ", " . round($lDocument->getFileSize("MB"), 2) . " MB";
                 echo "</a>)";
             }

@@ -11,8 +11,10 @@ class Document_list_model extends Abstract_base_model{
 	private $created; // Date and time of creation (type DateTime)
 	private $published; // Flag (binary), has value 1 if list has been published anywhere at least once
 	private $documents = array(); // Document objects that belong to the list, might be used later
+	private $hashedId; // MD5 Hash of ID
 	
-	public function __construct($pTitle, $pCreator){
+	public function __construct($pHashedId, $pTitle, $pCreator){
+		$this->hashedId = $pHashedId;
 		$this->title = $pTitle;
 		$this->creator = $pCreator;
 	}
@@ -47,6 +49,10 @@ class Document_list_model extends Abstract_base_model{
 	
 	public function getId(){
 		return $this->id;
+	}
+	
+	public function getHashedId(){
+		return $this->hashedId;
 	}
 	
 	public function getTitle(){

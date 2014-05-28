@@ -64,9 +64,10 @@ class Crud_service {
 
             // additional fields that should be displayed in edit / read form:
             $only_edit_fields = array('Listen', 'Verwalter', 'created', 'lastUpdated');
-			$only_add_fields = array('config_citation_style');
+			//$only_add_fields = array('config_citation_style', 'hashedId');
             $crud->edit_fields(array_merge($fields, $only_edit_fields));
-            $crud->add_fields(array_merge($fields, $only_add_fields));
+            //$crud->add_fields(array_merge($fields, $only_add_fields));
+			$crud->add_fields($fields);
     
             $crud->field_type('created', 'readonly')
 				 ->field_type('lastUpdated', 'readonly');
@@ -402,6 +403,7 @@ class Crud_service {
     }
 
     public function callback_link_field($pValue, $pId, $pFieldInfo, $pList) {
+	
         $value = 'Noch nicht veröffentlicht.';
         if ((bool) $pList->published) {
            $value = site_url('/api/olat/lists/' . $pId);
@@ -499,6 +501,11 @@ class Crud_service {
 		    $lQuery .= $lDb->protect_identifiers('created') . ' = CURRENT_TIMESTAMP';
 			$lQuery .= ' WHERE ' . $lDb->protect_identifiers('id') . ' = ?;';
             $lDb->query($lQuery, array($lUserId, $pId));
+			
+			$lQuery = 'UPDATE ' . $lDb->protect_identifiers($pTableName);
+			$lQuery .= ' SET ' . $lDb->protect_identifiers('hashedId') . ' = ? ';
+			$lQuery .= ' WHERE ' . $lDb->protect_identifiers('id') . ' = ?;';
+            $lDb->query($lQuery, array(hash('md5', $pId, false), $pId));
 
             $lDb->insert($adminsTableName, array($foreignKeyColumnName => $pId, 'userId' => $lUserId));
 

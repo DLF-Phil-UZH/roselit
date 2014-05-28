@@ -2,6 +2,7 @@
 
 class Document_model extends Abstract_base_model{
 
+	private $hashedId; // MD5 Hash of ID
 	private $explicitId; // Combined document ID
 	private $fileName; // Name of document file
     private $fileDirPath;
@@ -22,7 +23,8 @@ class Document_model extends Abstract_base_model{
     private $created; // Date and time of creation (type DateTime)
     private $citation_style; // Citation style
 	
-	public function __construct($pExplicitId, $pFileName, $pTitle, $pAuthors, $pPublication, $pVolume, $pEditors, $pPlaces, $pPublishingHouse, $pYear, $pPages, $pCreator){
+	public function __construct($pHashedId, $pExplicitId, $pFileName, $pTitle, $pAuthors, $pPublication, $pVolume, $pEditors, $pPlaces, $pPublishingHouse, $pYear, $pPages, $pCreator){
+		$this->hashedId = $pHashedId;
 		$this->explicitId = $pExplicitId;
 		$this->fileName = $pFileName;
 		$this->title = $pTitle;
@@ -107,6 +109,10 @@ class Document_model extends Abstract_base_model{
 	
 	public function getId(){
 		return $this->id;
+	}
+	
+	public function getHashedId(){
+		return $this->hashedId;
 	}
 	
 	public function getExplicitId(){
