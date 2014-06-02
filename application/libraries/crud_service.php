@@ -5,6 +5,8 @@
 class Crud_service {
 
 	private $user = NULL;
+	private $oldDocumentIds = array();
+	private $newDocumentIds = array();
 
     protected function _getCI() {
         return get_instance();
@@ -121,8 +123,8 @@ class Crud_service {
 
 		    // Will only be called when adding a new entry
 			$crud->callback_after_insert(array($this, 'update_documents_after_insert'));
-
-            // Callback to delete the pdf file:
+			
+			// Callback to delete the pdf file:
 			$crud->callback_before_delete(array($this, 'delete_document_file'));
             
 			// execute:
@@ -186,6 +188,10 @@ class Crud_service {
 
 			// Will only be called when updating an existing entry
 			$crud->callback_can_edit(array($this, 'check_edit_permissions_documentlist'));
+			
+			// Will only be called when updating an existing entry
+			$crud->callback_before_update(array($this, 'update_documentlists_before_update'));
+			$crud->callback_after_update(array($this, 'update_documentlists_after_update'));
 			
 			// Will only be called when adding a new entry
 			$crud->callback_after_insert(array($this, 'update_documentlists_after_insert'));
@@ -471,6 +477,31 @@ class Crud_service {
     public function update_documentlists_after_insert($pPostArray, $pId){
         return $this->_update_table_after_insert('documentLists', 'documentLists_admins', 'documentListId', $pPostArray, $pId);
     }
+	
+	/**
+	 * Memorizes the documents belonging to document list before the update,
+	 * in order to compare this to the new documents after the update
+	 */
+	public function update_documentlists_before_update($pPostArray, $pId){
+		$this->oldDocumentIds = $this->_getDocumentIdsOfList($pId);
+		
+		return $pPostArray;
+	}
+
+	/** 
+	 * Checks if any change has been made in documents that belong to document list,
+	 * if yes, lastUpdated timestamp will be set to current time 
+	 */
+	public function update_documentlists_after_update($pPostArray, $pId){
+		$this->newDocumentIds = $this->_getDocumentIdsOfList($pId);
+		
+		
+		if(!($this->oldDocumentIds == $this->newDocumentIds)){
+			$this->_updateLastUpdatedTimestamp($pId);
+		}
+		
+		return $pPostArray;
+	}
 
     /**
      * Sets the columns creator and admin to current user and creation timestamp
@@ -525,6 +556,61 @@ class Crud_service {
         }
 
     }
+	
+	// Updates the lastUpdated attribute of the passed document list to current time
+	private function _updateLastUpdatedTimestamp($pDocumentListId){
+		try{
+			// load database
+			$lCi = $this->_getCI();
+			$lCi->load->database();
+			$lDb = $lCi->db;
+			
+			$lDb->trans_start();
+			
+			$lQuery = 'UPDATE documentLists';
+			$lQuery .= ' SET lastUpdated = CURRENT_TIMESTAMP';
+			$lQuery .= ' WHERE id = ' . $pDocumentListId . ';';
+			
+			$lDb->query($lQuery);
+			
+			$lDb->trans_complete();
+			
+			return true;
+		}
+		catch(Exception $e){
+			show_error($e->getMessage().' --- '.$e->getTraceAsString());
+        }
+	}
+	
+	private function _getDocumentIdsOfList($pDocumentListId){
+		
+		try{
+			// load database
+			$lCi = $this->_getCI();
+			$lCi->load->database();
+			$lDb = $lCi->db;
+			
+			// Get all document IDs of list
+			$lQuery = $lDb->get_where('documents_documentLists', array("documentListId" => $pDocumentListId));
+
+			$lDocumentIds = array();
+			
+			if($lQuery->num_rows() > 0){
+				foreach($lQuery->result() as $lRow){
+					array_push($lDocumentIds, $lRow->documentId);
+				}
+			}
+			
+			sort($lDocumentIds);
+			
+			// Return array of document IDs
+			return $lDocumentIds;
+		
+		}
+		catch(Exception $e){
+			show_error($e->getMessage().' --- '.$e->getTraceAsString());
+        }
+	}
 
     /**
      * Delete the PDF of a document before the document itself is deleted from the db.
