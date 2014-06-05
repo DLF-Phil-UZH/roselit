@@ -84,6 +84,15 @@ class Auth extends CI_Controller {
 			$lRequestDate = date_format($lRequestedTimestamp, 'd.m.Y');
 			$lRequestTime = date_format($lRequestedTimestamp, 'H:i:s');
 		}
+		
+		// send message to inform about user access requests
+		$message = "$lFirstname $lLastname mit der AaiId $lAaiId und der Emailadresse $lEmail hat soeben einen Zugang zu Oliv beantragt.";
+		$message = wordwrap($message, 70);
+		$to = '';
+		$subject = 'Oliv-Zugang beantragt';
+		$header = 'From: ' . "\r\n" . 'Reply-To: ' . "\r\n" . 'X-Mailer: PHP/' . phpversion();
+		mail($to, $subject, $message, $header);
+				
 		$this->load->view('header', array('title' => 'Oliv: Zugang beantragt',
 										  'page' => 'access_requested',
 										  'width' => 'small',

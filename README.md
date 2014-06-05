@@ -113,6 +113,13 @@ Set 'application_folder' to the full filesystem path of the application folder o
 Set 'base_url' to the full url to the folder 'api':
 
 	$assign_to_config['base_url'] = 'https://www.example.com/demo/oliv/api/';
+	
+### 5.5 Set email-address in application/controllers/auth.php
+
+Set 'to' and 'header' as shown below:
+
+	$to = 'example@example.com';
+	$header = 'From: example@example.com' . "\r\n" . 'Reply-To: example@example.com' . "\r\n" . 'X-Mailer: PHP/' . phpversion();
 
 **Thats it, Oliv is set up and running!** Test, if it works and login:
 
