@@ -66,18 +66,18 @@ class Crud_service {
 
             // additional fields that should be displayed in edit / read form:
             $only_edit_fields = array('Listen', 'Verwalter', 'created', 'lastUpdated');
-			//$only_add_fields = array('config_citation_style', 'hashedId');
+			$only_add_fields = array('config_citation_style');
             $crud->edit_fields(array_merge($fields, $only_edit_fields));
-            //$crud->add_fields(array_merge($fields, $only_add_fields));
-			$crud->add_fields($fields);
+            $crud->add_fields(array_merge($fields, $only_add_fields));
     
             $crud->field_type('created', 'readonly')
 				 ->field_type('lastUpdated', 'readonly');
 				 
 			// citation style hidden
-			$ci = &get_instance();
+			$ci = $this->_getCI();
 			$this->citation_style = $ci->config->item('citation_style');
 			$crud->field_type('config_citation_style', 'hidden', $this->citation_style);
+			$crud->callback_before_insert(array($this,'callback_config_citation_style'));
 			
             // Use special fields only in edit and add, not in read!
             $state = $crud->getState();
@@ -297,6 +297,12 @@ class Crud_service {
     /**
      *   
      */
+	 
+	public function callback_config_citation_style($post_array) {
+		unset($post_array['config_citation_style']);
+		return $post_array;
+	}
+	 
     public function callback_checkbox_column($pValue, $pRow){
         $pValue = 'document_' . $pRow->id;
         return '<input type="checkbox" name="selected-rows" value="' . $pValue . '" >';
