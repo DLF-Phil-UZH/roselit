@@ -2,15 +2,15 @@
 
 class Document_mapper extends CI_Model {
 
-	private $tableName = "documents"; // Name of database table
-    private $docToListTable = "documents_documentLists"; // Name of mapping table
-    private $docToAdminsTable = "documents_admins";
+	private $tableName = "oliv_documents"; // Name of database table
+    private $docToListTable = "oliv_documents_documentLists"; // Name of mapping table
+    private $docToAdminsTable = "oliv_documents_admins";
 	
 	/* As a document itself has no information about which document lists
 	it belongs to, so there won't be made any changes in the table
-	"documents_documentLists".
+	"oliv_documents_documentLists".
 	If a document is deleted, the database will itself delete
-	all corresponding entries in "documents_documentLists" */
+	all corresponding entries in "oliv_documents_documentLists" */
 	
 	public function __construct(){
 		parent::__construct();

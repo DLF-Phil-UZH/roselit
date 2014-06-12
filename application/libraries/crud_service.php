@@ -7,6 +7,14 @@ class Crud_service {
 	private $user = NULL;
 	private $oldDocumentIds = array();
 	private $newDocumentIds = array();
+	
+	private $table_documents = "oliv_documents"; // Name of database table
+	private $table_documents_admins = "oliv_documents_admins"; // Name of database table
+	private $table_documentLists = "oliv_documentLists"; // Name of database table
+	private $table_documentLists_admins = "oliv_documentLists_admins"; // Name of database table
+	private $table_documents_documentLists = "oliv_documents_documentLists"; // Name of database table
+	private $table_users = "oliv_users"; // Name of database table
+	private $table_user_requests = "oliv_user_requests"; // Name of database table
 
     protected function _getCI() {
         return get_instance();
@@ -36,10 +44,10 @@ class Crud_service {
 
 		try{
 		    /** config: */
-			$crud->set_table('documents');
+			$crud->set_table($this->table_documents);
 			$crud->set_subject('Dokument');
-			$crud->set_relation_n_n('Verwalter','documents_admins', 'users', 'documentId', 'userId', '{firstname} {lastname} ({aaiId})');
-			// $crud->set_relation_n_n('Listen', 'documents_documentLists', 'documentLists', 'documentId', 'documentListId', 'title');
+			$crud->set_relation_n_n('Verwalter', $this->table_documents_admins, $this->table_users, 'documentId', 'userId', '{firstname} {lastname} ({aaiId})');
+			// $crud->set_relation_n_n('Listen', $this->table_documents_documentLists, $this->table_documentLists, 'documentId', 'documentListId', 'title');
 
             /** columns: */
 			$crud->columns('explicitId','authors', 'title', 'publication', 'volume', 'year', 'pages', 'fileName');
@@ -146,10 +154,10 @@ class Crud_service {
 
 		try{
 		    /** config: */
-			$crud->set_table('documentLists');
+			$crud->set_table($this->table_documentLists);
 			$crud->set_subject('Liste');
-			$crud->set_relation_n_n('Verwalter','documentLists_admins', 'users', 'documentListId', 'userId', '{firstname} {lastname} ({aaiId})');
-			$crud->set_relation_n_n('Dokumente', 'documents_documentLists', 'documents', 'documentListId', 'documentId', '{authors} ({year}), {title}');
+			$crud->set_relation_n_n('Verwalter', $this->table_documentLists_admins, $this->table_users, 'documentListId', 'userId', '{firstname} {lastname} ({aaiId})');
+			$crud->set_relation_n_n('Dokumente', $this->table_documents_documentLists, $this->table_documents, 'documentListId', 'documentId', '{authors} ({year}), {title}');
 
             /** columns: */
           	$crud->columns('title', 'lastUpdated', 'published');    
@@ -221,7 +229,7 @@ class Crud_service {
 
 		try{
 		    /** config */
-			$crud->set_table('users');
+			$crud->set_table($this->table_users);
 			$crud->set_subject('Benutzer');
             $crud->unset_add();
 
@@ -263,7 +271,7 @@ class Crud_service {
 
 		try{
 		    /** config */
-			$crud->set_table('user_requests');
+			$crud->set_table($this->table_user_requests);
             $crud->set_subject('Zugriffsanfragen');
             $crud->unset_add()
                  ->unset_read()
@@ -400,10 +408,10 @@ class Crud_service {
 		$lDb = $lCi->db;
 
         // build the query to get list titles:
-        $lDb->select('documentLists.title');
-        $lDb->from('documentLists');
-        $lDb->join('documents_documentLists', 'documentLists.id = documents_documentLists.documentListId');
-        $lDb->where('documents_documentLists.documentId', $pId);
+        $lDb->select($this->table_documentLists . '.title');
+        $lDb->from($this->table_documentLists);
+        $lDb->join($this->table_documents_documentLists, $this->table_documentLists . '.id = ' . $this->table_documents_documentLists . '.documentListId');
+        $lDb->where($this->table_documents_documentLists . '.documentId', $pId);
         
         $query = $lDb->get();
         $listTitles = array();
@@ -461,7 +469,7 @@ class Crud_service {
 	 *
 	 */
 	public function update_documents_after_insert($pPostArray, $pId){
-        return $this->_update_table_after_insert('documents', 'documents_admins', 'documentId', $pPostArray, $pId);
+        return $this->_update_table_after_insert($this->table_documents, $this->table_documents_admins, 'documentId', $pPostArray, $pId);
     }
 
     /**
@@ -481,7 +489,7 @@ class Crud_service {
 	 *
 	 */
     public function update_documentlists_after_insert($pPostArray, $pId){
-        return $this->_update_table_after_insert('documentLists', 'documentLists_admins', 'documentListId', $pPostArray, $pId);
+        return $this->_update_table_after_insert($this->table_documentLists, $this->table_documentLists_admins, 'documentListId', $pPostArray, $pId);
     }
 	
 	/**
@@ -573,7 +581,7 @@ class Crud_service {
 			
 			$lDb->trans_start();
 			
-			$lQuery = 'UPDATE documentLists';
+			$lQuery = 'UPDATE ' . $this->table_documentLists;
 			$lQuery .= ' SET lastUpdated = CURRENT_TIMESTAMP';
 			$lQuery .= ' WHERE id = ' . $pDocumentListId . ';';
 			
@@ -597,7 +605,7 @@ class Crud_service {
 			$lDb = $lCi->db;
 			
 			// Get all document IDs of list
-			$lQuery = $lDb->get_where('documents_documentLists', array("documentListId" => $pDocumentListId));
+			$lQuery = $lDb->get_where($this->table_documents_documentLists, array("documentListId" => $pDocumentListId));
 
 			$lDocumentIds = array();
 			
@@ -663,8 +671,8 @@ class Crud_service {
         $lUserId = $lUser->getId();
 		
 		// Get edit information from database
-        // $table_name = $lDb->dbprefix('documents_admins');
-        $table_name = 'documents_admins';
+        // $table_name = $lDb->dbprefix($this->table_documents_admins);
+        $table_name = $this->table_documents_admins;
 		$lQuery = $lDb->get_where($table_name, array('documentId' => $pId, 'userId' => $lUserId));
 		if($lQuery->num_rows() == 1){
             return true;
@@ -699,8 +707,7 @@ class Crud_service {
 		$lUserId = $lUser->getId();
 		
 		// Get edit information from database
-        $table_name = 'documentLists_admins';
-		$lQuery = $lDb->get_where($table_name, array('documentListId' => $pId, 'userId' => $lUserId));
+		$lQuery = $lDb->get_where($this->table_documentLists_admins, array('documentListId' => $pId, 'userId' => $lUserId));
 		if($lQuery->num_rows() == 1){
             return true;
         }

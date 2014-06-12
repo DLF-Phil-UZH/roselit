@@ -2,9 +2,9 @@
 
 class Document_list_mapper extends CI_Model {
 
-	private $tableName = "documentLists"; // Name of database table
-    private $docToListTable = "documents_documentLists"; // Name of mapping table
-    private $doclistToAdminsTable = "documents_admins";
+	private $tableName = "oliv_documentLists"; // Name of database table
+    private $docToListTable = "oliv_documents_documentLists"; // Name of mapping table
+    private $doclistToAdminsTable = "oliv_documents_admins";
 	
 	public function __construct(){
 		parent::__construct();
@@ -12,7 +12,7 @@ class Document_list_mapper extends CI_Model {
 	}
 
 	public function save(Document_list_model $pDocList){
-		// Table "documentLists"
+		// Table "oliv_documentLists"
 		$lData = array("title" => $pDocList->getTitle(),
 					   "creator" => $pDocList->getCreator()->getId(),
 					   // "admin" => $pDocList->getAdmin()->getId(),
@@ -28,7 +28,7 @@ class Document_list_mapper extends CI_Model {
 			$this->db->update($this->tableName, $lData);
 		}
 		
-		// Table "documents_documentLists"
+		// Table "oliv_documents_documentLists"
 		$lDocListId = $pDocList->getId();
 		// Delete all mapping entries
 		$this->db->delete($this->docToListTable, array("documentListId" => $lDocListId)); 

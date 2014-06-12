@@ -1,7 +1,9 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 class Auth extends CI_Controller {
-	
+
+	private $table_user_requests = "oliv_user_requests"; // Name of database table
+
 	public function __construct() {
 		parent::__construct();
 		$this->load->library('shibboleth_authentication_service', NULL, 'shib_auth');
@@ -58,7 +60,7 @@ class Auth extends CI_Controller {
             throw new Exception('No shibboleth uniqueID specified.');
         }
 		// check if request already exists
-		$lQuery = $this->db->get_where('user_requests', array("aaiId" => $lAaiId), 1);
+		$lQuery = $this->db->get_where($this->table_user_requests, array("aaiId" => $lAaiId), 1);
 		if ($lQuery->num_rows() > 0) {
 			$lRow = $lQuery->row();
 			// this user has already requested access
@@ -79,7 +81,7 @@ class Auth extends CI_Controller {
 						'lastname' => $lLastname,
 						'email' => $lEmail
 						); 
-			$this->db->insert('user_requests', $lData);
+			$this->db->insert($this->table_user_requests, $lData);
 			$lRequestedTimestamp = new DateTime();
 			$lRequestDate = date_format($lRequestedTimestamp, 'd.m.Y');
 			$lRequestTime = date_format($lRequestedTimestamp, 'H:i:s');

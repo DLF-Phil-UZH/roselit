@@ -62,7 +62,7 @@ class Shibboleth_authentication_service {
             $lAaiId = $_SERVER['uniqueID'];
             $ci = $this->_getCI(); 
             $ci->load->database();
-            $lQuery = $ci->db->get_where('user_requests', array("aaiId" => $lAaiId), 1);
+            $lQuery = $ci->db->get_where('oliv_user_requests', array("aaiId" => $lAaiId), 1);
             if ($lQuery->num_rows() > 0) {
 			    return $lQuery->row();
             }

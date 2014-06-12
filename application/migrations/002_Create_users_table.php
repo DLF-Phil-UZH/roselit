@@ -15,17 +15,17 @@ class Migration_Create_users_table extends CI_Migration {
 				'created' => array('type' => 'TIMESTAMP'),
 			);
 		$this->dbforge->add_field($docFields);
-		$this->dbforge->create_table('users', true);
+		$this->dbforge->create_table('oliv_users', true);
 	
 		/* get tablenames with prefixes */
-		$usersTableWPrfx = $this->db->dbprefix('users'); // get the tableName with prefix
+		$usersTableWPrfx = $this->db->dbprefix('oliv_users'); // get the tableName with prefix
 
 		/* change engines to InnoDB and add constraints */
 		$this->db->query("ALTER TABLE `$usersTableWPrfx` ENGINE=InnoDB, ADD CONSTRAINT UNIQUE (`username`, `aaiId`)");
 	}
 
 	public function down() {
-		$this->dbforge->drop_table('users');
+		$this->dbforge->drop_table('oliv_users');
 	}	
 }
 

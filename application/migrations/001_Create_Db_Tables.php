@@ -2,8 +2,12 @@
 
 class Migration_Create_Db_Tables extends CI_Migration {
 
-	public function up() {		
-		/* create table documents */
+	private $table_documents = "oliv_documents"; // Name of database table
+	private $table_documentLists = "oliv_documentLists"; // Name of database table
+	private $table_documents_documentLists = "oliv_documents_documentLists"; // Name of database table
+
+	public function up() {
+		/* create table oliv_documents */
 		$this->dbforge->add_field('id');
 		// $this->dbforge->add_key('id', true);
 		$docFields = array(
@@ -25,9 +29,9 @@ class Migration_Create_Db_Tables extends CI_Migration {
 				'created' => array('type' => 'TIMESTAMP'),
 			);
 		$this->dbforge->add_field($docFields);
-		$this->dbforge->create_table('documents', true);
+		$this->dbforge->create_table($this->table_documents, true);
 	
-		/* create table documentLists */
+		/* create table oliv_documentLists */
 		$this->dbforge->add_field('id');
 		// $this->dbforge->add_key('id', true);
 		$listFields = array(
@@ -40,21 +44,21 @@ class Migration_Create_Db_Tables extends CI_Migration {
 				'created' => array('type' => 'TIMESTAMP')
 			);
 		$this->dbforge->add_field($listFields);
-		$this->dbforge->create_table('documentLists', true);
+		$this->dbforge->create_table($this->table_documentLists, true);
 
-		/* create table documents_documentLists */
+		/* create table oliv_documents_documentLists */
 		$doc2listFields = array(
 				'documentId' => array('type' => 'INT', 'constraint' => '9'),
 				'documentListId' => array('type' => 'INT', 'constraint' => '9'),
 				'lastUpdated' => array('type' => 'TIMESTAMP')
 			);
 		$this->dbforge->add_field($doc2listFields);
-		$this->dbforge->create_table('documents_documentLists', true);
+		$this->dbforge->create_table($this->table_documents_documentLists, true);
 
 		/* get tablenames with prefixes */
-		$docsTableWPrfx = $this->db->dbprefix('documents'); // get the tableName with prefix
-		$listsTableWPrfx = $this->db->dbprefix('documentLists'); // get the tableName with prefix
-		$doc2listTableWPrfx = $this->db->dbprefix('documents_documentLists'); // get the tableName with prefix
+		$docsTableWPrfx = $this->db->dbprefix($this->table_documents); // get the tableName with prefix
+		$listsTableWPrfx = $this->db->dbprefix($this->table_documentLists); // get the tableName with prefix
+		$doc2listTableWPrfx = $this->db->dbprefix($this->table_documents_documentLists); // get the tableName with prefix
 
 		/* change engines to InnoDB and add constraints */
 		$this->db->query("ALTER TABLE `$docsTableWPrfx` ENGINE=InnoDB, ADD CONSTRAINT UNIQUE (`explicitId`)");
@@ -65,8 +69,8 @@ class Migration_Create_Db_Tables extends CI_Migration {
 	}
 
 	public function down() {
-		$this->dbforge->drop_table('documents');
-		$this->dbforge->drop_table('lists');
+		$this->dbforge->drop_table($this->table_documents);
+		$this->dbforge->drop_table($this->table_documentLists);
 		$this->dbforge->drop_table('documents2lists');
 	}	
 }

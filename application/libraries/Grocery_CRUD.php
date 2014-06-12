@@ -1099,7 +1099,7 @@ class grocery_CRUD_Model_Driver extends grocery_CRUD_Field_Types
         $ci = &get_instance();
         $ci->load->database();
         $db = $ci->db;
-        $lock_tablename = 'groceryCrudLocks';
+        $lock_tablename = 'oliv_groceryCrudLocks';
         $delete_success = false;
         $sql = 'DELETE FROM ' . $db->protect_identifiers($lock_tablename);
         $sql .= ' WHERE ' . $db->protect_identifiers('userId') . ' = ?;';
@@ -1122,7 +1122,7 @@ class grocery_CRUD_Model_Driver extends grocery_CRUD_Field_Types
         $ci = &get_instance();
         $ci->load->database();
         $db = $ci->db;
-        $lock_tablename = 'groceryCrudLocks';
+        $lock_tablename = 'oliv_groceryCrudLocks';
         $tablename = $this->get_table();
         $query = $db->get_where($lock_tablename, array('tablename' => $tablename, 'recordId' => $primary_key));
         if ($query->num_rows() > 1) {
@@ -1175,7 +1175,7 @@ class grocery_CRUD_Model_Driver extends grocery_CRUD_Field_Types
         $ci = &get_instance();
         $ci->load->database();
         $db = $ci->db;        
-        $lock_tablename = 'groceryCrudLocks';
+        $lock_tablename = 'oliv_groceryCrudLocks';
         $tablename = $this->get_table();
         $unlock_success = $db->delete($lock_tablename, array('tablename' => $tablename, 'recordId' => $primary_key, 'userId' => $user_id));
         
@@ -1195,7 +1195,7 @@ class grocery_CRUD_Model_Driver extends grocery_CRUD_Field_Types
         $ci = &get_instance();
         $ci->load->database();
         $db = $ci->db;        
-        $lock_tablename = 'groceryCrudLocks';
+        $lock_tablename = 'oliv_groceryCrudLocks';
         $tablename = $this->get_table();
         $query = $db->get_where($lock_tablename, array('tablename' => $tablename, 'recordId' => $primary_key));
         if ($query->num_rows() > 1) {

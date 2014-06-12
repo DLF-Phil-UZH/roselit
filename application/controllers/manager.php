@@ -228,8 +228,8 @@ class Manager extends CI_Controller {
         // load db:
         $this->load->database();
         $db = $this->db;        
-        $lock_tablename = 'groceryCrudLocks';
-        $tablename = 'documents';
+        $lock_tablename = 'oliv_groceryCrudLocks';
+        $tablename = 'oliv_documents';
         $query = $db->get_where($lock_tablename, array('tablename' => $tablename, 'recordId' => $primary_key));
         if ($query->num_rows() > 1) {
             // Throw exception!

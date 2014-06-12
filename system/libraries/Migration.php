@@ -35,6 +35,8 @@ class CI_Migration {
 
 	protected $_error_string = '';
 
+	private $table_migrations = "oliv_migrations"; // Name of database table
+
 	public function __construct($config = array())
 	{
 		# Only run this constructor on main library load
@@ -69,15 +71,15 @@ class CI_Migration {
 		$this->load->dbforge();
 
 		// If the migrations table is missing, make it
-		if ( ! $this->db->table_exists('migrations'))
+		if ( ! $this->db->table_exists($table_migrations))
 		{
 			$this->dbforge->add_field(array(
 				'version' => array('type' => 'INT', 'constraint' => 3),
 			));
 
-			$this->dbforge->create_table('migrations', TRUE);
+			$this->dbforge->create_table($table_migrations, TRUE);
 
-			$this->db->insert('migrations', array('version' => 0));
+			$this->db->insert($table_migrations, array('version' => 0));
 		}
 	}
 
@@ -291,7 +293,7 @@ class CI_Migration {
 	 */
 	protected function _get_version()
 	{
-		$row = $this->db->get('migrations')->row();
+		$row = $this->db->get($table_migrations)->row();
 		return $row ? $row->version : 0;
 	}
 
@@ -305,7 +307,7 @@ class CI_Migration {
 	 */
 	protected function _update_version($migrations)
 	{
-		return $this->db->update('migrations', array(
+		return $this->db->update($table_migrations, array(
 			'version' => $migrations
 		));
 	}

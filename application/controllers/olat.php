@@ -3,6 +3,10 @@
 // Based on a CI-Tutorial: http://ellislab.com/codeigniter/user-guide/tutorial/news_section.html
 class Olat extends CI_Controller {
 	
+	private $table_documentLists = "oliv_documentLists"; // Name of database table
+	private $table_documents = "oliv_documents"; // Name of database table
+	private $table_documents_documentLists = "oliv_documents_documentLists"; // Name of database table
+	
 	public function __construct() {
 		parent::__construct();
 
@@ -36,17 +40,17 @@ class Olat extends CI_Controller {
         // check if $pDocumentId is in the list:
         $this->load->database();
 		
-		$lQuery = $this->db->get_where('documents', array("hashedId" => $pDocumentHashedId));
+		$lQuery = $this->db->get_where($this->table_documents, array("hashedId" => $pDocumentHashedId));
 		$pRow = $lQuery->row();
 		$pDocumentId = $pRow->id;
 		
-		$lQuery = $this->db->get_where('documentLists', array("hashedId" => $pListHashedId));
+		$lQuery = $this->db->get_where($this->table_documentLists, array("hashedId" => $pListHashedId));
 		$pRow = $lQuery->row();
 		$pListId = $pRow->id;
         
 		$where =  array('documentListId' => $pListId,
             'documentId' => $pDocumentId);
-        $query = $this->db->get_where('documents_documentLists', $where);
+        $query = $this->db->get_where($this->table_documents_documentLists, $where);
         if ($query->num_rows() == 1) {
             $this->load->model('document_mapper');
             $lDocument = $this->document_mapper->get($pDocumentId);
