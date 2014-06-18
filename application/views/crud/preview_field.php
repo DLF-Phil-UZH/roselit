@@ -199,7 +199,7 @@ $(function() {
 					preview += yearPart;
 					preview += ". ";
 					preview += title;
-					preview += ", In ";
+					preview += ". In ";
 					preview += authors;
 					preview += ", <i>";
 					preview += publication;
@@ -249,7 +249,7 @@ $(function() {
 					preview += yearPart;
 					preview += ". ";
 					preview += title;
-					preview += ", In ";
+					preview += ". In ";
 					preview += editors;
 					preview += " (Hrsg.), <i>";
 					preview += publication;
