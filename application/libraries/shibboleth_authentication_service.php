@@ -6,7 +6,7 @@ class Shibboleth_authentication_service {
 
 	public function __construct() {
 		// TODO: load settings from config file
-        if (isset($_SERVER['Shib-Identity-Provider'])) {
+        if (isset($_SERVER['HTTP_SHIB_IDENTITY_PROVIDER'])) {
 			$this->shibboleth_session_exists = true;
         }
     }
@@ -39,10 +39,10 @@ class Shibboleth_authentication_service {
 	 */
     public function verify_user() {
         if ($this->verify_shibboleth_session() !== false) {
-            if (!isset($_SERVER['uniqueID'])) {
+            if (!isset($_SERVER['HTTP_UNIQUEID'])) {
                 throw new Exception('uniqueID not set.');
             }
-            $lAaiId = $_SERVER['uniqueID'];
+            $lAaiId = $_SERVER['HTTP_UNIQUEID'];
 			// check if a user with that shibboleth id exists in the db
 			$ci = $this->_getCI();            
             $ci->load->model('User_mapper');
@@ -56,10 +56,10 @@ class Shibboleth_authentication_service {
 
     public function verify_user_access_request() {
         if ($this->verify_shibboleth_session() !== false) {
-            if (!isset($_SERVER['uniqueID'])) {
+            if (!isset($_SERVER['HTTP_UNIQUEID'])) {
                 throw new Exception('uniqueID not set.');
             }
-            $lAaiId = $_SERVER['uniqueID'];
+            $lAaiId = $_SERVER['HTTP_UNIQUEID'];
             $ci = $this->_getCI(); 
             $ci->load->database();
             $lQuery = $ci->db->get_where('oliv_user_requests', array("aaiId" => $lAaiId), 1);
@@ -76,8 +76,8 @@ class Shibboleth_authentication_service {
      * @return {String|NULL} the unique user ID or NULL if no user ID is found.
      */
     public function get_unique_user_id() {
-        if (isset($_SERVER['uniqueID'])) {
-            return $_SERVER['uniqueID'];
+        if (isset($_SERVER['HTTP_UNIQUEID'])) {
+            return $_SERVER['HTTP_UNIQUEID'];
         }
         return false;
     }
