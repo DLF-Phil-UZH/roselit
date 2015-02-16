@@ -6,7 +6,7 @@ class Shibboleth_authentication_service {
 
 	public function __construct() {
 		// TODO: load settings from config file
-        if (isset($_SERVER['HTTP_SHIB_IDENTITY_PROVIDER'])) {
+        if (!empty($_SERVER['HTTP_SHIB_IDENTITY_PROVIDER'])) {
 			$this->shibboleth_session_exists = true;
         }
     }
@@ -76,7 +76,7 @@ class Shibboleth_authentication_service {
      * @return {String|NULL} the unique user ID or NULL if no user ID is found.
      */
     public function get_unique_user_id() {
-        if (isset($_SERVER['HTTP_UNIQUEID'])) {
+        if (!empty($_SERVER['HTTP_UNIQUEID'])) {
             return $_SERVER['HTTP_UNIQUEID'];
         }
         return false;

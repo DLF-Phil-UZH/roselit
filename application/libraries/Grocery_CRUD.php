@@ -5339,7 +5339,7 @@ class UploadHandler
     function getFullUrl() {
       	return
         		(isset($_SERVER['HTTPS']) ? 'https://' : 'http://').
-        		(isset($_SERVER['PHP_AUTH_USER']) ? $_SERVER['PHP_AUTH_USER'].'@' : '').
+        		(isset($_SERVER['REDIRECT_REMOTE_USER']) ? $_SERVER['REDIRECT_REMOTE_USER'].'@' : '').
         		(isset($_SERVER['HTTP_X_FORWARDED_HOST']) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : ($_SERVER['SERVER_NAME'].
         		(isset($_SERVER['HTTPS']) && $_SERVER['SERVER_PORT'] === 443 ||
         		$_SERVER['SERVER_PORT'] === 80 ? '' : ':'.$_SERVER['SERVER_PORT']))).

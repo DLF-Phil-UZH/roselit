@@ -12,8 +12,8 @@ class Olat extends CI_Controller {
 
         // check login:
         $username = $this->config->item('api_username');
-        if ( !isset($_SERVER['PHP_AUTH_USER'])
-            || ($_SERVER['PHP_AUTH_USER'] != $username)) {
+        if ( !isset($_SERVER['REDIRECT_REMOTE_USER'])
+            || ($_SERVER['REDIRECT_REMOTE_USER'] != $username)) {
             show_error('Sie sind nicht berechtigt.', 401);
         }
 	}
