@@ -6,9 +6,9 @@
 				<ul>
 					<li class="first">Oliv</li>
 					<li class="separator"> | </li>
-					<li>© <a href="http://www.phil.uzh.ch/fakultaet/elearning.html">E-Learning-Koordination, Philosophische Fakultät, Universität Zürich</a></li>
+					<li>© <a href="http://www.phil.uzh.ch/fakultaet/dlf.html">Digitale Lehre und Forschung, Philosophische Fakultät, Universität Zürich</a></li>
 					<li class="separator"> | </li>
-					<li><a href="mailto:elk-support@phil.uzh.ch">elk-support@phil.uzh.ch</a></li>
+					<li><a href="mailto:dlf-support@phil.uzh.ch">dlf-support@phil.uzh.ch</a></li>
 				</ul>
 			</div>
 		</div> <!-- closing  <div class="bodywidth"> or <div class="bodywidthsmall"> from header.php -->

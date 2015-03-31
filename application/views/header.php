@@ -36,7 +36,7 @@
 					</a>
                 </div>
 				<div id="olivlogo">
-					<a href="http://www.phil.uzh.ch/fakultaet/elearning.html">
+					<a href="http://www.phil.uzh.ch/fakultaet/dlf.html">
 						<img alt="oliv logo" height="80" src="<?php echo base_url('/assets/images/oliv.png'); ?>" width="133" />
 					</a>
                 </div>

@@ -77,7 +77,7 @@ class Admin extends CI_Controller {
         $this->load->model('user_mapper');
         $status = $this->user_mapper->create_user_from_request($pId);
         // redirect to user_requests admin interface
-        redirect(site_url() . '/admin/user_requests');
+        redirect(site_url() . 'admin/user_requests');
 	}
 
     private function _access_denied() {
