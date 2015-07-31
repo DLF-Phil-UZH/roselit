@@ -129,6 +129,13 @@ class User_mapper extends CI_Model {
         }
         return true;
     }
+	
+	// Sets 'lastLogin' in record of given user to current timestamp
+	public function setActiveTimestamp($pUserId){
+		$this->db->where("id", $pUserId);
+		$this->db->set("lastLogin", "NOW()", FALSE);
+		$this->db->update($this->table_users);
+	}
 
 	/**
 	 * TODO

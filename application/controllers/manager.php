@@ -20,6 +20,11 @@ class Manager extends CI_Controller {
 
 		// Check if user is admin for displaying navigation
 		$this->adminaccess = $this->user->isAdmin();
+		
+		// Set timestamp of last login to now (meant as last access to main site)
+		$this->load->model('User_mapper');
+		$this->User_mapper->setActiveTimestamp($this->user->getId());
+		// log_message('debug', "User " . $this->user->getId() . " is active");
 	}
 	
 	/**
